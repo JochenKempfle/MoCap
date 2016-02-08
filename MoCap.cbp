@@ -73,6 +73,8 @@
 		<Linker>
 			<Add option="-mthreads" />
 		</Linker>
+		<Unit filename="AnimationManager.cpp" />
+		<Unit filename="AnimationManager.h" />
 		<Unit filename="Bone.cpp" />
 		<Unit filename="Bone.h" />
 		<Unit filename="ConnectionDialog.cpp" />
@@ -86,6 +88,14 @@
 		<Unit filename="MoCapMain.h" />
 		<Unit filename="MoCapManager.cpp" />
 		<Unit filename="MoCapManager.h" />
+		<Unit filename="MotionSequence.cpp" />
+		<Unit filename="MotionSequence.h" />
+		<Unit filename="MotionSequenceChannel.cpp" />
+		<Unit filename="MotionSequenceChannel.h" />
+		<Unit filename="MotionSequenceFrame.cpp" />
+		<Unit filename="MotionSequenceFrame.h" />
+		<Unit filename="PostProcessPanel.cpp" />
+		<Unit filename="PostProcessPanel.h" />
 		<Unit filename="Quaternion.cpp" />
 		<Unit filename="Quaternion.h" />
 		<Unit filename="ScrolledContainerPanel.cpp" />
@@ -104,6 +114,18 @@
 		<Unit filename="SensorNode.h" />
 		<Unit filename="Skeleton.cpp" />
 		<Unit filename="Skeleton.h" />
+		<Unit filename="SkeletonCreatorPanel.cpp" />
+		<Unit filename="SkeletonCreatorPanel.h" />
+		<Unit filename="Timeline.cpp" />
+		<Unit filename="Timeline.h" />
+		<Unit filename="TimelineChannel.cpp" />
+		<Unit filename="TimelineChannel.h" />
+		<Unit filename="TimelinePanel.cpp" />
+		<Unit filename="TimelinePanel.h" />
+		<Unit filename="TimelineTrack.cpp" />
+		<Unit filename="TimelineTrack.h" />
+		<Unit filename="TreeItemBoneData.cpp" />
+		<Unit filename="TreeItemBoneData.h" />
 		<Unit filename="Vector3.cpp" />
 		<Unit filename="Vector3.h" />
 		<Unit filename="ViewPanel.cpp" />
@@ -131,6 +153,9 @@
 					<wxPanel wxs="wxsmith/SensorDataExtPanel.wxs" src="SensorDataExtPanel.cpp" hdr="SensorDataExtPanel.h" fwddecl="0" i18n="1" name="SensorDataExtPanel" language="CPP" />
 					<wxPanel wxs="wxsmith/SensorDetailPanel.wxs" src="SensorDetailPanel.cpp" hdr="SensorDetailPanel.h" fwddecl="0" i18n="1" name="SensorDetailPanel" language="CPP" />
 					<wxDialog wxs="wxsmith/ConnectionDialog.wxs" src="ConnectionDialog.cpp" hdr="ConnectionDialog.h" fwddecl="0" i18n="1" name="ConnectionDialog" language="CPP" />
+					<wxPanel wxs="wxsmith/SkeletonCreatorPanel.wxs" src="SkeletonCreatorPanel.cpp" hdr="SkeletonCreatorPanel.h" fwddecl="0" i18n="1" name="SkeletonCreatorPanel" language="CPP" />
+					<wxPanel wxs="wxsmith/PostProcessPanel.wxs" src="PostProcessPanel.cpp" hdr="PostProcessPanel.h" fwddecl="0" i18n="1" name="PostProcessPanel" language="CPP" />
+					<wxPanel wxs="wxsmith/TimelinePanel.wxs" src="TimelinePanel.cpp" hdr="TimelinePanel.h" fwddecl="0" i18n="1" name="TimelinePanel" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

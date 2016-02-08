@@ -4,7 +4,7 @@
  * Author:    Jochen Kempfle (j-kempfle@t-online.de)
  * Created:   2015-05-05
  * Copyright: Jochen Kempfle ()
- * License:   
+ * License:
  **************************************************************/
 
 #ifndef WX_PCH_H_INCLUDED
@@ -25,4 +25,4 @@
     // put here all your rarely-changing header files
 #endif // WX_PRECOMP
 
-#endif // WX_PCH_H_INCLUDED
+#endif // WX_PCH_H_INCLUDED

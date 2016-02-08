@@ -3,116 +3,80 @@
 	<object class="wxFrame" name="MoCapFrame">
 		<title>Motion Capturing</title>
 		<centered>1</centered>
+		<minsize>-1,-1</minsize>
 		<id_arg>0</id_arg>
 		<object class="wxBoxSizer" variable="FrameSizer" member="yes">
 			<object class="sizeritem">
 				<object class="wxPanel" name="ID_MAINPANEL" variable="MainPanel" member="yes">
 					<object class="wxBoxSizer" variable="MainSizer" member="yes">
+						<orient>wxVERTICAL</orient>
 						<object class="sizeritem">
 							<object class="wxBoxSizer" variable="BoxSizer2" member="no">
 								<orient>wxVERTICAL</orient>
 								<object class="sizeritem">
-									<object class="wxStaticBoxSizer" variable="StaticBoxSizer1" member="no">
-										<label>View Mode</label>
-										<orient>wxVERTICAL</orient>
-										<object class="sizeritem">
-											<object class="wxButton" name="ID_BUTTONSENSORDETAIL" variable="ButtonSensorDetail" member="yes">
-												<label>Sensor Detail</label>
-												<default>1</default>
-												<handler function="OnButtonSensorDetailClick" entry="EVT_BUTTON" />
+									<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
+										<style>wxSIMPLE_BORDER|wxTAB_TRAVERSAL</style>
+										<object class="wxBoxSizer" variable="BoxSizer1" member="no">
+											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONSKELETON" variable="ButtonSkeleton" member="yes">
+													<label>Skeleton</label>
+													<handler function="OnButtonSkeletonClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
 											</object>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-											<border>5</border>
-										</object>
-										<object class="sizeritem">
-											<object class="wxButton" name="ID_BUTTONVISUAL" variable="ButtonVisual" member="yes">
-												<label>Visual</label>
-												<hidden>1</hidden>
-												<handler function="OnButtonVisualClick" entry="EVT_BUTTON" />
+											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONSENSORDETAIL" variable="ButtonSensorDetail" member="yes">
+													<label>Sensor Info</label>
+													<handler function="OnButtonSensorDetailClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
 											</object>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-											<border>5</border>
-											<option>1</option>
-										</object>
-										<object class="sizeritem">
-											<object class="wxButton" name="ID_BUTTONFULLSCREEN" variable="ButtonFullScreen" member="yes">
-												<label>Full Screen</label>
-												<handler function="OnButtonFullScreenClick" entry="EVT_BUTTON" />
+											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONVISUAL" variable="ButtonVisual" member="yes">
+													<label>Visual</label>
+													<handler function="OnButtonVisualClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
 											</object>
-											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-											<border>5</border>
+											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONPOSTPROCESS" variable="ButtonPostProcess" member="yes">
+													<label>Post Process</label>
+													<handler function="OnButtonPostProcessClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+											</object>
+											<object class="spacer">
+												<flag>wxALL|wxFIXED_MINSIZE|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+												<option>1</option>
+												<size>300,-1</size>
+											</object>
+											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONFULLSCREEN" variable="ButtonFullScreen" member="yes">
+													<label>Full Screen</label>
+													<handler function="OnButtonFullScreenClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+											</object>
 										</object>
 									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-								</object>
-								<object class="spacer">
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-									<option>1</option>
-								</object>
-								<object class="sizeritem">
-									<object class="wxButton" name="ID_BUTTONSTART" variable="ButtonStart" member="yes">
-										<label>Start</label>
-										<hidden>1</hidden>
-										<handler function="OnButtonStartClick" entry="EVT_BUTTON" />
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-								</object>
-								<object class="sizeritem">
-									<object class="wxButton" name="ID_BUTTONSTOP" variable="ButtonStop" member="yes">
-										<label>Stop</label>
-										<hidden>1</hidden>
-										<handler function="OnButtonStopClick" entry="EVT_BUTTON" />
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-								</object>
-								<object class="sizeritem">
-									<object class="wxButton" name="ID_BUTTONAUTOASSIGN" variable="ButtonAutoAssign" member="yes">
-										<label>Auto Assign</label>
-										<hidden>1</hidden>
-										<handler function="OnButtonAutoAssignClick" entry="EVT_BUTTON" />
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-								</object>
-								<object class="sizeritem">
-									<object class="wxButton" name="ID_BUTTONCALIBRATE" variable="ButtonCalibrate" member="yes">
-										<label>Calibrate</label>
-										<hidden>1</hidden>
-										<handler function="OnButtonCalibrateClick" entry="EVT_BUTTON" />
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-								</object>
-								<object class="sizeritem">
-									<object class="wxButton" name="ID_BUTTONCONNECT" variable="ButtonConnect" member="yes">
-										<label>Connect</label>
-										<handler function="OnButtonConnectClick" entry="EVT_BUTTON" />
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-									<border>5</border>
-								</object>
-								<object class="sizeritem">
-									<object class="wxButton" name="ID_BUTTONDISCONNECT" variable="ButtonDisconnect" member="yes">
-										<label>Disconnect</label>
-										<hidden>1</hidden>
-										<handler function="OnButtonDisconnectClick" entry="EVT_BUTTON" />
-									</object>
-									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>
 								</object>
 							</object>
-							<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+							<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 							<border>5</border>
 						</object>
 						<object class="sizeritem">
 							<object class="wxBoxSizer" variable="DataPanelSizer" member="yes">
 								<object class="sizeritem">
 									<object class="wxPanel" name="ID_DATAPANEL" variable="DataPanel" member="yes" />
-									<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 									<border>5</border>
 									<option>1</option>
 								</object>
@@ -120,6 +84,30 @@
 							<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 							<border>5</border>
 							<option>1</option>
+						</object>
+						<object class="sizeritem">
+							<object class="wxBoxSizer" variable="BoxSizer3" member="no">
+								<object class="sizeritem">
+									<object class="wxPanel" name="ID_PANEL2" variable="Panel2" member="yes">
+										<style>wxSIMPLE_BORDER|wxTAB_TRAVERSAL</style>
+										<object class="wxBoxSizer" variable="BoxSizer4" member="no">
+											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONCONNECTION" variable="ButtonConnection" member="yes">
+													<label>Connection</label>
+													<handler function="OnButtonConnectionClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+											</object>
+										</object>
+									</object>
+									<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<border>5</border>
+									<option>1</option>
+								</object>
+							</object>
+							<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+							<border>5</border>
 						</object>
 					</object>
 				</object>
@@ -147,11 +135,6 @@
 					<handler function="OnAbout" entry="EVT_MENU" />
 				</object>
 			</object>
-		</object>
-		<object class="wxStatusBar" name="ID_STATUSBAR1" variable="StatusBar1" member="yes">
-			<fields>1</fields>
-			<widths>-1</widths>
-			<styles>wxSB_NORMAL</styles>
 		</object>
 	</object>
 </wxsmith>

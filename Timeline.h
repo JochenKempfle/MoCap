@@ -32,9 +32,11 @@ OF SUCH DAMAGE.
 
 #include "TimelineChannel.h"
 #include "TimelineTrack.h"
+#include "Skeleton.h"
 #include <vector>
 #include <map>
 #include <set>
+#include <string>
 
 class Timeline
 {
@@ -42,23 +44,43 @@ class Timeline
     Timeline();
     virtual ~Timeline();
 
-    void setChannelAffiliation(int channelId, int boneId);
-    int getChannelAffiliation(int channelId) const;
+    void setSkeletonToTime(unsigned int time);
 
+    void setSkeleton(Skeleton* skeleton);
+    Skeleton* getSkeleton();
+
+    void setChannelAffiliation(int channel, int boneId);
+    int getChannelAffiliation(int channelId) const;
+    std::string getChannelAffiliationName(int channelId) const;
+
+    // TODO(JK#1#): maybe make toChannel unsigned
     void insert(MotionSequence* sequence, int toChannel, unsigned int time);
     void insert(MotionSequenceChannel* channel, int toChannel, unsigned int time, std::string name = "");
-    void insert(const TimelineTrack &track, int toChannel, unsigned int time, std::string name = "");
+    void insert(const TimelineTrack &track, int toChannel, unsigned int time);
 
+    void moveChannelsDown(int startChannel, unsigned int numChannels);
     void moveTrack(int trackId, int toChannel, unsigned int toTime);
 
     bool erase(int trackId);
+
+    void clear();
 
     void swapChannels(int channel1, int channel2);
     void clearChannel(int channel);
     void sortChannels();
 
+    // cut the track at given absolute time point (if it covers the time point)
+    void cut(int trackId, unsigned int time);
+    // cut all tracks covering the given time point at this time point
+    void cut(unsigned int time);
+
     TimelineTrack* getTrack(int id);
     TimelineTrack* getTrack(int channel, unsigned int time);
+
+    TimelineTrack* getTrackBefore(int channel, unsigned int time);
+    TimelineTrack* getTrackAfter(int channel, unsigned int time);
+
+    bool isBetweenTwoTracks(int channel, unsigned int time) const;
 
     std::vector<TimelineTrack*> getInRange(int channel, unsigned int startTime, unsigned int endTime);
 

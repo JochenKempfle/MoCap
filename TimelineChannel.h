@@ -36,6 +36,7 @@ class TimelineChannel
 {
   public:
     TimelineChannel();
+    TimelineChannel(int position);
     virtual ~TimelineChannel();
 
     void setChannelPos(int pos);
@@ -43,6 +44,9 @@ class TimelineChannel
 
     void setBoneId(int boneId);
     int getBoneId() const;
+
+    void setDefaultOrientation(const Quaternion &orientation) { _defaultOrientation = orientation; }
+    Quaternion getDefaultOrientation() const { return _defaultOrientation; }
 
     // Insert a track at time point given in ms
     void insert(TimelineTrack* track, unsigned int time);
@@ -53,6 +57,11 @@ class TimelineChannel
     bool remove(int id, unsigned int timeHint = 0);
 
     void clear();
+
+    TimelineTrack* getTrackBefore(unsigned int time);
+    TimelineTrack* getTrackAfter(unsigned int time);
+
+    bool isBetweenTwoTracks(unsigned int time) const;
 
     // returns all tracks having a portion in the given range in ms
     std::vector<TimelineTrack*> getInRange(unsigned int startTime, unsigned int endTime);
@@ -65,6 +74,7 @@ class TimelineChannel
   private:
     int _channelPos;
     int _boneId;
+    Quaternion _defaultOrientation;
     std::map<unsigned int, TimelineTrack*> _tracks;
 };
 

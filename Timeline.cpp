@@ -39,29 +39,80 @@ Timeline::~Timeline()
     //dtor
 }
 
-void Timeline::setChannelAffiliation(int channelId, int boneId)
+void Timeline::setSkeletonToTime(unsigned int time)
 {
-    auto it = _channels.find(channelId);
-    // if channel not yet exists, do nothing
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        _skeleton.setRelBoneRotation(it->second.getBoneId(), it->second.getFrame(time).getOrientation());
+    }
+    _skeleton.update();
+}
+
+void Timeline::setSkeleton(Skeleton* skeleton)
+{
+    _skeleton = *skeleton;
+}
+
+Skeleton* Timeline::getSkeleton()
+{
+    return &_skeleton;
+}
+
+void Timeline::setChannelAffiliation(int channel, int boneId)
+{
+    // a negative bone id means "no bone". To store all not associated channels at one place, set all negative bone ids to -1
+    if (boneId < -1)
+    {
+        boneId = -1;
+    }
+    auto it = _channels.find(channel);
+    // if the channel did not exist yet, initialize it with the correct channel position
     if (it == _channels.end())
     {
-        return;
+        _channels[channel] = TimelineChannel(channel);
+        it = _channels.find(channel);
     }
-    int oldBoneId = it->second.getBoneId();
+    _boneToChannel[it->second.getBoneId()].erase(channel);
+    _boneToChannel[boneId].insert(channel);
     it->second.setBoneId(boneId);
-    _boneToChannel[oldBoneId].erase(channelId);
-    _boneToChannel[boneId].insert(channelId);
+    if (boneId < 0 || _skeleton.getBone(boneId) == nullptr)
+    {
+        it->second.setDefaultOrientation(Quaternion());
+    }
+    else
+    {
+        it->second.setDefaultOrientation(_skeleton.getBone(boneId)->getDefaultOrientation());
+    }
 }
 
 int Timeline::getChannelAffiliation(int channelId) const
 {
     auto it = _channels.find(channelId);
-    // if channel not yet exists, return -1
+    // if channel not yet exists, it also has no associated bone. Simply return -1
     if (it == _channels.end())
     {
         return -1;
     }
     return it->second.getBoneId();
+}
+
+std::string Timeline::getChannelAffiliationName(int channelId) const
+{
+    auto it = _channels.find(channelId);
+    // if channel not yet exists, it also has no associated bone. Simply return "None"
+    if (it == _channels.end())
+    {
+        return "None";
+    }
+    else if (it->second.getBoneId() < 0)
+    {
+        return "None";
+    }
+    else if (it->second.getBoneId() >= _skeleton.getNextFreeId())
+    {
+        return "Position";
+    }
+    return _skeleton.getBoneName(it->second.getBoneId());
 }
 
 void Timeline::insert(MotionSequence* sequence, int toChannel, unsigned int time)
@@ -72,40 +123,61 @@ void Timeline::insert(MotionSequence* sequence, int toChannel, unsigned int time
     }
     for (auto it = sequence->beginChannels(); it != sequence->endChannels(); ++it)
     {
-        insert(it->second, toChannel++, time);
+        insert(it->second, toChannel++, time, sequence->getName() + " " + it->second->getName());
     }
 }
 
 void Timeline::insert(MotionSequenceChannel* channel, int toChannel, unsigned int time, std::string name)
 {
     TimelineTrack* newTrack = new TimelineTrack(channel);
-    newTrack->setId(_nextTrackId++);
+    newTrack->setId(_nextTrackId);
     newTrack->setChannel(toChannel);
     newTrack->setName(name);
 
+    _tracks[_nextTrackId] = newTrack;
+
     // if the channel did not exist yet, initialize it with the correct channel position
-    if (_channels[toChannel].getChannelPos() != toChannel)
+    if (_channels.find(toChannel) == _channels.end())
     {
-        _channels[toChannel].setChannelPos(toChannel);
+        _channels[toChannel] = TimelineChannel(toChannel);
     }
 
     _channels[toChannel].insert(newTrack, time);
+    ++_nextTrackId;
 }
 
-void Timeline::insert(const TimelineTrack &track, int toChannel, unsigned int time, std::string name)
+void Timeline::insert(const TimelineTrack &track, int toChannel, unsigned int time)
 {
     TimelineTrack* newTrack = new TimelineTrack(track);
-    newTrack->setId(_nextTrackId++);
+    newTrack->setId(_nextTrackId);
     newTrack->setChannel(toChannel);
-    newTrack->setName(name);
 
-    // if the channel did not exist yet, initialize it with the correct channel position
-    if (_channels[toChannel].getChannelPos() != toChannel)
+    _tracks[_nextTrackId] = newTrack;
+
+    // if the channel does not exist yet, initialize it with the correct channel position
+    if (_channels.find(toChannel) == _channels.end())
     {
-        _channels[toChannel].setChannelPos(toChannel);
+        _channels[toChannel] = TimelineChannel(toChannel);
     }
 
     _channels[toChannel].insert(newTrack, time);
+    ++_nextTrackId;
+}
+
+void Timeline::moveChannelsDown(int startChannel, unsigned int num)
+{
+    for (auto it = _channels.rbegin(); it != _channels.rend(); ++it)
+    {
+        if (it->first < startChannel)
+        {
+            break;
+        }
+
+        int newPos = it->first + num;
+        _channels[newPos] = it->second;
+        _channels[newPos].setChannelPos(newPos);
+        it->second.clear();
+    }
 }
 
 void Timeline::moveTrack(int trackId, int toChannel, unsigned int toTime)
@@ -114,6 +186,11 @@ void Timeline::moveTrack(int trackId, int toChannel, unsigned int toTime)
     if (it == _tracks.end())
     {
         return;
+    }
+    // if the channel does not exist yet, initialize it with the correct channel position
+    if (_channels.find(toChannel) == _channels.end())
+    {
+        _channels[toChannel] = TimelineChannel(toChannel);
     }
 
     TimelineTrack* track = it->second;
@@ -136,6 +213,17 @@ bool Timeline::erase(int trackId)
     delete track;
 
     return true;
+}
+
+void Timeline::clear()
+{
+    for (auto it = _tracks.begin(); it != _tracks.end(); ++it)
+    {
+        delete it->second;
+    }
+    _tracks.clear();
+    _channels.clear();
+    _boneToChannel.clear();
 }
 
 void Timeline::swapChannels(int channel1, int channel2)
@@ -163,6 +251,37 @@ void Timeline::sortChannels()
 
 }
 
+void Timeline::cut(int trackId, unsigned int time)
+{
+    auto it = _tracks.find(trackId);
+    if (it == _tracks.end())
+    {
+        return;
+    }
+    if (time <= it->second->getStartTime())
+    {
+        return;
+    }
+    TimelineTrack newTrack;
+    if (it->second->cut(time - it->second->getStartTime(), &newTrack))
+    {
+        // TODO(JK#2#): cutting and inserting cutted track is not accurate and results in gaps. need higher time resolution
+        insert(newTrack, it->second->getChannel(), newTrack.getStartTime());
+    }
+}
+
+void Timeline::cut(unsigned int time)
+{
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        TimelineTrack* track = getTrack(it->second.getChannelPos(), time);
+        if (track != nullptr)
+        {
+            cut(track->getId(), time);
+        }
+    }
+}
+
 TimelineTrack* Timeline::getTrack(int id)
 {
     auto it = _tracks.find(id);
@@ -175,12 +294,52 @@ TimelineTrack* Timeline::getTrack(int id)
 
 TimelineTrack* Timeline::getTrack(int channel, unsigned int time)
 {
-    return _channels[channel].getTrack(time);
+    auto it = _channels.find(channel);
+    if (it == _channels.end())
+    {
+        return nullptr;
+    }
+    return it->second.getTrack(time);
+}
+
+TimelineTrack* Timeline::getTrackBefore(int channel, unsigned int time)
+{
+    auto it = _channels.find(channel);
+    if (it == _channels.end())
+    {
+        return nullptr;
+    }
+    return it->second.getTrackBefore(time);
+}
+
+TimelineTrack* Timeline::getTrackAfter(int channel, unsigned int time)
+{
+    auto it = _channels.find(channel);
+    if (it == _channels.end())
+    {
+        return nullptr;
+    }
+    return it->second.getTrackAfter(time);
+}
+
+bool Timeline::isBetweenTwoTracks(int channel, unsigned int time) const
+{
+    auto it = _channels.find(channel);
+    if (it == _channels.end())
+    {
+        return false;
+    }
+    return it->second.isBetweenTwoTracks(time);
 }
 
 std::vector<TimelineTrack*> Timeline::getInRange(int channel, unsigned int startTime, unsigned int endTime)
 {
-    return _channels[channel].getInRange(startTime, endTime);
+    auto it = _channels.find(channel);
+    if (it == _channels.end())
+    {
+        return std::vector<TimelineTrack*>();
+    }
+    return it->second.getInRange(startTime, endTime);
 }
 
 

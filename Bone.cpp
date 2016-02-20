@@ -32,24 +32,25 @@ OF SUCH DAMAGE.
 Bone::Bone() : _id(-1)
 {
     _parent = nullptr;
-    _useAbsOrientationForUpdate = false;
+    _useAbsOrientation = false;
 }
 
 Bone::Bone(int id) : _id(id)
 {
     _parent = nullptr;
-    _useAbsOrientationForUpdate = false;
+    _useAbsOrientation = false;
 }
 
 Bone::Bone(int id, const Bone &other) : _id(id)
 {
+    _name = other._name;
     _length = other._length;
     _absOrientation = other._absOrientation;
     _relOrientation = other._relOrientation;
-    _relDefaultOrientation = other._relDefaultOrientation;
+    _defaultOrientation = other._defaultOrientation;
     _startPos = other._startPos;
     _endPos = other._endPos;
-    _useAbsOrientationForUpdate = other._useAbsOrientationForUpdate;
+    _useAbsOrientation = other._useAbsOrientation;
     _parent = nullptr;
 }
 
@@ -139,37 +140,56 @@ bool Bone::hasChild(int id) const
 
 Bone& Bone::copyContent(const Bone &other)
 {
+    _name = other._name;
     _length = other._length;
     _absOrientation = other._absOrientation;
     _relOrientation = other._relOrientation;
-    _relDefaultOrientation = other._relDefaultOrientation;
+    _defaultOrientation = other._defaultOrientation;
     _startPos = other._startPos;
     _endPos = other._endPos;
-    _useAbsOrientationForUpdate = other._useAbsOrientationForUpdate;
+    _useAbsOrientation = other._useAbsOrientation;
     return *this;
 }
 
-void Bone::setAbsOrientation(const Quaternion &rotation)
+void Bone::setAbsOrientation(const Quaternion &orientation)
 {
     // TODO(JK#5#): set abs orientation can get corrupted if child gets updated before parent
-    _absOrientation = rotation.normalized();
-    _useAbsOrientationForUpdate = true;
+    _absOrientation = orientation.normalized() * _defaultOrientation.inv();
+    _useAbsOrientation = true;
 }
 
-void Bone::setRelOrientation(const Quaternion &rotation)
+void Bone::setRelOrientation(const Quaternion &orientation)
 {
-    _relOrientation = rotation.normalized();
-    _useAbsOrientationForUpdate = false;
+    _relOrientation = orientation.normalized();
+    _useAbsOrientation = false;
 }
 
-void Bone::setRelDefaultOrientation(const Quaternion &rotation)
+void Bone::setRelDefaultOrientation(const Quaternion &orientation)
 {
-    _relDefaultOrientation = rotation.normalized();
+    if (getParent() != nullptr)
+    {
+        _defaultOrientation = getParent()->getDefaultOrientation() * orientation.normalized();
+    }
+    else
+    {
+        _defaultOrientation = orientation.normalized();
+    }
+}
+
+void Bone::setDefaultOrientation(const Quaternion &orientation)
+{
+    _defaultOrientation = orientation.normalized();
+}
+
+void Bone::setDefaultOrientation(const Vector3 &direction)
+{
+    _defaultOrientation = Quaternion(Vector3(1.0, 0.0, 0.0), direction);
 }
 
 void Bone::rotate(const Quaternion &rotation)
 {
-    _relOrientation = _relOrientation * rotation;
+    _relOrientation = _relOrientation * _defaultOrientation * rotation.normalized() * _defaultOrientation.inv();
+    _relOrientation.normalize();
 }
 
 void Bone::rotate(double roll, double pitch, double yaw)
@@ -179,39 +199,40 @@ void Bone::rotate(double roll, double pitch, double yaw)
 
 void Bone::setCurrentOrientationAsDefault()
 {
-    _relDefaultOrientation = _relOrientation;
+    _defaultOrientation = _absOrientation * _defaultOrientation;
+    _defaultOrientation.normalize();
+    _relOrientation = Quaternion();
+    _absOrientation = Quaternion();
 }
 
 void Bone::update()
 {
-    if (_parent != nullptr)
+    if (_parent == nullptr)
     {
-        _startPos = _parent->getEndPos();
-        if (_useAbsOrientationForUpdate)
-        {
-            _relOrientation = _parent->getAbsOrientation().inv() * _absOrientation;
-            _useAbsOrientationForUpdate = false;
-        }
-        else
-        {
-            _absOrientation = _parent->getAbsOrientation() * _relOrientation;
-        }
-    }
-    else
-    {
-        if (_useAbsOrientationForUpdate)
+        if (_useAbsOrientation)
         {
             _relOrientation = _absOrientation;
-            _useAbsOrientationForUpdate = false;
+            _useAbsOrientation = false;
         }
         else
         {
             _absOrientation = _relOrientation;
         }
     }
-    Vector3 vec(1.0, 0.0, 0.0);
-    vec = _absOrientation.rotate(vec);
-    _endPos = vec.normalized() * _length + _startPos;
+    else
+    {
+        _startPos = _parent->getEndPos();
+        if (_useAbsOrientation)
+        {
+            _relOrientation = _parent->getAbsOrientation().inv() * _absOrientation;
+            _useAbsOrientation = false;
+        }
+        else
+        {
+            _absOrientation = _parent->getAbsOrientation() * _relOrientation;
+        }
+    }
+    _endPos = getDirection() * _length + _startPos;
 
     // update children
     for (size_t i = 0; i < _children.size(); ++i)
@@ -222,22 +243,16 @@ void Bone::update()
 
 Vector3 Bone::getDirection()
 {
-    Vector3 vec(1.0, 0.0, 0.0);
-    vec = _absOrientation.rotate(vec);
-    return vec.normalized();
+    return (_absOrientation * _defaultOrientation).rotate(Vector3(1.0, 0.0, 0.0));
 }
 
 Vector3 Bone::getUpDirection()
 {
-    Vector3 vec(0.0, 1.0, 0.0);
-    vec = _absOrientation.rotate(vec);
-    return vec.normalized();
+    return (_absOrientation * _defaultOrientation).rotate(Vector3(0.0, 1.0, 0.0));
 }
 
 Vector3 Bone::getRightDirection()
 {
-    Vector3 vec(0.0, 0.0, 1.0);
-    vec = _absOrientation.rotate(vec);
-    return vec.normalized();
+    return (_absOrientation * _defaultOrientation).rotate(Vector3(0.0, 0.0, 1.0));
 }
 

@@ -277,12 +277,12 @@ void SkeletonCreatorPanel::updateTreeCtrlSkeleton()
     // get all children in breadth first sorted order
     std::vector<Bone*> bones = root->getAllChildren();
 
-    _treeItemIdFromBoneId[root->getId()] = TreeCtrlSkeleton->AddRoot(theMoCapManager.getBoneNameFromId(root->getId()), -1, -1, new TreeItemBoneData(root->getId()));
+    _treeItemIdFromBoneId[root->getId()] = TreeCtrlSkeleton->AddRoot(theMoCapManager.getBoneName(root->getId()), -1, -1, new TreeItemBoneData(root->getId()));
 
     for (size_t i = 0; i < bones.size(); ++i)
     {
         // append new tree item (tree item parent is item id of parent of current bone)
-        _treeItemIdFromBoneId[bones[i]->getId()] = TreeCtrlSkeleton->AppendItem(_treeItemIdFromBoneId[bones[i]->getParent()->getId()], theMoCapManager.getBoneNameFromId(bones[i]->getId()), -1, -1, new TreeItemBoneData(bones[i]->getId()));
+        _treeItemIdFromBoneId[bones[i]->getId()] = TreeCtrlSkeleton->AppendItem(_treeItemIdFromBoneId[bones[i]->getParent()->getId()], theMoCapManager.getBoneName(bones[i]->getId()), -1, -1, new TreeItemBoneData(bones[i]->getId()));
     }
     TreeCtrlSkeleton->ExpandAll();
     TreeCtrlSkeleton->Refresh();
@@ -299,7 +299,7 @@ void SkeletonCreatorPanel::updateBoneInfo()
         return;
     }
 
-    TextCtrlName->SetLabel(theMoCapManager.getBoneNameFromId(bone->getId()));
+    TextCtrlName->SetLabel(theMoCapManager.getBoneName(bone->getId()));
     ChoiceParent->Clear();
 
     if (bone->getParent() != nullptr)
@@ -313,7 +313,7 @@ void SkeletonCreatorPanel::updateBoneInfo()
             // only append bones different than current bone
             if (bone != bones[i])
             {
-                int id = ChoiceParent->Append(theMoCapManager.getBoneNameFromId(bones[i]->getId()), bones[i]);
+                int id = ChoiceParent->Append(theMoCapManager.getBoneName(bones[i]->getId()), bones[i]);
                 // set selection to bones parent
                 if (bone->getParent() == bones[i])
                 {
@@ -355,6 +355,7 @@ void SkeletonCreatorPanel::OnGlCanvasLeftDown(wxMouseEvent& event)
             theMoCapManager.getSelectedBone()->rotate(0.0, -0.085, 0.0);
         }
         theMoCapManager.getSkeleton()->update();
+        //theMoCapManager.getSkeleton()->setCurrentAsDefault();
     }
     if (id < 0)
     {
@@ -380,7 +381,7 @@ void SkeletonCreatorPanel::selectBone(int id)
 
     theMoCapManager.selectBone(id);
 
-    TextCtrlName->SetValue(theMoCapManager.getBoneNameFromId(id));
+    TextCtrlName->SetValue(theMoCapManager.getBoneName(id));
     //ChoiceParent->SetSelection(theMoCapManager.getSkeleton()->getBone(id)->getParent());
 }
 

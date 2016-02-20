@@ -39,10 +39,19 @@ class Skeleton
 {
   public:
     Skeleton();
+    Skeleton(const Skeleton &other);
+    Skeleton(Skeleton &&other);
     virtual ~Skeleton();
 
     int createBone(int parent = -1);
     int createBone(const Bone& boneData, int parent = -1);
+
+    void setBoneName(int id, std::string name);
+    std::string getBoneName(int id) const;
+    std::vector<std::pair<int, std::string> > getBoneIdsWithName();
+
+    void setToDefault();
+    void setCurrentAsDefault();
 
     // Erase the bone specified by id. Set eraseChildren to true, to also erase all its children.
     // Returns true on success, false otherwise.
@@ -56,15 +65,17 @@ class Skeleton
 
     Bone* getBone(int id);
     bool setBoneData(int id, const Bone &boneData);
-    bool setBoneRotation(int id, const Quaternion &rotation);
-    int getNextFreeId() { return _nextId; }
+    bool setAbsBoneRotation(int id, const Quaternion &rotation);
+    bool setRelBoneRotation(int id, const Quaternion &rotation);
+    int getNextFreeId() const { return _nextId; }
     void update();
-    void setCurrentPoseAsDefault();
 
     void selectBone(int id) { _selectedBoneId = id; }
     void unselectBone() { _selectedBoneId = -1; }
     Bone* getSelectedBone() { return getBone(_selectedBoneId); }
     int getSelectedBoneId() const { return _selectedBoneId; }
+
+    Skeleton& operator=(Skeleton other);
 
     std::map<int, Bone*>::iterator beginBones() { return _bones.begin(); }
     std::map<int, Bone*>::iterator endBones() { return _bones.end(); }

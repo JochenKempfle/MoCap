@@ -128,21 +128,22 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     ButtonSensorDetail = new wxButton(Panel1, ID_BUTTONSENSORDETAIL, _("Sensor Info"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSENSORDETAIL"));
     BoxSizer1->Add(ButtonSensorDetail, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonVisual = new wxButton(Panel1, ID_BUTTONVISUAL, _("Visual"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONVISUAL"));
+    ButtonVisual->SetFocus();
     BoxSizer1->Add(ButtonVisual, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonPostProcess = new wxButton(Panel1, ID_BUTTONPOSTPROCESS, _("Post Process"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONPOSTPROCESS"));
     BoxSizer1->Add(ButtonPostProcess, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer1->Add(300,-1,1, wxALL|wxFIXED_MINSIZE|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer1->Add(300,-1,1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxFIXED_MINSIZE, 5);
     ButtonFullScreen = new wxButton(Panel1, ID_BUTTONFULLSCREEN, _("Full Screen"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONFULLSCREEN"));
     BoxSizer1->Add(ButtonFullScreen, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Panel1->SetSizer(BoxSizer1);
     BoxSizer1->Fit(Panel1);
     BoxSizer1->SetSizeHints(Panel1);
-    BoxSizer2->Add(Panel1, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    MainSizer->Add(BoxSizer2, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer2->Add(Panel1, 0, wxEXPAND, 5);
+    MainSizer->Add(BoxSizer2, 0, wxEXPAND, 5);
     DataPanelSizer = new wxBoxSizer(wxHORIZONTAL);
     DataPanel = new wxPanel(MainPanel, ID_DATAPANEL, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_DATAPANEL"));
-    DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    MainSizer->Add(DataPanelSizer, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND, 5);
+    MainSizer->Add(DataPanelSizer, 1, wxEXPAND, 5);
     BoxSizer3 = new wxBoxSizer(wxHORIZONTAL);
     Panel2 = new wxPanel(MainPanel, ID_PANEL2, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER|wxTAB_TRAVERSAL, _T("ID_PANEL2"));
     BoxSizer4 = new wxBoxSizer(wxHORIZONTAL);
@@ -151,12 +152,12 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     Panel2->SetSizer(BoxSizer4);
     BoxSizer4->Fit(Panel2);
     BoxSizer4->SetSizeHints(Panel2);
-    BoxSizer3->Add(Panel2, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    MainSizer->Add(BoxSizer3, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer3->Add(Panel2, 1, wxEXPAND, 5);
+    MainSizer->Add(BoxSizer3, 0, wxEXPAND, 5);
     MainPanel->SetSizer(MainSizer);
     MainSizer->Fit(MainPanel);
     MainSizer->SetSizeHints(MainPanel);
-    FrameSizer->Add(MainPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    FrameSizer->Add(MainPanel, 1, wxEXPAND, 5);
     SetSizer(FrameSizer);
     MenuBar1 = new wxMenuBar();
     Menu1 = new wxMenu();
@@ -352,7 +353,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
     wxLogDebug(msg);
 */
 
-    // TODO(JK#1#): handle setting of id for sensor node (and data)
+    // TODO(JK#2#): handle setting of id for sensor node (and data)
     wxString name = sensorAddress.IPAddress() + _("-");
     name << data.id;
 

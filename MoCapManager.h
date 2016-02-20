@@ -73,7 +73,7 @@ class MoCapManager
     int getBoneIdFromSensorId(int sensorId);
 
     void selectBone(int id) { _skeleton.selectBone(id); }
-    void selectBone(Bone bone) { _skeleton.selectBone(bone.getId()); }
+    void selectBone(Bone* bone) { _skeleton.selectBone(bone->getId()); }
     void unselectBone() { _skeleton.unselectBone(); }
     Bone* getSelectedBone() { return _skeleton.getSelectedBone(); }
     int getSelectedBoneId() const { return _skeleton.getSelectedBoneId(); }
@@ -84,41 +84,31 @@ class MoCapManager
     void setState(ProgramState state) { _state = state; }
     unsigned char getState() const { return _state; }
 
-    void setRenderStyle(unsigned char flags) { _renderStyle = flags; }
-    void setRenderStyleFlag(unsigned char flags) { _renderStyle |= flags; }
-    void unsetRenderStyleFlag(unsigned char flags) { _renderStyle &= ~flags; }
-    unsigned char getRenderStyle() const { return _renderStyle; }
-
-    void assignNameToBone(std::string name, int boneId);
+    void setBoneName(int boneId, std::string name);
 
     std::vector<int> getBoneIds();
     std::vector<std::pair<int, std::string> > getBoneIdsWithName();
-    std::string getBoneNameFromId(int id);
+    std::string getBoneName(int id);
 
     void resetSkeleton();
 
     void autoAssign();
     void calibrate();
-    // TODO(JK#4#): maybe create a renderer
+
     void update();
-    void render();
 
   protected:
     static MoCapManager* _moCapManager;
 
-    void drawSpinArrows(Vector3 pos, Vector3 dir, Vector3 up, Vector3 right);
     void createSkeleton();
 
   private:
     std::map<int, int> _boneIdFromSensorId;
     std::map<int, int> _sensorIdFromBoneId;
-    std::map<int, std::string> _boneNameFromId;
     Skeleton _skeleton;
     int _selectedBoneId;
 
     unsigned char _state;
-    unsigned char _renderStyle;
-    int _rShoulderId, _lShoulderId, _rHipId, _lHipId;
 };
 
 #endif // MoCapManager_H

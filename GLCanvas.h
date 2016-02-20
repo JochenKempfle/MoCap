@@ -31,6 +31,7 @@ OF SUCH DAMAGE.
 #define GLCANVAS_H
 
 #include <wx/glcanvas.h>
+#include "GLImage.h"
 #include "Skeleton.h"
 #include "Vector3.h"
 
@@ -92,6 +93,7 @@ class GLCanvas : public wxGLCanvas
     Vector3 _cameraUp;
 
     Skeleton* _skeleton;
+    GLImage _image;
 
     unsigned char _renderStyle;
 

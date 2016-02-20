@@ -76,7 +76,7 @@ class SensorManager
     std::map<int, SensorNode> _sensors;
     std::vector<SensorNode> _previousSensorData;
     // TODO(JK#2#): implement a buffer for retrieved sensor data, queue should do the job
-    std::vector<std::queue<SensorNode> > _sensorBuffer;
+    std::map<int, std::queue<SensorNode> > _sensorBuffer;
     int _currentBufferPos;
     int _bufferSize;
 };

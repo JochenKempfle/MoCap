@@ -33,7 +33,6 @@ OF SUCH DAMAGE.
 #include "MotionSequence.h"
 #include "MotionSequenceChannel.h"
 
-// TODO(JK#3#): delete MotionTrack
 class TimelineTrack
 {
   public:
@@ -53,6 +52,7 @@ class TimelineTrack
 
     void setStartTime(unsigned int startTime);
     unsigned int getStartTime() const;
+    unsigned int getEndTime() const;
 
     int getLength() const;
     int getMaxLength() const;
@@ -72,6 +72,10 @@ class TimelineTrack
     void setFrames(const std::vector<MotionSequenceFrame> &frames);
     void appendFrames(const std::vector<MotionSequenceFrame> &frames);
     void appendFrame(const MotionSequenceFrame &frame);
+
+    size_t getNumFrames() const;
+
+    bool cut(unsigned int time, TimelineTrack* newTrack = nullptr);
 
     MotionSequenceFrame getFrameFromAbsTime(unsigned int time) const;
     MotionSequenceFrame getFrameFromRelTime(unsigned int time) const;

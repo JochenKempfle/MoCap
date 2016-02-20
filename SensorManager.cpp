@@ -76,10 +76,10 @@ void SensorManager::updateSensor(std::string IPAddress, const SensorData &data)
     }
     // TODO(JK#9#): maybe call updateSensor(int, data) here to avoid code duplication (is slower!)
     _sensors[id].update(data);
-    // TODO(JK#1#): adapt sensor data axis orientation to GL orientation
+    // TODO(JK#2#): adapt sensor data axis orientation to GL orientation
     // the sensors z-axis points in the direction of screens y-axis, so rotate first
     Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
-    _sensors[id].setRotation(x*_sensors[id].getRotation()*x.inv());
+    _sensors[id].setRotation(/*x*/_sensors[id].getRotation()/*x.inv()*/);
     _sensors[id].setUpdated(true);
 }
 
@@ -91,7 +91,7 @@ bool SensorManager::updateSensor(int id, const SensorData &data)
     if (it != _sensors.end())
     {
         it->second.update(data);
-        it->second.setRotation(x*it->second.getRotation()*x.inv());
+        it->second.setRotation(/*x*/it->second.getRotation()/*x.inv()*/);
         it->second.setUpdated(true);
         return true;
     }

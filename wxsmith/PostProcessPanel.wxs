@@ -2,8 +2,6 @@
 <wxsmith>
 	<object class="wxPanel" name="PostProcessPanel">
 		<id_arg>0</id_arg>
-		<handler function="OnLeftUp" entry="EVT_LEFT_UP" />
-		<handler function="OnMouseMove" entry="EVT_MOTION" />
 		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
 			<orient>wxVERTICAL</orient>
 			<object class="sizeritem">
@@ -183,8 +181,9 @@
 												<border>5</border>
 											</object>
 											<object class="sizeritem">
-												<object class="wxCheckBox" name="ID_CHECKBOXSELECTCHILDREN" variable="CheckBoxSelectChildren" member="yes">
-													<label>also add children</label>
+												<object class="wxCheckBox" name="ID_CHECKBOXSELECTALL" variable="CheckBoxSelectAll" member="yes">
+													<label>add all channels</label>
+													<checked>1</checked>
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
@@ -258,8 +257,10 @@
 														<border>5</border>
 													</object>
 													<object class="sizeritem">
-														<object class="wxSpinCtrl" name="ID_SPINCTRL1" variable="SpinCtrl1" member="yes">
+														<object class="wxSpinCtrl" name="ID_SPINCTRLYAW" variable="SpinCtrlYaw" member="yes">
 															<value>0</value>
+															<max>360</max>
+															<style>wxSP_ARROW_KEYS</style>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
@@ -272,8 +273,10 @@
 														<border>5</border>
 													</object>
 													<object class="sizeritem">
-														<object class="wxSpinCtrl" name="ID_SPINCTRL2" variable="SpinCtrl2" member="yes">
+														<object class="wxSpinCtrl" name="ID_SPINCTRLPITCH" variable="SpinCtrlPitch" member="yes">
 															<value>0</value>
+															<max>360</max>
+															<style>wxSP_ARROW_KEYS</style>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
@@ -286,8 +289,10 @@
 														<border>5</border>
 													</object>
 													<object class="sizeritem">
-														<object class="wxSpinCtrl" name="ID_SPINCTRL3" variable="SpinCtrl3" member="yes">
+														<object class="wxSpinCtrl" name="ID_SPINCTRLROLL" variable="SpinCtrlRoll" member="yes">
 															<value>0</value>
+															<max>360</max>
+															<style>wxSP_ARROW_KEYS</style>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>

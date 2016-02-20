@@ -122,8 +122,16 @@ class Quaternion
     Quaternion  normalized () const;
     Quaternion& normalize ();
 
-    double innerProduct(const Quaternion &other) const;
+    double dot(const Quaternion &other) const;
     float getShortestAngleTo(const Quaternion &other) const;
+
+    Quaternion lerp(const Quaternion &other, float t) const;
+    Quaternion slerp(const Quaternion &other, double t) const;
+
+    void decomposeSwingTwist(const Vector3 &direction, Quaternion* swing, Quaternion* twist) const;
+
+    Quaternion operator*(float val) const;
+    Quaternion operator+(const Quaternion &other) const;
 
     void operator/= (float x);
     Quaternion& operator= (const Quaternion& other);

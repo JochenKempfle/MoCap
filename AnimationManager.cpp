@@ -55,6 +55,20 @@ AnimationManager& AnimationManager::getInstance()
     return *_animationManager;
 }
 
+Skeleton* AnimationManager::getSequenceSkeleton(int sequenceId)
+{
+    if (sequenceId < 0 || sequenceId >= int(_projectSequences.size()))
+    {
+        return nullptr;
+    }
+    return _projectSequences[sequenceId]->getSkeleton();
+}
+
+Skeleton* AnimationManager::getTimelineSkeleton()
+{
+    return _timeline.getSkeleton();
+}
+
 int AnimationManager::addProjectSequence(MotionSequence* sequence)
 {
     _projectSequences.push_back(sequence);
@@ -75,9 +89,193 @@ const std::vector<MotionSequence*>& AnimationManager::getProjectSequences()
     return _projectSequences;
 }
 
+void AnimationManager::addSequenceToTimeline(int sequenceId, unsigned int targetChannel, unsigned int time)
+{
+    _timeline.insert(_projectSequences[sequenceId], targetChannel, time);
+}
+
+void AnimationManager::addChannelsToTimeline(int sequenceId, std::vector<int> channels, unsigned int targetChannel, unsigned int time)
+{
+    MotionSequence* sequence = _projectSequences[sequenceId];
+    for (size_t i = 0; i < channels.size(); ++i)
+    {
+        MotionSequenceChannel* channel = sequence->getChannel(channels[i]);
+        _timeline.insert(channel, targetChannel, time, sequence->getName() + ": " + channel->getName());
+        ++targetChannel;
+    }
+}
+
+void AnimationManager::addTrackToTimeline(const TimelineTrack &track, unsigned int targetChannel, unsigned int time)
+{
+    _timeline.insert(track, targetChannel, time);
+}
+
 Skeleton* AnimationManager::readSkeletonFromBVH(wxString filename)
 {
+    if (!wxFileExists(filename))
+    {
+        return nullptr;
+    }
+    wxFileInputStream input(filename);
+    wxTextInputStream textIn(input);
 
+    if (!input.IsOk() || input.Eof())
+    {
+        return nullptr;
+    }
+
+    Skeleton* skeleton = new Skeleton();
+
+    int numOpenBraces = 0;
+    bool rootSeen = false;
+    bool endSite = false;
+
+    int currentChannel = -1;
+
+    wxStringTokenizer tokenizer;
+
+    tokenizer.SetString(textIn.ReadLine());
+    if (!tokenizer.GetNextToken().IsSameAs(_("HIERARCHY")))
+    {
+        delete skeleton;
+        return nullptr;
+    }
+
+    while (input.IsOk() && !input.Eof())
+    {
+        tokenizer.SetString(textIn.ReadLine());
+
+        wxString token = tokenizer.GetNextToken();
+        if (token.IsSameAs(_("ROOT")))
+        {
+            // no multiple skeletons per bvh file supported
+            if (rootSeen)
+            {
+                delete skeleton;
+                return nullptr;
+            }
+            rootSeen = true;
+            currentChannel = skeleton->createBone(-1);
+            // currentChannel = sequence->getChannel(id);
+            wxString name = tokenizer.GetNextToken();
+            while (tokenizer.HasMoreTokens())
+            {
+                name << _(" ") << tokenizer.GetNextToken();
+            }
+
+            // if there is no name, store "Root Joint"
+            if (name.size() == 0)
+            {
+                name << _("Root Joint");
+            }
+            // store name along with bone data from BVH
+            skeleton->getBone(currentChannel)->setName(name.ToStdString());
+        }
+        else if (token.IsSameAs(_("JOINT")))
+        {
+            currentChannel = skeleton->createBone(currentChannel);
+            // currentChannel = sequence->getChannel(id);
+            wxString name = tokenizer.GetNextToken();
+            while (tokenizer.HasMoreTokens())
+            {
+                name << _(" ") << tokenizer.GetNextToken();
+            }
+
+            // if there is no name, store "Joint" + id
+            if (name.size() == 0)
+            {
+                name << _("Joint ") << currentChannel;
+            }
+            // store name along with bone data from BVH
+            skeleton->getBone(currentChannel)->setName(name.ToStdString());
+        }
+        else if (token.IsSameAs(_("OFFSET")))
+        {
+            Vector3 offset;
+            double val;
+            for (size_t i = 0; i < 3; ++i)
+            {
+                tokenizer.GetNextToken().ToDouble(&val);
+                offset(i) = val;
+            }
+            Bone* parentBone = skeleton->getBone(currentChannel)->getParent();
+            int parentBoneId = -1;
+            if (parentBone != nullptr)
+            {
+                parentBoneId = parentBone->getId();
+            }
+            // check if this is the endeffector channel in the hierarchy
+            if (!endSite)
+            {
+                // MotionSequenceFrame pose(Quaternion(), offset);
+                // sequence->getChannel(currentChannel)->setInitialPose(pose);
+                if (parentBone != nullptr)
+                {
+                    skeleton->getBone(currentChannel)->setStartPos(parentBone->getStartPos() + offset);
+                }
+                else
+                {
+                    skeleton->getBone(currentChannel)->setStartPos(offset);
+                }
+            }
+            else
+            {
+                parentBoneId = currentChannel;
+            }
+            if (parentBone != nullptr)
+            {
+                // TODO(JK#3#): in bvh file the bone length can have a factor of 100 or of 1...
+                offset /= 100.0;
+                skeleton->getBone(parentBoneId)->setDefaultOrientation(offset);
+                skeleton->getBone(parentBoneId)->setLength(offset.norm());
+            }
+        }
+        else if (token.IsSameAs(_("{")))
+        {
+            ++numOpenBraces;
+        }
+        else if (token.IsSameAs(_("}")))
+        {
+            --numOpenBraces;
+            if (endSite)
+            {
+                endSite = false;
+            }
+            else
+            {
+                Bone* parentBone = skeleton->getBone(currentChannel)->getParent();
+                if (parentBone != nullptr)
+                {
+                    currentChannel = parentBone->getId();
+                }
+                else
+                {
+                    // numOpenBraces has to be zero when root is reached. If not, something went wrong while parsing the file
+                    if (numOpenBraces != 0)
+                    {
+                        delete skeleton;
+                        return nullptr;
+                    }
+                }
+            }
+        }
+        else if (token.IsSameAs(_("CHANNELS")))
+        {
+            continue;
+        }
+        else if (token.IsSameAs(_("End")) && tokenizer.GetNextToken().Matches(_("Site*")))
+        {
+            endSite = true;
+        }
+        else if (token.IsSameAs(_("MOTION")))
+        {
+            // reading the skeleton is finished, update the skeleton and break the loop to return the skeleton
+            skeleton->update();
+            break;
+
+        }
+    }
+    return skeleton;
 }
 
 MotionSequence* AnimationManager::readBVH(wxString filename)
@@ -142,27 +340,39 @@ MotionSequence* AnimationManager::readBVH(wxString filename)
                 rootSeen = true;
                 currentChannel = sequence->createChannel(-1);
                 // currentChannel = sequence->getChannel(id);
-                // TODO(JK#3#): if there is no name store Joint + id
                 wxString name = tokenizer.GetNextToken();
                 while (tokenizer.HasMoreTokens())
                 {
                     name << _(" ") << tokenizer.GetNextToken();
                 }
+
+                // if there is no name, store "Root Joint"
+                if (name.size() == 0)
+                {
+                    name << _("Root Joint");
+                }
                 // store name along with bone data from BVH
                 sequence->getChannel(currentChannel)->setName(name.ToStdString());
+                sequence->getSkeleton()->getBone(currentChannel)->setName(name.ToStdString());
             }
             else if (token.IsSameAs(_("JOINT")))
             {
                 currentChannel = sequence->createChannel(currentChannel);
                 // currentChannel = sequence->getChannel(id);
-                // TODO(JK#3#): if there is no name store Joint + id
                 wxString name = tokenizer.GetNextToken();
                 while (tokenizer.HasMoreTokens())
                 {
                     name << _(" ") << tokenizer.GetNextToken();
                 }
+
+                // if there is no name, store "Joint" + id
+                if (name.size() == 0)
+                {
+                    name << _("Joint ") << currentChannel;
+                }
                 // store name along with bone data from BVH
                 sequence->getChannel(currentChannel)->setName(name.ToStdString());
+                sequence->getSkeleton()->getBone(currentChannel)->setName(name.ToStdString());
             }
             else if (token.IsSameAs(_("OFFSET")))
             {
@@ -200,14 +410,9 @@ MotionSequence* AnimationManager::readBVH(wxString filename)
                 }
                 if (sequence->getChannel(parentChannel) != nullptr)
                 {
-                    offset /= 100.0;// offset - sequence->getSkeleton()->getBone(parentChannel)->getStartPos();
-                    // MotionSequenceFrame parentPose = sequence->getChannel(parentChannel)->getInitialPose();
-                    // TODO(JK#7#): how to retrieve quaternion from incomplete orientation data in BVH?
-                    Quaternion orientation(Vector3(1.0, 0.0, 0.0), offset);
-                    // parentPose.setOrientation(orientation);
-                    // sequence->getChannel(parentChannel)->setInitialPose(parentPose);
-                    // sequence->getChannel(parentChannel)->setBoneLength(offset.norm());
-                    sequence->getSkeleton()->getBone(parentChannel)->setAbsOrientation(orientation);
+                    // TODO(JK#3#): in bvh file the bone length can have a factor of 100 or of 1...
+                    offset /= 100.0;
+                    sequence->getSkeleton()->getBone(parentChannel)->setDefaultOrientation(offset);
                     sequence->getSkeleton()->getBone(parentChannel)->setLength(offset.norm());
                 }
             }
@@ -275,7 +480,7 @@ MotionSequence* AnimationManager::readBVH(wxString filename)
                 }
                 channelInfo.push_back(std::make_pair(currentChannel, currentChannelInfo));
             }
-            else if (token.IsSameAs(_("End")) && tokenizer.GetNextToken().IsSameAs(_("Site")))
+            else if (token.IsSameAs(_("End")) && tokenizer.GetNextToken().Matches(_("Site*")))
             {
                 endSite = true;
             }
@@ -283,7 +488,7 @@ MotionSequence* AnimationManager::readBVH(wxString filename)
             {
                 // reading the skeleton is finished, update the skeleton and set its current pose as default
                 sequence->getSkeleton()->update();
-                sequence->getSkeleton()->setCurrentPoseAsDefault();
+                //sequence->getSkeleton()->setCurrentAsDefault();
 
                 // go to next section (motion data part)
                 ++section;
@@ -317,16 +522,18 @@ MotionSequence* AnimationManager::readBVH(wxString filename)
                     int numFrames = sequence->getChannel(channelInfo[channelPos].first)->getNumFrames();
                     if (numFrames >= 0)
                     {
-                        frameOrientation = frameOrientation * sequence->getSkeleton()->getBone(channelInfo[channelPos].first)->getRelDefaultOrientation();
+                        //frameOrientation = frameOrientation * sequence->getSkeleton()->getBone(channelInfo[channelPos].first)->getRelDefaultOrientation();
                     }
                     else
                     {
-                        frameOrientation = sequence->getChannel(channelInfo[channelPos].first)->getFrame(numFrames - 1).getOrientation() * frameOrientation;
+                        //frameOrientation = sequence->getChannel(channelInfo[channelPos].first)->getFrame(numFrames - 1).getOrientation() * frameOrientation;
                     }
 
                     MotionSequenceFrame frame(frameOrientation);
                     if (frameHasPosition)
                     {
+                        // TODO(JK#3#): in bvh file the frame position can have a factor of 100 or of 1...
+                        framePosition /= 100.0f;
                         frame.setPosition(framePosition);
                     }
                     // append current frame to current channel

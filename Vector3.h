@@ -315,7 +315,7 @@ class Vector3
 
     Vector3& rotate_IP (double roll, double pitch, double yaw);
 
-    //    void read (unsigned char * src, unsigned int size);
+    // void read (unsigned char * src, unsigned int size);
     std::istream& read(std::istream &s);
     std::ostream& write(std::ostream &s) const;
     std::istream& readBinary(std::istream &s);

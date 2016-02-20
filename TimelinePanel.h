@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include <vector>
 #include "TimelineTrack.h"
+#include "GLCanvas.h"
 
 #ifndef WX_PRECOMP
 	//(*HeadersPCH(TimelinePanel)
@@ -58,6 +59,17 @@ class TimelinePanel: public wxPanel
 		wxButton* ButtonCut;
 		//*)
 
+		void prepareAddingSequence(int sequence, const std::vector<int> &channels);
+		void prepareAddingFrame(const MotionSequenceFrame &frame);
+
+		void setCursorPosition(int time);
+		int getCursorPosition() const { return _cursorPosition; }
+
+		void update();
+
+		void setGLCanvas(GLCanvas* glCanvas) { _glCanvas = glCanvas; }
+
+
 	protected:
 
 		//(*Identifiers(TimelinePanel)
@@ -81,19 +93,57 @@ class TimelinePanel: public wxPanel
 		void OnMouseEnter(wxMouseEvent& event);
 		void OnMouseLeave(wxMouseEvent& event);
 		void OnKillFocus(wxFocusEvent& event);
+		void OnButtonCutClick(wxCommandEvent& event);
+		void OnRightDown(wxMouseEvent& event);
 		//*)
+        void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+        void OnPopupClick(wxCommandEvent& event);
 
-		void prepareAddingSequence(MotionSequence* sequence);
-		void prepareAddingSequence(MotionSequenceChannel* channel);
-		void prepareAddingFrame(MotionSequenceFrame frame);
+        void showPopUp();
+
+		void endDragDrop();
+
+		GLCanvas* _glCanvas;
+
+        int getLengthFromTime(int time) const;
+        int getLengthFromTime(float time) const;
+        int getPositionFromTime(int time) const;
+        // returns the time point at which the given point will be in current setting (zoom factor, time offset)
+        // always check if time is negative, this means the point is before the beginning and therefore invalid
+        int getTimeFromPosition(wxPoint pos) const;
+        int getChannelFromPosition(wxPoint pos) const;
+        int getPositionFromChannel(int channel) const;
+
+		void drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const;
 
 		int _msPerTimeUnit;
 		int _timeOffset;
 		int _channelOffset;
 		int _cursorPosition;
 
+		// the x offset of the mouse to the beginning of a track (when clicked and dragged)
+		int _mouseToTrackOffset;
+
         bool _clickedTime;
+        // TODO(JK#3#): remove _clickedChannel if not needed
         int _clickedChannel;
+
+        int _selectedTrack;
+
+        bool _dragging;
+        bool _dragIsValid;
+        int _draggedTrackPos;
+        int _draggedTrackChannel;
+        int _draggedTrackLength;
+
+        bool _interpolationPossible;
+        int _interpolationStartTime;
+        int _interpolationEndTime;
+        int _interpolationChannel;
+
+        int _sequenceToAdd;
+        TimelineTrack _trackToAdd;
+        std::vector<int> _channelsToAdd;
 
 		// std::vector<std::vector<MotionTrack> > _channelContent;
 
@@ -103,6 +153,12 @@ class TimelinePanel: public wxPanel
         const int _channelHeight = 40;
         const int _channelOptionsWidth = 100;
         const int _numPixelsPerTimeUnit = 100;
+
+        const int _timelineStartX = _channelOptionsWidth + 1;
+        const int _timelineStartY = _optionsHeight + _timeHeight;
+
+        // const int timeResolution = 1000;
+        const int _maxTime = 42000000;
 
 		DECLARE_EVENT_TABLE()
 };

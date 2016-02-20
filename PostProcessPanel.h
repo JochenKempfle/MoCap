@@ -63,28 +63,28 @@ class PostProcessPanel: public wxPanel
 		//(*Declarations(PostProcessPanel)
 		wxStaticText* StaticText10;
 		wxGenericDirCtrl* GenericDirCtrl;
+		wxSpinCtrl* SpinCtrlRoll;
 		wxButton* Button4;
 		wxSlider* Slider2;
-		wxSpinCtrl* SpinCtrl1;
 		wxPanel* PanelDragDropSequence;
 		wxButton* Button1;
 		wxGridSizer* GridSizerSequenceInfo;
+		wxSpinCtrl* SpinCtrlYaw;
 		wxStaticText* StaticTextFPS;
 		wxPanel* PanelDragDropFrame;
 		wxStaticText* StaticText11;
 		wxStaticText* StaticTextFrames;
 		wxStaticText* StaticTextLength;
 		wxStaticText* StaticText1;
+		wxCheckBox* CheckBoxSelectAll;
 		wxStaticText* StaticText3;
 		wxButton* Button2;
 		wxTreeCtrl* TreeCtrlSkeleton;
+		wxSpinCtrl* SpinCtrlPitch;
 		wxButton* Button5;
 		wxButton* Button3;
-		wxSpinCtrl* SpinCtrl3;
 		wxStaticText* StaticText5;
 		TimelinePanel* timelinePanel;
-		wxCheckBox* CheckBoxSelectChildren;
-		wxSpinCtrl* SpinCtrl2;
 		wxListBox* ListBoxSequences;
 		wxToggleButton* ToggleButtonTimeline;
 		wxButton* ButtonPlay;
@@ -111,21 +111,22 @@ class PostProcessPanel: public wxPanel
 		static const long ID_STATICTEXTFPS;
 		static const long ID_STATICTEXT5;
 		static const long ID_STATICTEXTLENGTH;
-		static const long ID_CHECKBOXSELECTCHILDREN;
+		static const long ID_CHECKBOXSELECTALL;
 		static const long ID_PANELDRAGDROPSEQUENCE;
 		static const long ID_BUTTON2;
 		static const long ID_BUTTON3;
 		static const long ID_BUTTON5;
 		static const long ID_STATICTEXT1;
-		static const long ID_SPINCTRL1;
+		static const long ID_SPINCTRLYAW;
 		static const long ID_STATICTEXT10;
-		static const long ID_SPINCTRL2;
+		static const long ID_SPINCTRLPITCH;
 		static const long ID_STATICTEXT11;
-		static const long ID_SPINCTRL3;
+		static const long ID_SPINCTRLROLL;
 		static const long ID_BUTTON1;
 		static const long ID_PANELDRAGDROPFRAME;
 		static const long ID_TIMELINE;
 		//*)
+        static const long ID_TIMER;
 
 	private:
 
@@ -139,11 +140,10 @@ class PostProcessPanel: public wxPanel
 		void OnListBoxSequencesSelect(wxCommandEvent& event);
 		void OnPanelDragDropSequenceLeftDown(wxMouseEvent& event);
 		void OnPanelDragDropFrameLeftDown(wxMouseEvent& event);
-		void OnMouseMove(wxMouseEvent& event);
-		void OnLeftUp(wxMouseEvent& event);
 		void OnTimelinePanelLeftUp(wxMouseEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+        void OnTimerEvent(wxTimerEvent& event);
 
 		void OnUpdateEvent(wxEvent& event);
 		void OnGenericDirCtrlActivated(wxTreeEvent& event);
@@ -154,12 +154,12 @@ class PostProcessPanel: public wxPanel
 
 		int _currentProjectSequence;
 
-		int _currentFrame;
+		unsigned int _currentFrame;
+		bool _previewMode;
+
+		wxTimer* _timer;
 
 		std::map<int, wxTreeItemId> _treeItemIdFromBoneId;
-
-		bool _draggingSequence;
-		bool _draggingFrame;
 
 		DECLARE_EVENT_TABLE()
 };

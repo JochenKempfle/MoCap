@@ -70,6 +70,7 @@ GLCanvas::GLCanvas(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wx
     _skeleton = nullptr;
     _renderStyle = STANDARD;
 	SetFocus();
+	// _image.loadImage(_("C:/Users/Jochen/Desktop/Katana.png"));
 }
 
 GLCanvas::~GLCanvas()
@@ -86,6 +87,7 @@ void GLCanvas::OnPaint(wxPaintEvent &event)
 	SetCurrent(*_GLRC);
 
 	Render();
+	// _image.render();
 	// glFlush();
 	SwapBuffers();
 	event.Skip();
@@ -132,6 +134,8 @@ void GLCanvas::OnLeftDown(wxMouseEvent &event)
     _lClicked = true;
     _mousePosAtClick = event.GetPosition();
 
+    SetCursor(wxCURSOR_BLANK);
+
     event.Skip();
 }
 
@@ -142,6 +146,7 @@ void GLCanvas::OnLeftUp(wxMouseEvent &event)
         ReleaseMouse();
     }
     _lClicked = false;
+    SetCursor(wxCURSOR_ARROW);
     Refresh();
 }
 
@@ -155,7 +160,7 @@ void GLCanvas::OnRightDown(wxMouseEvent &event)
     _rClicked = true;
     _mousePosAtClick = event.GetPosition();
 
-    ShowCursor(false);
+    SetCursor(wxCURSOR_BLANK);
 
     event.Skip();
 }
@@ -167,7 +172,7 @@ void GLCanvas::OnRightUp(wxMouseEvent &event)
         ReleaseMouse();
     }
     _rClicked = false;
-    ShowCursor(true);
+    SetCursor(wxCURSOR_ARROW);
     Refresh();
 }
 
@@ -181,8 +186,9 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
         _cameraFront = Vector3(cos(_xRotation) * sin(_yRotation), sin(_xRotation), cos(_xRotation) * cos(_yRotation)).normalized();
         _cameraUp = Vector3(sin(_yRotation - M_PI/2.0f), 0.0f, cos(_yRotation - M_PI/2.0f)).cross(_cameraFront).normalized();
         //_mousePosAtClick = event.GetPosition();
-        wxPoint cursorPos = ClientToScreen(_mousePosAtClick);
-        SetCursorPos(cursorPos.x, cursorPos.y);
+        //wxPoint cursorPos = ClientToScreen(_mousePosAtClick);
+        WarpPointer(_mousePosAtClick.x, _mousePosAtClick.y);
+        // SetCursorPos(cursorPos.x, cursorPos.y);
         Refresh();
     }
     else if (_lClicked)
@@ -191,7 +197,8 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
         _cameraPosition -= _cameraSpeed * float(delta.x) * _cameraFront.cross(_cameraUp).normalized();
         _cameraPosition += _cameraSpeed * float(delta.y) * _cameraUp;
         //_cameraPosition.y() += _cameraSpeed * float(delta.y);
-        _mousePosAtClick = event.GetPosition();
+        // _mousePosAtClick = event.GetPosition();
+        WarpPointer(_mousePosAtClick.x, _mousePosAtClick.y);
         Refresh();
     }
 }
@@ -210,7 +217,7 @@ void GLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
     }
     _lClicked = false;
     _rClicked = false;
-    ShowCursor(true);
+    SetCursor(wxCURSOR_ARROW);
     Refresh();
 }
 
@@ -309,8 +316,9 @@ void GLCanvas::Render() const
         {
             glBegin(GL_LINES);
                 glColor4ubv(red);
-                glVertex3f(startPos.x(), startPos.y(), startPos.z());
+                // glVertex3f(startPos.x(), startPos.y(), startPos.z());
                 glVertex3f(endPos.x(), endPos.y(), endPos.z());
+                glVertex3f(endPos.x() + dir.x()*0.1, endPos.y() + dir.y()*0.1, endPos.z() + dir.z()*0.1);
 
                 glColor4ubv(green);
 
@@ -588,6 +596,8 @@ void GLCanvas::InitGL()
 	glClearColor(0.0, 0.0, 0.0, 0.0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glShadeModel(GL_SMOOTH);
 }
 

@@ -279,19 +279,75 @@ Quaternion Quaternion::normalized() const
     return result;
 }
 
-double Quaternion::innerProduct(const Quaternion &other) const
+double Quaternion::dot(const Quaternion &other) const
 {
-    double n = 0;
-    for (unsigned int i = 0; i < 4; ++i)
-    {
-      n += operator()(i) * other(i);
-    }
-    return n;
+    double n = u() * other.u() + x() * other.x() + y() * other.y() + z() * other.z();
+    // clamp n to -1.0 , 1.0 to account for floating point precision errors
+    return n < -1.0 ? -1.0 : (n > 1.0 ? 1.0 : n);
 }
 
 float Quaternion::getShortestAngleTo(const Quaternion &other) const
 {
-    return 2.0 * acos(fabs(innerProduct(other)));
+    return 2.0 * acos(fabs(dot(other)));
+}
+
+Quaternion Quaternion::lerp(const Quaternion &other, float t) const
+{
+    Quaternion quat;
+    quat.u() = (1.0f - t) * u() + t * other.u();
+    quat.x() = (1.0f - t) * x() + t * other.x();
+    quat.y() = (1.0f - t) * y() + t * other.y();
+    quat.z() = (1.0f - t) * z() + t * other.z();
+    return quat;
+}
+
+Quaternion Quaternion::slerp(const Quaternion &other, double t) const
+{
+    // double theta = acos(dot(other));
+    double d = dot(other);
+    double absD = std::abs(d);
+
+    double scale0;
+    double scale1;
+
+    if(absD == 1.0)
+    {
+        scale0 = 1.0 - t;
+        scale1 = t;
+    }
+    else
+    {
+        double theta = std::acos(absD);
+        double sinTheta = std::sin(theta);
+
+        scale0 = std::sin((1.0 - t) * theta) / sinTheta;
+        scale1 = std::sin((t * theta)) / sinTheta;
+    }
+    if (d < 0)
+    {
+        scale1 = -scale1;
+    }
+
+    return Quaternion(*this * scale0 + other * scale1);
+}
+
+void Quaternion::decomposeSwingTwist(const Vector3 &direction, Quaternion* swing, Quaternion* twist) const
+{
+    // swing is rotation around vector perpendicular to direction
+    // twist is the rotation around direction vector
+    Vector3 p = Vector3(x(), y(), z()).dot(direction) * direction;
+    *twist = Quaternion(u(), p.x(), p.y(), p.z()).normalize();
+    *swing = *this * twist->inv();
+}
+
+Quaternion Quaternion::operator*(float val) const
+{
+    return Quaternion(u() * val, x() * val, y() * val, z() * val);
+}
+
+Quaternion Quaternion::operator+(const Quaternion &other) const
+{
+    return Quaternion(u() + other.u(), x() + other.x(), y() + other.y(), z() + other.z());
 }
 
 Quaternion& Quaternion::inv_IP()

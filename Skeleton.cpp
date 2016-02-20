@@ -37,6 +37,35 @@ Skeleton::Skeleton()
     _root = nullptr;
 }
 
+Skeleton::Skeleton(const Skeleton &other)
+{
+    _nextId = other._nextId;
+    _selectedBoneId = other._selectedBoneId;
+
+    // copy the bone data
+    for (auto it = other._bones.begin(); it != other._bones.end(); ++it)
+    {
+        _bones[it->first] = new Bone(it->first, *it->second);
+    }
+
+    // now that all bones exist, construct the skeleton by seting the root and child-parent relationships
+    _root = _bones[other._root->getId()];
+    Bone* parent = nullptr;
+    for (auto it = other._bones.begin(); it != other._bones.end(); ++it)
+    {
+        parent = it->second->getParentId() < 0 ? nullptr : _bones[it->second->getParentId()];
+        _bones[it->first]->setParent(parent);
+    }
+}
+
+Skeleton::Skeleton(Skeleton &&other) : Skeleton()
+{
+    _nextId = other._nextId;
+    _selectedBoneId = other._selectedBoneId;
+    std::swap(_root, other._root);
+    std::swap(_bones, other._bones);
+}
+
 Skeleton::~Skeleton()
 {
     clear();
@@ -92,6 +121,54 @@ int Skeleton::createBone(const Bone& boneData, int parent)
         it->second->appendChild(bone);
     }
     return id;
+}
+
+
+void Skeleton::setBoneName(int id, std::string name)
+{
+    auto it = _bones.find(id);
+    if (it == _bones.end())
+    {
+        return;
+    }
+    it->second->setName(name);
+}
+
+std::string Skeleton::getBoneName(int id) const
+{
+    auto it = _bones.find(id);
+    if (it == _bones.end())
+    {
+        return std::string();
+    }
+    return it->second->getName();
+}
+
+std::vector<std::pair<int, std::string> > Skeleton::getBoneIdsWithName()
+{
+    std::vector<std::pair<int, std::string> > bones;
+    for (auto it = _bones.begin(); it != _bones.end(); ++it)
+    {
+        bones.push_back(make_pair(it->first, it->second->getName()));
+    }
+    return bones;
+}
+
+void Skeleton::setToDefault()
+{
+    for (auto it = _bones.begin(); it != _bones.end(); ++it)
+    {
+        it->second->setToDefault();
+    }
+    update();
+}
+
+void Skeleton::setCurrentAsDefault()
+{
+    for (auto it = _bones.begin(); it != _bones.end(); ++it)
+    {
+        it->second->setCurrentOrientationAsDefault();
+    }
 }
 
 bool Skeleton::eraseBone(int id, bool eraseChildren)
@@ -209,12 +286,23 @@ bool Skeleton::setBoneData(int id, const Bone &boneData)
     return false;
 }
 
-bool Skeleton::setBoneRotation(int id, const Quaternion &rotation)
+bool Skeleton::setAbsBoneRotation(int id, const Quaternion &rotation)
 {
     auto it = _bones.find(id);
     if (it != _bones.end())
     {
         it->second->setAbsOrientation(rotation);
+        return true;
+    }
+    return false;
+}
+
+bool Skeleton::setRelBoneRotation(int id, const Quaternion &rotation)
+{
+    auto it = _bones.find(id);
+    if (it != _bones.end())
+    {
+        it->second->setRelOrientation(rotation);
         return true;
     }
     return false;
@@ -231,15 +319,15 @@ void Skeleton::update()
     */
 }
 
-void Skeleton::setCurrentPoseAsDefault()
+
+Skeleton& Skeleton::operator=(Skeleton other)
 {
-    for (auto it = _bones.begin(); it != _bones.end(); ++it)
-    {
-        it->second->setCurrentOrientationAsDefault();
-    }
+    _nextId = other._nextId;
+    _selectedBoneId = other._selectedBoneId;
+    std::swap(_root, other._root);
+    std::swap(_bones, other._bones);
+    return *this;
 }
-
-
 
 
 

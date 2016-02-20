@@ -33,6 +33,7 @@ OF SUCH DAMAGE.
 #include "Quaternion.h"
 #include "Vector3.h"
 #include <vector>
+#include <string>
 
 class Bone
 {
@@ -42,17 +43,30 @@ class Bone
 
     int getId() const { return _id; }
 
+    void setName(std::string name) { _name = name; }
+    std::string getName() const { return _name; }
+
     void setLength(float length) { _length = length; }
-    // TODO(JK#2#): don't allow setting of absolute positions? => more safe
-    void setAbsOrientation(const Quaternion &rotation);
-    void setRelOrientation(const Quaternion &rotation);
-    void setRelDefaultOrientation(const Quaternion &rotation);
+    float getLength() const { return _length; }
+    // TODO(JK#4#): don't allow setting of absolute positions? => more safe (solved?)
+    // TODO(JK#2#): make bone orientation dependent on relative default orientation, add new set***Orientation method
+    void setAbsOrientation(const Quaternion &orientation);
+    void setRelOrientation(const Quaternion &orientation);
+
+    void setRelDefaultOrientation(const Quaternion &orientation);
+    void setDefaultOrientation(const Quaternion &orientation);
+    void setDefaultOrientation(const Vector3 &direction);
+
+    void setCurrentOrientationAsDefault();
+
     void rotate(const Quaternion &rotation);
     // rotate current orientation by euler angles
     void rotate(double roll, double pitch, double yaw);
-    void setCurrentOrientationAsDefault();
+
+
     void setStartPos(const Vector3 &pos) { _startPos = pos; }
     void setStartPos(float x, float y, float z) { _startPos = Vector3(x, y, z); }
+
     void setEndPos(const Vector3 &pos) { _endPos = pos; }
     void setParent(Bone* parent);
     // TODO(JK#9#): move functions alternating bones' parent/children to protected as this should only be done by Skeleton class.
@@ -61,13 +75,15 @@ class Bone
     void removeChild(int id);
     void removeChild(Bone* bone);
 
-    float getLength() const { return _length; }
+    void setToDefault() { setRelOrientation(Quaternion()); }
+
     Quaternion getAbsOrientation() const { return _absOrientation; }
     Quaternion getRelOrientation() const { return _relOrientation; }
-    Quaternion getRelDefaultOrientation() const { return _relDefaultOrientation; }
+    Quaternion getDefaultOrientation() const { return _defaultOrientation; }
     Vector3 getStartPos() const { return _startPos; }
     Vector3 getEndPos() const { return _endPos; }
     Bone* getParent() { return _parent; }
+    int getParentId() const { return _parent == nullptr ? -1 : _parent->getId(); }
     size_t getNumChildren() const { return _children.size(); }
     std::vector<Bone*> getChildren() { return _children; }
     // Returns all direct and indirect children breadth first sorted
@@ -90,13 +106,14 @@ class Bone
 
   private:
     int _id;
+    std::string _name;
     float _length;
     Quaternion _absOrientation;
     Quaternion _relOrientation;
-    Quaternion _relDefaultOrientation;
+    Quaternion _defaultOrientation;
     Vector3 _startPos;
     Vector3 _endPos;
-    bool _useAbsOrientationForUpdate;
+    bool _useAbsOrientation;
     Bone* _parent;
     std::vector<Bone*> _children;
 };

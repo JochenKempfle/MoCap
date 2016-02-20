@@ -78,7 +78,7 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	BoxSizerControl->Add(ButtonAutoAssign, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonCalibrate = new wxButton(this, ID_BUTTONCALIBRATE, _("Calibrate"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONCALIBRATE"));
 	BoxSizerControl->Add(ButtonCalibrate, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer1->Add(BoxSizerControl, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer1->Add(BoxSizerControl, 0, wxEXPAND, 5);
 	BoxSizer3 = new wxBoxSizer(wxVERTICAL);
 	int GLCanvasAttributes_1[] = {
 		WX_GL_RGBA,
@@ -89,13 +89,13 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	glCanvas = new GLCanvas(this, ID_GLCANVAS, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE, _T("ID_GLCANVAS"), GLCanvasAttributes_1);
 	glCanvas->SetMinSize(wxSize(400,300));
 	glCanvas->SetBackgroundColour(wxColour(0,0,0));
-	BoxSizer3->Add(glCanvas, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer1->Add(BoxSizer3, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer3->Add(glCanvas, 1, wxALL|wxEXPAND, 5);
+	BoxSizer1->Add(BoxSizer3, 1, wxEXPAND, 5);
 	BoxSizerSensors = new wxBoxSizer(wxVERTICAL);
 	sensorContainerPanel = new ScrolledContainerPanel(this,ID_SENSORCONTAINERPANEL,wxDefaultPosition,wxDefaultSize);
-	BoxSizerSensors->Add(sensorContainerPanel, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizerSensors->Add(sensorContainerPanel, 1, wxALL|wxEXPAND, 5);
 	BoxSizerSensors->Add(100,0,0, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer1->Add(BoxSizerSensors, 0, wxEXPAND|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
+	BoxSizer1->Add(BoxSizerSensors, 0, wxEXPAND, 5);
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
@@ -115,7 +115,7 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
     _simulationStarted = false;
     _autoAssignStarted = false;
     _autoAssignBoneId = -1;
-    // TODO(JK#3#): restore previous state when switching to this panel again
+    // TODO(JK#3#): restore previous state when switching to this panel again (maybe don't destroy panels in MoCapMain)
 }
 
 ViewPanel::~ViewPanel()

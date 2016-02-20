@@ -51,6 +51,15 @@ std::string MotionSequence::getName() const
     return _name;
 }
 
+void MotionSequence::setFrameTime(float time)
+{
+    _frameTime = time;
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        it->second->setFrameTime(time);
+    }
+}
+
 int MotionSequence::createChannel(int parent)
 {
     int id = _skeleton.createBone(parent);
@@ -124,6 +133,16 @@ void MotionSequence::clear()
     _channels.clear();
 }
 
+std::vector<int> MotionSequence::getChannelIds() const
+{
+    std::vector<int> channelIds;
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        channelIds.push_back(it->first);
+    }
+    return channelIds;
+}
+
 int MotionSequence::getRootId() const
 {
     return _skeleton.getRootId();
@@ -154,6 +173,10 @@ void MotionSequence::setToFrame(unsigned int frame)
     for (auto it = _channels.begin(); it != _channels.end(); ++it)
     {
         _skeleton.getBone(it->first)->setRelOrientation(it->second->getFrame(frame).getOrientation());
+        if (it->second->getFrame(frame).hasPositionData())
+        {
+            _skeleton.getBone(it->first)->setStartPos(it->second->getFrame(frame).getPosition());
+        }
     }
     _skeleton.update();
 }

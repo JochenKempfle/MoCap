@@ -33,7 +33,12 @@ TimelineChannel::TimelineChannel()
 {
     _channelPos = -1;
     _boneId = -1;
-    //ctor
+}
+
+TimelineChannel::TimelineChannel(int position)
+{
+    _channelPos = position;
+    _boneId = -1;
 }
 
 TimelineChannel::~TimelineChannel()
@@ -125,6 +130,42 @@ void TimelineChannel::clear()
     _tracks.clear();
 }
 
+TimelineTrack* TimelineChannel::getTrackBefore(unsigned int time)
+{
+    auto it = _tracks.upper_bound(time);
+    if (it == _tracks.begin() || _tracks.size() == 0)
+    {
+        return nullptr;
+    }
+    --it;
+    return it->second;
+}
+
+TimelineTrack* TimelineChannel::getTrackAfter(unsigned int time)
+{
+    auto it = _tracks.upper_bound(time);
+    if (it == _tracks.end())
+    {
+        return nullptr;
+    }
+    return it->second;
+}
+
+bool TimelineChannel::isBetweenTwoTracks(unsigned int time) const
+{
+    auto it = _tracks.upper_bound(time);
+    if (it == _tracks.begin() || it == _tracks.end())
+    {
+        return false;
+    }
+    --it;
+    if (it->second->getStartTime() + it->second->getLength() <= time)
+    {
+        return true;
+    }
+    return false;
+}
+
 std::vector<TimelineTrack*> TimelineChannel::getInRange(unsigned int startTime, unsigned int endTime)
 {
     std::vector<TimelineTrack*> tracks;
@@ -140,7 +181,7 @@ std::vector<TimelineTrack*> TimelineChannel::getInRange(unsigned int startTime, 
     while (it != _tracks.begin())
     {
         --it;
-        if (it->second->getStartTime() + it->second->getLength() < startTime)
+        if (it->second->getStartTime() + it->second->getLength() <= startTime)
         {
             ++it;
             break;
@@ -178,23 +219,17 @@ std::vector<TimelineTrack*> TimelineChannel::getTracks()
 
 MotionSequenceFrame TimelineChannel::getFrame(unsigned int time)
 {
-    // TODO(JK#1#): get frame can get tricky when there is no track. Solve this!
+    // TODO(JK#1#): get frame can get tricky when there is no track. Solve this by adding a default frame (equal to bone default)
     if (_tracks.size() == 0)
     {
-        return MotionSequenceFrame();
+        return MotionSequenceFrame(_defaultOrientation);
     }
 
     TimelineTrack* track = getTrack(time);
-    // if there is no track at specified time point, return last known frame or skeleton default orientation
+    // if there is no track at specified time point, return default orientation
     if (track == nullptr)
     {
-        auto it = _tracks.upper_bound(time);
-        if (it == _tracks.begin())
-        {
-            return MotionSequenceFrame();
-        }
-        --it;
-        track = it->second;
+        return MotionSequenceFrame(_defaultOrientation);
     }
     return track->getFrameFromAbsTime(time);
 }

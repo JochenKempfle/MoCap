@@ -44,10 +44,12 @@ class MotionSequence
     void setName(std::string name);
     std::string getName() const;
 
+    int getLength() const { return 1000 * _numFrames * _frameTime; }
+
     void setNumFrames(unsigned int numFrames) { _numFrames = numFrames; }
     unsigned int getNumFrames() const { return _numFrames; }
 
-    void setFrameTime(float time) { _frameTime = time; }
+    void setFrameTime(float time);
     float getFrameTime() const { return _frameTime; }
 
     size_t getNumChannels() const { return _channels.size(); }
@@ -55,6 +57,8 @@ class MotionSequence
     int createChannel(const MotionSequenceChannel &channelData, int parent = -1);
     bool eraseChannel(int id, bool eraseChildren = false);
     void clear();
+
+    std::vector<int> getChannelIds() const;
 
     int getRootId() const;
     MotionSequenceChannel* getRoot();

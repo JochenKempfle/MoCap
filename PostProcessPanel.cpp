@@ -59,21 +59,22 @@ const long PostProcessPanel::ID_STATICTEXT4 = wxNewId();
 const long PostProcessPanel::ID_STATICTEXTFPS = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT5 = wxNewId();
 const long PostProcessPanel::ID_STATICTEXTLENGTH = wxNewId();
-const long PostProcessPanel::ID_CHECKBOXSELECTCHILDREN = wxNewId();
+const long PostProcessPanel::ID_CHECKBOXSELECTALL = wxNewId();
 const long PostProcessPanel::ID_PANELDRAGDROPSEQUENCE = wxNewId();
 const long PostProcessPanel::ID_BUTTON2 = wxNewId();
 const long PostProcessPanel::ID_BUTTON3 = wxNewId();
 const long PostProcessPanel::ID_BUTTON5 = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT1 = wxNewId();
-const long PostProcessPanel::ID_SPINCTRL1 = wxNewId();
+const long PostProcessPanel::ID_SPINCTRLYAW = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT10 = wxNewId();
-const long PostProcessPanel::ID_SPINCTRL2 = wxNewId();
+const long PostProcessPanel::ID_SPINCTRLPITCH = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT11 = wxNewId();
-const long PostProcessPanel::ID_SPINCTRL3 = wxNewId();
+const long PostProcessPanel::ID_SPINCTRLROLL = wxNewId();
 const long PostProcessPanel::ID_BUTTON1 = wxNewId();
 const long PostProcessPanel::ID_PANELDRAGDROPFRAME = wxNewId();
 const long PostProcessPanel::ID_TIMELINE = wxNewId();
 //*)
+const long PostProcessPanel::ID_TIMER = wxNewId();
 
 BEGIN_EVENT_TABLE(PostProcessPanel,wxPanel)
 	//(*EventTable(PostProcessPanel)
@@ -152,9 +153,9 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	StaticTextLength = new wxStaticText(this, ID_STATICTEXTLENGTH, _("10"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTLENGTH"));
 	GridSizerSequenceInfo->Add(StaticTextLength, 0, wxBOTTOM|wxLEFT|wxRIGHT|wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer11->Add(GridSizerSequenceInfo, 0, wxALL|wxEXPAND, 5);
-	CheckBoxSelectChildren = new wxCheckBox(this, ID_CHECKBOXSELECTCHILDREN, _("also add children"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOXSELECTCHILDREN"));
-	CheckBoxSelectChildren->SetValue(false);
-	BoxSizer11->Add(CheckBoxSelectChildren, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	CheckBoxSelectAll = new wxCheckBox(this, ID_CHECKBOXSELECTALL, _("add all channels"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOXSELECTALL"));
+	CheckBoxSelectAll->SetValue(true);
+	BoxSizer11->Add(CheckBoxSelectAll, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	PanelDragDropSequence = new wxPanel(this, ID_PANELDRAGDROPSEQUENCE, wxDefaultPosition, wxSize(160,60), wxSIMPLE_BORDER|wxTAB_TRAVERSAL, _T("ID_PANELDRAGDROPSEQUENCE"));
 	PanelDragDropSequence->SetBackgroundColour(wxColour(230,230,130));
 	BoxSizer11->Add(PanelDragDropSequence, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -173,19 +174,19 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	GridSizer2 = new wxGridSizer(3, 2, 0, 0);
 	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
 	GridSizer2->Add(StaticText1, 0, wxALL|wxEXPAND, 5);
-	SpinCtrl1 = new wxSpinCtrl(this, ID_SPINCTRL1, _T("0"), wxDefaultPosition, wxDefaultSize, 0, 0, 100, 0, _T("ID_SPINCTRL1"));
-	SpinCtrl1->SetValue(_T("0"));
-	GridSizer2->Add(SpinCtrl1, 0, wxALL|wxEXPAND, 5);
+	SpinCtrlYaw = new wxSpinCtrl(this, ID_SPINCTRLYAW, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLYAW"));
+	SpinCtrlYaw->SetValue(_T("0"));
+	GridSizer2->Add(SpinCtrlYaw, 0, wxALL|wxEXPAND, 5);
 	StaticText10 = new wxStaticText(this, ID_STATICTEXT10, _("Pitch"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
 	GridSizer2->Add(StaticText10, 0, wxALL|wxEXPAND, 5);
-	SpinCtrl2 = new wxSpinCtrl(this, ID_SPINCTRL2, _T("0"), wxDefaultPosition, wxDefaultSize, 0, 0, 100, 0, _T("ID_SPINCTRL2"));
-	SpinCtrl2->SetValue(_T("0"));
-	GridSizer2->Add(SpinCtrl2, 0, wxALL|wxEXPAND, 5);
+	SpinCtrlPitch = new wxSpinCtrl(this, ID_SPINCTRLPITCH, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLPITCH"));
+	SpinCtrlPitch->SetValue(_T("0"));
+	GridSizer2->Add(SpinCtrlPitch, 0, wxALL|wxEXPAND, 5);
 	StaticText11 = new wxStaticText(this, ID_STATICTEXT11, _("Roll"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
 	GridSizer2->Add(StaticText11, 0, wxALL|wxEXPAND, 5);
-	SpinCtrl3 = new wxSpinCtrl(this, ID_SPINCTRL3, _T("0"), wxDefaultPosition, wxDefaultSize, 0, 0, 100, 0, _T("ID_SPINCTRL3"));
-	SpinCtrl3->SetValue(_T("0"));
-	GridSizer2->Add(SpinCtrl3, 0, wxALL|wxEXPAND, 5);
+	SpinCtrlRoll = new wxSpinCtrl(this, ID_SPINCTRLROLL, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLROLL"));
+	SpinCtrlRoll->SetValue(_T("0"));
+	GridSizer2->Add(SpinCtrlRoll, 0, wxALL|wxEXPAND, 5);
 	StaticBoxSizer2->Add(GridSizer2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	Button1 = new wxButton(this, ID_BUTTON1, _("Set from selection"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
 	StaticBoxSizer2->Add(Button1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -214,19 +215,23 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	PanelDragDropFrame->Connect(wxEVT_PAINT,(wxObjectEventFunction)&PostProcessPanel::OnPanelDragDropFramePaint,0,this);
 	PanelDragDropFrame->Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&PostProcessPanel::OnPanelDragDropFrameLeftDown,0,this);
 	timelinePanel->Connect(wxEVT_LEFT_UP,(wxObjectEventFunction)&PostProcessPanel::OnTimelinePanelLeftUp,0,this);
-	Connect(wxEVT_LEFT_UP,(wxObjectEventFunction)&PostProcessPanel::OnLeftUp);
-	Connect(wxEVT_MOTION,(wxObjectEventFunction)&PostProcessPanel::OnMouseMove);
 	//*)
 	Connect(wxEVT_MOUSE_CAPTURE_LOST, (wxObjectEventFunction)&PostProcessPanel::OnMouseCaptureLost);
 	Connect(UpdateEvent, (wxObjectEventFunction)&PostProcessPanel::OnUpdateEvent);
 	GenericDirCtrl->Connect(wxEVT_DIRCTRL_FILEACTIVATED,(wxObjectEventFunction)&PostProcessPanel::OnGenericDirCtrlActivated,0,this);
+    Connect(ID_TIMER, wxEVT_TIMER, wxTimerEventHandler(PostProcessPanel::OnTimerEvent));
 //	Treebook1->AddPage(new TimelinePanel(Treebook1,wxNewId(),wxDefaultPosition,wxDefaultSize), _("text"));
 //	Treebook1->AddPage(new TimelinePanel(this,wxNewId(),wxDefaultPosition,wxDefaultSize), _("text2"));
+
+    _timer = new wxTimer(this, ID_TIMER);
+
+    theAnimationManager.setTimelineSkeleton(theMoCapManager.getSkeleton());
+
     glCanvas->setSkeleton(theAnimationManager.getTimelineSkeleton());
+    timelinePanel->setGLCanvas(glCanvas);
     _currentFrame = 0;
     _currentProjectSequence = -1;
-    _draggingSequence = false;
-    _draggingFrame = false;
+    _previewMode = false;
 
     updateListBoxSequences();
     updateSequenceInfo();
@@ -236,6 +241,7 @@ PostProcessPanel::~PostProcessPanel()
 {
 	//(*Destroy(PostProcessPanel)
 	//*)
+    _timer->Stop();
 }
 
 void PostProcessPanel::OnUpdateEvent(wxEvent& event)
@@ -249,61 +255,79 @@ void PostProcessPanel::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
     {
         ReleaseMouse();
     }
-    _draggingSequence = false;
-    _draggingFrame = false;
     SetCursor(wxCURSOR_ARROW);
+}
+
+void PostProcessPanel::OnTimerEvent(wxTimerEvent& event)
+{
+    if (_previewMode)
+    {
+        MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
+        if (_currentFrame >= sequence->getNumFrames())
+        {
+            _currentFrame = 0;
+        }
+        sequence->setToFrame(_currentFrame);
+        glCanvas->Refresh();
+    }
+    else
+    {
+        // TODO(JK#1#): play timeline, use getCurrentCursorPosition as start
+        timelinePanel->getCursorPosition();
+    }
+    ++_currentFrame;
 }
 
 void PostProcessPanel::OnPanelDragDropSequenceLeftDown(wxMouseEvent& event)
 {
-    _draggingSequence = true;
+    if (_currentProjectSequence < 0)
+    {
+        return;
+    }
     SetCursor(wxCURSOR_HAND);
-    CaptureMouse();
+
+    std::vector<int> channelIds;
+
+    if (CheckBoxSelectAll->GetValue())
+    {
+        channelIds = theAnimationManager.getProjectSequence(_currentProjectSequence)->getChannelIds();
+    }
+    else
+    {
+        wxArrayTreeItemIds selections;
+        TreeCtrlSkeleton->GetSelections(selections);
+        for (size_t i = 0; i < selections.size(); ++i)
+        {
+            channelIds.push_back(static_cast<TreeItemBoneData*>(TreeCtrlSkeleton->GetItemData(selections[i]))->getBoneId());
+        }
+    }
+
+    timelinePanel->prepareAddingSequence(_currentProjectSequence, channelIds);
+    timelinePanel->CaptureMouse();
 }
 
 void PostProcessPanel::OnPanelDragDropFrameLeftDown(wxMouseEvent& event)
 {
-    _draggingFrame = true;
     SetCursor(wxCURSOR_HAND);
-    CaptureMouse();
+
+    MotionSequenceFrame frame(Quaternion(SpinCtrlRoll->GetValue() * M_PI / 180.0, SpinCtrlPitch->GetValue() * M_PI / 180.0, SpinCtrlYaw->GetValue() * M_PI / 180.0));
+
+    timelinePanel->prepareAddingFrame(frame);
+    timelinePanel->CaptureMouse();
 }
 
-void PostProcessPanel::OnMouseMove(wxMouseEvent& event)
+void PostProcessPanel::OnTimelinePanelLeftUp(wxMouseEvent& event)
 {
-    if (!_draggingSequence && !_draggingFrame)
+    if (timelinePanel->HasCapture())
     {
-        return;
+        timelinePanel->ReleaseMouse();
     }
-
-    wxPoint pos = timelinePanel->GetPosition();
-    if (event.GetPosition().y >= pos.y)
-    {
-        if (HasCapture())
-        {
-            ReleaseMouse();
-        }
-        _draggingSequence = false;
-        _draggingFrame = false;
-    }
-}
-
-void PostProcessPanel::OnLeftUp(wxMouseEvent& event)
-{
-    if (HasCapture())
-    {
-        ReleaseMouse();
-    }
-    _draggingSequence = false;
-    _draggingFrame = false;
     SetCursor(wxCURSOR_ARROW);
+    event.Skip();
 }
 
 void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
 {
-    wxString msg;
-    msg << _("Loading the file: ") << GenericDirCtrl->GetPath();
-    // wxMessageBox(msg);
-
     SetCursor(wxCURSOR_ARROWWAIT);
     // TOODO(JK#1#): load file
     MotionSequence* sequence = theAnimationManager.readBVH(GenericDirCtrl->GetPath());
@@ -314,13 +338,11 @@ void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
     {
         wxString msg;
         msg << _("Error loading the file: ") << GenericDirCtrl->GetPath();
-        wxMessageBox(msg);
+        wxMessageBox(msg, _("Error"), wxICON_ERROR);
         return;
     }
     _currentProjectSequence = theAnimationManager.addProjectSequence(sequence);
 
-    glCanvas->setSkeleton(sequence->getSkeleton());
-    // sequence->setToFrame(0);
     _currentFrame = 0;
 
     updateListBoxSequences();
@@ -335,6 +357,7 @@ void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
 
 void PostProcessPanel::OnToggleButtonTimelineToggle(wxCommandEvent& event)
 {
+    _previewMode = false;
     ToggleButtonPreview->SetValue(false);
     ToggleButtonTimeline->SetValue(true);
     glCanvas->setSkeleton(theAnimationManager.getTimelineSkeleton());
@@ -343,16 +366,11 @@ void PostProcessPanel::OnToggleButtonTimelineToggle(wxCommandEvent& event)
 
 void PostProcessPanel::OnToggleButtonPreviewToggle(wxCommandEvent& event)
 {
+    _previewMode = true;
     ToggleButtonPreview->SetValue(true);
     ToggleButtonTimeline->SetValue(false);
     _currentFrame = 0;
-    MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
-    if (sequence == nullptr)
-    {
-        glCanvas->setSkeleton(nullptr);
-        return;
-    }
-    glCanvas->setSkeleton(sequence->getSkeleton());
+    glCanvas->setSkeleton(theAnimationManager.getSequenceSkeleton(_currentProjectSequence));
     glCanvas->Refresh();
 }
 
@@ -387,8 +405,15 @@ void PostProcessPanel::play()
 {
     if (ToggleButtonPreview->GetValue())
     {
-        _currentFrame += 1;
-        theAnimationManager.getProjectSequence(_currentProjectSequence)->setToFrame(_currentFrame);
+        _currentFrame = 0;
+        MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
+        if (sequence == nullptr)
+        {
+            return;
+        }
+        _timer->Start(sequence->getFrameTime() * 1000);
+        //_currentFrame += 1;
+        sequence->setToFrame(_currentFrame);
         glCanvas->Refresh();
     }
     else if (ToggleButtonTimeline->GetValue())
@@ -476,8 +501,4 @@ void PostProcessPanel::OnListBoxSequencesSelect(wxCommandEvent& event)
 
 
 
-void PostProcessPanel::OnTimelinePanelLeftUp(wxMouseEvent& event)
-{
-    SetCursor(wxCURSOR_ARROW);
-    event.Skip();
-}
+

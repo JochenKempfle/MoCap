@@ -130,7 +130,7 @@ void SensorDataPanel::OnPaint(wxPaintEvent& event)
     }
     else
     {
-        affiliation = theMoCapManager.getBoneNameFromId(boneId);
+        affiliation = theMoCapManager.getBoneName(boneId);
         //dc.GradientFillLinear(wxRect(0, 0, size.x, size.y), wxColour(20, 100, 5), wxColour(20, 200, 5), wxUP);
     }
 

@@ -27,49 +27,52 @@ OF SUCH DAMAGE.
 */
 
 
-#include "SensorNode.h"
+#ifndef GLIMAGE_H
+#define GLIMAGE_H
 
-SensorNode::SensorNode(int id, std::string IPAddress) : _id(id), _IPAddress(IPAddress)
+#include "Vector3.h"
+#include <GL/gl.h>
+#include <wx/image.h>
+#include <wx/bitmap.h>
+
+
+class GLImage
 {
-    _state = 0;
-    //ctor
-}
+  public:
+    GLImage();
+    virtual ~GLImage();
 
-SensorNode::SensorNode() : _id(-1)
-{
-    _state = 0;
-}
+    void render() const;
+    void show(bool visible = true) { _visible = visible; }
+    bool isVisible() const { return _visible; }
 
-SensorNode::~SensorNode()
-{
-    //dtor
-}
+    void loadImage(wxString filename);
+    void setImage(const wxBitmap &bmp);
+    void setImage(const wxImage &image);
 
-void SensorNode::update(const SensorData &data)
-{
-    // TODO(JK#2#): implement some kind of filtering here!
-    _rotation.u() = data.rotation[0];
-    _rotation.x() = data.rotation[1];
-    _rotation.y() = data.rotation[2];
-    _rotation.z() = data.rotation[3];
+    void setPosition(Vector3 position) { _position = position; }
+    void setPosition(float x, float y, float z) { _position = Vector3(x, y, z); }
+    Vector3 getPosition() const { return _position; }
 
-    // TODO(JK#2#): update position of sensor node
-/*    _position.x() = data.position[0];
-    _position.y() = data.position[1];
-    _position.z() = data.position[2];
-*/
-    // TODO(JK#9#): implement some logic for a state update! (done?)
-}
+    void setRotation(Vector3 rotation) { _rotation = rotation; }
+    void setRotation(float roll, float pitch, float yaw) { _rotation = Vector3(roll, pitch, yaw); }
+    Vector3 getRotation() const { return _rotation; }
 
-Quaternion SensorNode::getCalRotation() const
-{
-    // Quaternion x(1.0, 0.0, 0.0, M_PI*90.0/180.0);
-    return _rotationOffset * _rotation;
-}
+    void scale(float x, float y) { _scaleX = x; _scaleY = y; }
+    float getScaleX() const { return _scaleX; }
+    float getScaleY() const { return _scaleY; }
 
-Vector3 SensorNode::toEuler() const
-{
-    return _rotation.toEuler();
-}
+  protected:
 
+  private:
+    GLuint _id;
+    Vector3 _position;
+    Vector3 _rotation;
+    float _scaleX;
+    float _scaleY;
+    float _width;
+    float _height;
+    bool _visible;
+};
 
+#endif // GLIMAGE_H

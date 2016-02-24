@@ -275,7 +275,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
         return;
     }
 
-    SensorData data;
+    SensorRawData data;
     // 36 bytes is the maximum expected packet size
     unsigned char buffer[36];
     wxIPV4address sensorAddress = _addressPeer;
@@ -298,7 +298,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
             data.id = *(reinterpret_cast<uint32_t*>(pBuffer));
             pBuffer += sizeof(uint32_t);
         }
-        data.timeStamp = *(reinterpret_cast<uint32_t*>(pBuffer));
+        data.timestamp = *(reinterpret_cast<uint32_t*>(pBuffer));
         pBuffer += sizeof(uint32_t);
         data.rotation[0] = *reinterpret_cast<float*>(pBuffer);
         pBuffer += sizeof(float);

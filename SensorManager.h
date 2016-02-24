@@ -31,7 +31,7 @@ OF SUCH DAMAGE.
 #define SENSORMANAGER_H
 
 #include "SensorNode.h"
-#include "SensorData.h"
+#include "SensorRawData.h"
 #include <map>
 #include <vector>
 #include <queue>
@@ -49,36 +49,36 @@ class SensorManager
     static SensorManager& getInstance();
 
     int createSensorNode(std::string IPAddress);
-    void updateSensor(std::string IPAddress, const SensorData &data);
-    bool updateSensor(int id, const SensorData &data);
+    void updateSensor(std::string IPAddress, const SensorRawData &data);
+    bool updateSensor(int id, const SensorRawData &data);
 
     bool setSensorOffset(int id, const Quaternion &rotation);
 
     std::vector<int> getMoving(double minDegree);
 
-    SensorNode getSensor(int id);
+    SensorNode* getSensor(int id);
     int getSensorIdFromIP(std::string IPAddress);
 
     void resetAllSensorStatesUpdated();
     void setSensorStateCalibrated(int id, bool calibrated = true);
     void setSensorStateHasBone(int id, bool hasBone = true);
 
-    std::vector<SensorNode> getSensors();
+    std::vector<SensorNode*> getSensors();
 
   protected:
     static SensorManager* _sensorManager;
 
   private:
     int _nextId;
-    Quaternion _reference;
-    std::map<std::string, int> _sensorIdFromIP;
+    // TODO(JK#3#): check all occurences of getSensor() or related, as now a pointer to SensorNode is used
+    std::map<std::string, SensorNode*> _sensorFromIP;
     // std::map<std::string, int> _sensorIdFromName;
-    std::map<int, SensorNode> _sensors;
+    std::map<int, SensorNode*> _sensors;
     std::vector<SensorNode> _previousSensorData;
     // TODO(JK#2#): implement a buffer for retrieved sensor data, queue should do the job
-    std::map<int, std::queue<SensorNode> > _sensorBuffer;
-    int _currentBufferPos;
-    int _bufferSize;
+//    std::map<int, std::list<SensorData> > _sensorBuffer;
+//    int _currentBufferPos;
+//    int _bufferSize;
 };
 
 

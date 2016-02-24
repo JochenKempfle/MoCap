@@ -71,11 +71,11 @@ SensorDataPanel::~SensorDataPanel()
 	//*)
 }
 
-void SensorDataPanel::update(const SensorNode &sensor)
+void SensorDataPanel::update(const SensorNode* sensor)
 {
-    _isUpdated = sensor.isUpdated();
-    _hasBone = sensor.hasBone();
-    _isCalibrated = sensor.isCalibrated();
+    _isUpdated = sensor->isUpdated();
+    _hasBone = sensor->hasBone();
+    _isCalibrated = sensor->isCalibrated();
 }
 
 void SensorDataPanel::setSensorId(int id)

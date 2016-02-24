@@ -30,18 +30,26 @@ OF SUCH DAMAGE.
 #ifndef SENSORDATA_H
 #define SENSORDATA_H
 
+#include "Quaternion.h"
 
-// POD type
-struct SensorData
+class SensorData
 {
   public:
     SensorData();
-    ~SensorData();
+    SensorData(int timestamp, const Quaternion &orientation);
+    virtual ~SensorData();
 
-    unsigned int id;
-    unsigned int timeStamp;
-    float rotation[4];
-    // float position[3];
+    void setTimestamp(unsigned int timestamp) { _timestamp = timestamp; }
+    unsigned int getTimestamp() { return _timestamp; }
+
+    void setOrientation(Quaternion orientation) { _orientation = orientation; }
+    Quaternion getOrientation() { return _orientation; }
+
+  protected:
+
+  private:
+    unsigned int _timestamp;
+    Quaternion _orientation;
 };
 
 #endif // SENSORDATA_H

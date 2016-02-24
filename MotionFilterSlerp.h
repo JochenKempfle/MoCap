@@ -27,51 +27,24 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORDETAILPANEL_H
-#define SENSORDETAILPANEL_H
+#ifndef MOTIONFILTERSLERP_H
+#define MOTIONFILTERSLERP_H
 
-#ifndef WX_PRECOMP
-	//(*HeadersPCH(SensorDetailPanel)
-	#include <wx/sizer.h>
-	#include <wx/panel.h>
-	//*)
-#endif
-//(*Headers(SensorDetailPanel)
-#include "ScrolledContainerPanel.h"
-//*)
+#include "MotionFilterBase.h"
 
-#include "SensorDataExtPanel.h"
-#include <map>
 
-class SensorDetailPanel: public wxPanel
+class MotionFilterSlerp : public MotionFilterBase
 {
-	public:
+  public:
+    MotionFilterSlerp();
+    virtual ~MotionFilterSlerp();
 
-		SensorDetailPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~SensorDetailPanel();
+    virtual std::string getName() const;
+    virtual void update();
 
-		//(*Declarations(SensorDetailPanel)
-		ScrolledContainerPanel* sensorContainerPanel;
-		wxBoxSizer* BoxSizerSensors;
-		//*)
+  protected:
 
-	protected:
-
-		//(*Identifiers(SensorDetailPanel)
-		static const long ID_SENSOREXTCONTAINERPANEL;
-		//*)
-
-	private:
-
-		//(*Handlers(SensorDetailPanel)
-		//*)
-		void OnUpdateEvent(wxEvent& event);
-
-		SensorDataExtPanel* addSensor(const SensorNode* sensor);
-
-		std::map<int, SensorDataExtPanel*> _dataPanelFromId;
-
-		DECLARE_EVENT_TABLE()
+  private:
 };
 
-#endif
+#endif // MOTIONFILTERSLERP_H

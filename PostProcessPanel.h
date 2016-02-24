@@ -63,30 +63,30 @@ class PostProcessPanel: public wxPanel
 		//(*Declarations(PostProcessPanel)
 		wxStaticText* StaticText10;
 		wxGenericDirCtrl* GenericDirCtrl;
+		wxButton* ButtonExport;
+		wxButton* ButtonSetSkeleton;
 		wxSpinCtrl* SpinCtrlRoll;
-		wxButton* Button4;
 		wxSlider* Slider2;
 		wxPanel* PanelDragDropSequence;
-		wxButton* Button1;
 		wxGridSizer* GridSizerSequenceInfo;
 		wxSpinCtrl* SpinCtrlYaw;
 		wxStaticText* StaticTextFPS;
 		wxPanel* PanelDragDropFrame;
 		wxStaticText* StaticText11;
 		wxStaticText* StaticTextFrames;
+		wxButton* ButtonFromSelection;
 		wxStaticText* StaticTextLength;
 		wxStaticText* StaticText1;
 		wxCheckBox* CheckBoxSelectAll;
 		wxStaticText* StaticText3;
-		wxButton* Button2;
 		wxTreeCtrl* TreeCtrlSkeleton;
 		wxSpinCtrl* SpinCtrlPitch;
-		wxButton* Button5;
-		wxButton* Button3;
 		wxStaticText* StaticText5;
+		wxButton* ButtonSave;
 		TimelinePanel* timelinePanel;
 		wxListBox* ListBoxSequences;
 		wxToggleButton* ToggleButtonTimeline;
+		wxButton* ButtonLoad;
 		wxButton* ButtonPlay;
 		wxStaticText* StaticText4;
 		wxToggleButton* ToggleButtonPreview;
@@ -98,7 +98,7 @@ class PostProcessPanel: public wxPanel
 		//(*Identifiers(PostProcessPanel)
 		static const long ID_GLCANVAS;
 		static const long ID_SLIDER2;
-		static const long ID_BUTTON4;
+		static const long ID_BUTTONSETSKELETON;
 		static const long ID_BUTTONPLAY;
 		static const long ID_TOGGLEBUTTONTIMELINE;
 		static const long ID_TOGGLEBUTTONPREVIEW;
@@ -113,16 +113,16 @@ class PostProcessPanel: public wxPanel
 		static const long ID_STATICTEXTLENGTH;
 		static const long ID_CHECKBOXSELECTALL;
 		static const long ID_PANELDRAGDROPSEQUENCE;
-		static const long ID_BUTTON2;
-		static const long ID_BUTTON3;
-		static const long ID_BUTTON5;
+		static const long ID_BUTTONEXPORT;
+		static const long ID_BUTTONSAVE;
+		static const long ID_BUTTONLOAD;
 		static const long ID_STATICTEXT1;
 		static const long ID_SPINCTRLYAW;
 		static const long ID_STATICTEXT10;
 		static const long ID_SPINCTRLPITCH;
 		static const long ID_STATICTEXT11;
 		static const long ID_SPINCTRLROLL;
-		static const long ID_BUTTON1;
+		static const long ID_BUTTONFROMSELECTION;
 		static const long ID_PANELDRAGDROPFRAME;
 		static const long ID_TIMELINE;
 		//*)
@@ -149,6 +149,7 @@ class PostProcessPanel: public wxPanel
 		void OnGenericDirCtrlActivated(wxTreeEvent& event);
 
 		void play();
+		void stop();
 		void updateListBoxSequences();
 		void updateSequenceInfo();
 

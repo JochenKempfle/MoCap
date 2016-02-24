@@ -12,9 +12,17 @@
 						<option>1</option>
 					</object>
 					<object class="sizeritem">
-						<object class="wxButton" name="ID_BUTTONSTART" variable="ButtonStart" member="yes">
-							<label>Start</label>
-							<handler function="OnButtonStartClick" entry="EVT_BUTTON" />
+						<object class="wxButton" name="ID_BUTTONSIMULATE" variable="ButtonSimulate" member="yes">
+							<label>Simulate</label>
+							<handler function="OnButtonSimulateClick" entry="EVT_BUTTON" />
+						</object>
+						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<border>5</border>
+					</object>
+					<object class="sizeritem">
+						<object class="wxButton" name="ID_BUTTONRECORD" variable="ButtonRecord" member="yes">
+							<label>Record</label>
+							<handler function="OnButtonRecordClick" entry="EVT_BUTTON" />
 						</object>
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 						<border>5</border>
@@ -45,7 +53,7 @@
 						<border>5</border>
 					</object>
 				</object>
-				<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<flag>wxEXPAND</flag>
 				<border>5</border>
 			</object>
 			<object class="sizeritem">
@@ -58,12 +66,12 @@
 							<minsize>400,300</minsize>
 							<style>wxFULL_REPAINT_ON_RESIZE</style>
 						</object>
-						<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<flag>wxALL|wxEXPAND</flag>
 						<border>5</border>
 						<option>1</option>
 					</object>
 				</object>
-				<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<flag>wxEXPAND</flag>
 				<border>5</border>
 				<option>1</option>
 			</object>
@@ -77,7 +85,7 @@
 							<local_include>1</local_include>
 							<style></style>
 						</object>
-						<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<flag>wxALL|wxEXPAND</flag>
 						<border>5</border>
 						<option>1</option>
 					</object>
@@ -87,7 +95,7 @@
 						<size>100,0</size>
 					</object>
 				</object>
-				<flag>wxEXPAND|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL</flag>
+				<flag>wxEXPAND</flag>
 				<border>5</border>
 			</object>
 		</object>

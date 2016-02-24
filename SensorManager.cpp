@@ -32,8 +32,8 @@ OF SUCH DAMAGE.
 SensorManager::SensorManager()
 {
     _nextId = 0;
-    _currentBufferPos = -1;
-    _bufferSize = 0;
+//    _currentBufferPos = -1;
+//    _bufferSize = 0;
     //ctor
 }
 
@@ -56,43 +56,48 @@ SensorManager& SensorManager::getInstance()
 int SensorManager::createSensorNode(std::string IPAddress)
 {
     int id = _nextId++;
-    SensorNode sensor(id, IPAddress);
+    SensorNode* sensor = new SensorNode(id, IPAddress);
     _sensors[id] = sensor;
-    _sensorIdFromIP[IPAddress] = id;
+    _sensorFromIP[IPAddress] = sensor;
     return id;
 }
 
-void SensorManager::updateSensor(std::string IPAddress, const SensorData &data)
+void SensorManager::updateSensor(std::string IPAddress, const SensorRawData &data)
 {
+    // TODO(JK#1#): the find id solution is not very effisient,
     int id;
-    auto it = _sensorIdFromIP.find(IPAddress);
-    if (it != _sensorIdFromIP.end())
+    auto it = _sensorFromIP.find(IPAddress);
+    if (it != _sensorFromIP.end())
     {
-        id = it->second;
+        it->second->update(data);
+        id = it->second->getId();
     }
     else
     {
         id = createSensorNode(IPAddress);
+        it = _sensorFromIP.find(IPAddress);
+        // TODO(JK#9#): maybe call updateSensor(int, data) here to avoid code duplication (is slower!)
+        it->second->update(data);
     }
-    // TODO(JK#9#): maybe call updateSensor(int, data) here to avoid code duplication (is slower!)
-    _sensors[id].update(data);
     // TODO(JK#2#): adapt sensor data axis orientation to GL orientation
     // the sensors z-axis points in the direction of screens y-axis, so rotate first
     Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
-    _sensors[id].setRotation(/*x*/_sensors[id].getRotation()/*x.inv()*/);
-    _sensors[id].setUpdated(true);
+    Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
+    x = y*x;
+    it->second->setRotation(x*it->second->getRotation()*x.inv());
+    it->second->setUpdated(true);
 }
 
-bool SensorManager::updateSensor(int id, const SensorData &data)
+bool SensorManager::updateSensor(int id, const SensorRawData &data)
 {
     // the sensors z-axis points in the direction of screens y-axis, so rotate first
     Quaternion x(1.0, 0.0, 0.0, -M_PI*90.0/180.0);
     auto it = _sensors.find(id);
     if (it != _sensors.end())
     {
-        it->second.update(data);
-        it->second.setRotation(/*x*/it->second.getRotation()/*x.inv()*/);
-        it->second.setUpdated(true);
+        it->second->update(data);
+        it->second->setRotation(/*x*/it->second->getRotation()/*x.inv()*/);
+        it->second->setUpdated(true);
         return true;
     }
     return false;
@@ -103,7 +108,7 @@ bool SensorManager::setSensorOffset(int id, const Quaternion &rotation)
     auto it = _sensors.find(id);
     if (it != _sensors.end())
     {
-        it->second.setRotationOffset(rotation);
+        it->second->setRotationOffset(rotation);
         return true;
     }
     return false;
@@ -124,37 +129,37 @@ std::vector<int> SensorManager::getMoving(double minDegree)
         //Vector3 difference = _previousSensorData[i].getRotation().toEuler() - it->second.getRotation().toEuler();
         // difference.normalize();
         //float angle = difference.norm();
-        float angle = _previousSensorData[i].getRotation().getShortestAngleTo(it->second.getRotation());
+        float angle = _previousSensorData[i].getRotation().getShortestAngleTo(it->second->getRotation());
         if (angle >= rotationThreshold)
         {
             moving.push_back(id);
         }
     }
-    _previousSensorData = getSensors();
-/*    for (size_t i = 0; i < getSensors().size(); ++i)
+    //_previousSensorData = getSensors();
+    // TODO(JK#1#): handle get previous sensor data with the sensor buffer
+    _previousSensorData.clear();
+    for (size_t i = 0; i < getSensors().size(); ++i)
     {
-        _previousSensorData.push_back(getSensors()[i]);
-    }*/
+        _previousSensorData.push_back(*getSensors()[i]);
+    }
     return moving;
 }
 
-SensorNode SensorManager::getSensor(int id)
+SensorNode* SensorManager::getSensor(int id)
 {
     auto it = _sensors.find(id);
     if (it != _sensors.end())
     {
         return it->second;
     }
-    // TODO(JK#9#): instead of returning a SensorNode dummy, throw an exception
-    SensorNode dummy;
-    return dummy;
+    return nullptr;
 }
 
 void SensorManager::resetAllSensorStatesUpdated()
 {
     for (auto it = _sensors.begin(); it != _sensors.end(); ++it)
     {
-        it->second.setUpdated(false);
+        it->second->setUpdated(false);
     }
 }
 
@@ -163,7 +168,7 @@ void SensorManager::setSensorStateCalibrated(int id, bool calibrated)
     auto it = _sensors.find(id);
     if (it != _sensors.end())
     {
-        it->second.setCalibrated(calibrated);
+        it->second->setCalibrated(calibrated);
     }
 }
 
@@ -172,23 +177,23 @@ void SensorManager::setSensorStateHasBone(int id, bool hasBone)
     auto it = _sensors.find(id);
     if (it != _sensors.end())
     {
-        it->second.setHasBone(hasBone);
+        it->second->setHasBone(hasBone);
     }
 }
 
 int SensorManager::getSensorIdFromIP(std::string IPAddress)
 {
-    auto it = _sensorIdFromIP.find(IPAddress);
-    if (it != _sensorIdFromIP.end())
+    auto it = _sensorFromIP.find(IPAddress);
+    if (it != _sensorFromIP.end())
     {
-        return it->second;
+        return it->second->getId();
     }
     return -1;
 }
 
-std::vector<SensorNode> SensorManager::getSensors()
+std::vector<SensorNode*> SensorManager::getSensors()
 {
-    std::vector<SensorNode> sensors;
+    std::vector<SensorNode*> sensors;
     sensors.reserve(_sensors.size());
     for (auto it = _sensors.begin(); it != _sensors.end(); ++it)
     {

@@ -36,14 +36,16 @@ OF SUCH DAMAGE.
 #include "Vector3.h"
 
 
-enum RenderStyle
+enum GLCanvasStyle
 {
     STANDARD = 0,
     HIGHLIGHT_SELECTED_BONE = 1,
     DRAW_GRID = 2,
     DRAW_LOCAL_COORDINATE_SYSTEM = 4,
     DRAW_SPIN_ARROWS = 8,
-    SELECTION_MODE = 16
+    SELECTION_MODE = 16,
+    DRAW_SENSORS = 32,
+    SINGLE_SENSOR_MODE = 64
 };
 
 
@@ -55,16 +57,18 @@ class GLCanvas : public wxGLCanvas
 
     virtual ~GLCanvas();
 
-    void Render() const;
+    void renderSkeleton() const;
     void drawSpinArrows(Vector3 pos, Vector3 dir, Vector3 up, Vector3 right) const;
+    void renderSingleSensor() const;
     void InitGL();
     int getObjectIdAt(const wxPoint& pos);
     void setSkeleton(Skeleton* skeleton) { _skeleton = skeleton; }
+    void setSensorOrientation(const Quaternion &orientation) { _sensorOrientation = orientation; }
 
-    void setRenderStyle(unsigned char flags) { _renderStyle = flags; }
-    void setRenderStyleFlag(unsigned char flags) { _renderStyle |= flags; }
-    void unsetRenderStyleFlag(unsigned char flags) { _renderStyle &= ~flags; }
-    unsigned char getRenderStyle() const { return _renderStyle; }
+    void setStyle(unsigned char flags) { _style = flags; }
+    void setStyleFlag(unsigned char flags) { _style |= flags; }
+    void unsetStyleFlag(unsigned char flags) { _style &= ~flags; }
+    unsigned char getStyle() const { return _style; }
 
   private:
     bool init;
@@ -93,9 +97,10 @@ class GLCanvas : public wxGLCanvas
     Vector3 _cameraUp;
 
     Skeleton* _skeleton;
+    Quaternion _sensorOrientation;
     GLImage _image;
 
-    unsigned char _renderStyle;
+    unsigned char _style;
 
 	DECLARE_EVENT_TABLE()
 };

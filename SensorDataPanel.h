@@ -48,7 +48,7 @@ class SensorDataPanel: public wxPanel
     SensorDataPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
     virtual ~SensorDataPanel();
 
-    void update(const SensorNode &sensor);
+    void update(const SensorNode* sensor);
     void setSensorId(int id);
 
     //(*Declarations(SensorDataPanel)

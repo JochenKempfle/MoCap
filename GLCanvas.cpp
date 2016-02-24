@@ -29,10 +29,16 @@ OF SUCH DAMAGE.
 
 #include "wx_pch.h"
 #include "GLCanvas.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 #include "MoCapManager.h"
+
+#if defined(__WXMAC__) || defined(__WXCOCOA__)
+    #include <OpenGL/gl.h>
+    #include <OpenGL/glu.h>
+#else
+    #include <GL/gl.h>
+    #include <GL/glu.h>
+#endif
+
 
 #ifndef WX_PRECOMP
 	//InternalHeadersPCH(GLCanvas)
@@ -68,7 +74,7 @@ GLCanvas::GLCanvas(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wx
     _lClicked = false;
     _rClicked = false;
     _skeleton = nullptr;
-    _renderStyle = STANDARD;
+    _style = STANDARD;
 	SetFocus();
 	// _image.loadImage(_("C:/Users/Jochen/Desktop/Katana.png"));
 }
@@ -86,7 +92,14 @@ void GLCanvas::OnPaint(wxPaintEvent &event)
 
 	SetCurrent(*_GLRC);
 
-	Render();
+	if (_style & SINGLE_SENSOR_MODE)
+    {
+        renderSingleSensor();
+    }
+    else
+    {
+        renderSkeleton();
+    }
 	// _image.render();
 	// glFlush();
 	SwapBuffers();
@@ -178,6 +191,10 @@ void GLCanvas::OnRightUp(wxMouseEvent &event)
 
 void GLCanvas::OnMouseMove(wxMouseEvent &event)
 {
+    if (_style & SINGLE_SENSOR_MODE)
+    {
+        return;
+    }
     if (_rClicked)
     {
         wxPoint delta = event.GetPosition() - _mousePosAtClick;
@@ -206,6 +223,15 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
 void GLCanvas::OnMouseWheel(wxMouseEvent &event)
 {
     _cameraPosition += 30.0f * _cameraSpeed * _cameraFront * float(event.GetWheelRotation()/event.GetWheelDelta());
+
+    if (_style & SINGLE_SENSOR_MODE)
+    {
+        if (_cameraPosition.z() <= 1.0f)
+        {
+            _cameraPosition.z() = 1.0f;
+        }
+    }
+
     Refresh();
 }
 
@@ -221,24 +247,15 @@ void GLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
     Refresh();
 }
 
-void GLCanvas::Render() const
+void GLCanvas::renderSkeleton() const
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-/*
-	glTranslatef(0.0, 0.0, -3.0);
-    glRotatef(_yRotation, 1.f, 0.f, 0.f);
-	glTranslatef(0.0, -1.1, 0.0);
-    glRotatef(_xRotation, 0.f, 1.f, 0.f);
-*/
+
     Vector3 lookAt = _cameraPosition + _cameraFront;
     gluLookAt(_cameraPosition.x(), _cameraPosition.y(), _cameraPosition.z(),
               lookAt.x()         , lookAt.y()         , lookAt.z(),
               _cameraUp.x()      , _cameraUp.y()      , _cameraUp.z());
-    //glRotatef(_yRotation, 1.f, 0.f, 0.f);/* orbit the X axis */
-    //glRotatef(_xRotation, 0.f, 1.f, 0.f);/* orbit the Y axis */
-
-	//glTranslatef(_position.x()/2.0, -_position.y()/2.0, _position.z());
 
     if (_skeleton == nullptr)
     {
@@ -274,12 +291,12 @@ void GLCanvas::Render() const
         const GLubyte* boneColor1 = boneStandardColor1;
         const GLubyte* boneColor2 = boneStandardColor2;
 
-        if (_renderStyle & SELECTION_MODE)
+        if (_style & SELECTION_MODE)
         {
             boneColor1 = boneIdColor;
             boneColor2 = boneIdColor;
         }
-        else if (_renderStyle & HIGHLIGHT_SELECTED_BONE && bone.getId() == _skeleton->getSelectedBoneId())
+        else if (_style & HIGHLIGHT_SELECTED_BONE && bone.getId() == _skeleton->getSelectedBoneId())
         {
             boneColor1 = boneHighlightedColor1;
             boneColor2 = boneHighlightedColor2;
@@ -299,7 +316,7 @@ void GLCanvas::Render() const
         Vector3 rightPoint = startPos + right*length*0.1 + dir*length*0.1;
         Vector3 leftPoint = startPos - right*length*0.1 + dir*length*0.1;
 
-        if (!(_renderStyle & SELECTION_MODE))
+        if (!(_style & SELECTION_MODE))
         {
             //set point size to 10 pixels
             glPointSize(10.0f);
@@ -312,7 +329,7 @@ void GLCanvas::Render() const
         }
 
         // draw local coordinate system
-        if (true)//_renderStyle & DRAW_LOCAL_COORDINATE_SYSTEM)
+        if (_style & DRAW_LOCAL_COORDINATE_SYSTEM)
         {
             glBegin(GL_LINES);
                 glColor4ubv(red);
@@ -358,7 +375,7 @@ void GLCanvas::Render() const
             glVertex3f(upPoint.x(), upPoint.y(), upPoint.z());
         glEnd();
 
-        if (!(_renderStyle & SELECTION_MODE))
+        if (!(_style & SELECTION_MODE))
         {
             // draw black mesh lines around bones
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -383,9 +400,9 @@ void GLCanvas::Render() const
             glEnd();
         }
 
-        if (_renderStyle & DRAW_SPIN_ARROWS && bone.getId() == _skeleton->getSelectedBoneId())
+        if (_style & DRAW_SPIN_ARROWS && bone.getId() == _skeleton->getSelectedBoneId())
         {
-            drawSpinArrows(endPos, dir, up, right);
+            drawSpinArrows(endPos - 0.2 * bone.getLength() * dir, dir, up, right);
         }
     }
 }
@@ -441,7 +458,7 @@ void GLCanvas::drawSpinArrows(Vector3 pos, Vector3 dir, Vector3 up, Vector3 righ
 
     // the arrow rendering is done twice, one iteration for filling color, one for having black corner lines
     int numIterations = 2;
-    if (_renderStyle & SELECTION_MODE)
+    if (_style & SELECTION_MODE)
     {
         // do not draw the corner lines in selection mode
         numIterations = 1;
@@ -589,6 +606,137 @@ void GLCanvas::drawSpinArrows(Vector3 pos, Vector3 dir, Vector3 up, Vector3 righ
     glEnd();*/
 }
 
+void GLCanvas::renderSingleSensor() const
+{
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+
+//    Vector3 lookAt = Vector3(0.0f, 0.0f, 0.0f);
+    // Vector3 lookAt = _cameraPosition + _cameraFront;
+//    gluLookAt(_cameraPosition.x(), _cameraPosition.y(), _cameraPosition.z(),
+//              lookAt.x()         , lookAt.y()         , lookAt.z(),
+//              _cameraUp.x()      , _cameraUp.y()      , _cameraUp.z());
+
+    gluLookAt(0.0f, 0.0f, _cameraPosition.z(),
+              0.0f, 0.0f, 0.0f,
+              0.0f, 1.0f, 0.0f);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    Vector3 dir = _sensorOrientation.rotate(Vector3(1.0f, 0.0f, 0.0f));
+    Vector3 up = 0.25 * _sensorOrientation.rotate(Vector3(0.0f, 1.0f, 0.0f));
+    Vector3 right = 0.5 * _sensorOrientation.rotate(Vector3(0.0f, 0.0f, 1.0f));
+
+    Vector3 frontUpRight = dir + up + right;
+    Vector3 frontDownRight = dir - up + right;
+    Vector3 frontUpLeft = dir + up - right;
+    Vector3 frontDownLeft = dir - up - right;
+    Vector3 backUpRight = -dir + up + right;
+    Vector3 backDownRight = -dir - up + right;
+    Vector3 backUpLeft = -dir + up - right;
+    Vector3 backDownLeft = -dir - up - right;
+
+
+    glBegin(GL_QUADS);
+        glColor3f(0.8, 0.5, 0.5);
+        glVertex3f(frontUpRight.x(), frontUpRight.y(), frontUpRight.z());
+        glVertex3f(frontUpLeft.x(), frontUpLeft.y(), frontUpLeft.z());
+        glVertex3f(frontDownLeft.x(), frontDownLeft.y(), frontDownLeft.z());
+        glVertex3f(frontDownRight.x(), frontDownRight.y(), frontDownRight.z());
+
+        glColor3f(0.5, 0.7, 0.5);
+        glVertex3f(backUpRight.x(), backUpRight.y(), backUpRight.z());
+        glVertex3f(frontUpRight.x(), frontUpRight.y(), frontUpRight.z());
+        glVertex3f(frontUpLeft.x(), frontUpLeft.y(), frontUpLeft.z());
+        glVertex3f(backUpLeft.x(), backUpLeft.y(), backUpLeft.z());
+
+        glColor3f(0.5, 0.5, 0.7);
+        glVertex3f(backDownRight.x(), backDownRight.y(), backDownRight.z());
+        glVertex3f(frontDownRight.x(), frontDownRight.y(), frontDownRight.z());
+        glVertex3f(frontUpRight.x(), frontUpRight.y(), frontUpRight.z());
+        glVertex3f(backUpRight.x(), backUpRight.y(), backUpRight.z());
+
+        glColor3f(0.7, 0.7, 0.7);
+        glVertex3f(backUpRight.x(), backUpRight.y(), backUpRight.z());
+        glVertex3f(backUpLeft.x(), backUpLeft.y(), backUpLeft.z());
+        glVertex3f(backDownLeft.x(), backDownLeft.y(), backDownLeft.z());
+        glVertex3f(backDownRight.x(), backDownRight.y(), backDownRight.z());
+
+        glVertex3f(backDownLeft.x(), backDownLeft.y(), backDownLeft.z());
+        glVertex3f(frontDownLeft.x(), frontDownLeft.y(), frontDownLeft.z());
+        glVertex3f(frontDownRight.x(), frontDownRight.y(), frontDownRight.z());
+        glVertex3f(backDownRight.x(), backDownRight.y(), backDownRight.z());
+
+        glVertex3f(backUpLeft.x(), backUpLeft.y(), backUpLeft.z());
+        glVertex3f(frontUpLeft.x(), frontUpLeft.y(), frontUpLeft.z());
+        glVertex3f(frontDownLeft.x(), frontDownLeft.y(), frontDownLeft.z());
+        glVertex3f(backDownLeft.x(), backDownLeft.y(), backDownLeft.z());
+    glEnd();
+
+    // scale slightly to ensure the lines are visible
+    glScalef(1.001f, 1.001f, 1.001f);
+
+    glLineWidth(1.0f);
+    glColor3f(0.0, 0.0, 0.0);
+    glBegin(GL_LINE_STRIP);
+        glVertex3f(backUpRight.x(), backUpRight.y(), backUpRight.z());
+        glVertex3f(backUpLeft.x(), backUpLeft.y(), backUpLeft.z());
+        glVertex3f(backDownLeft.x(), backDownLeft.y(), backDownLeft.z());
+        glVertex3f(backDownRight.x(), backDownRight.y(), backDownRight.z());
+        glVertex3f(backUpRight.x(), backUpRight.y(), backUpRight.z());
+
+        glVertex3f(frontUpRight.x(), frontUpRight.y(), frontUpRight.z());
+        glVertex3f(frontUpLeft.x(), frontUpLeft.y(), frontUpLeft.z());
+        glVertex3f(frontDownLeft.x(), frontDownLeft.y(), frontDownLeft.z());
+        glVertex3f(frontDownRight.x(), frontDownRight.y(), frontDownRight.z());
+        glVertex3f(frontUpRight.x(), frontUpRight.y(), frontUpRight.z());
+    glEnd();
+
+    glBegin(GL_LINES);
+        glVertex3f(backUpLeft.x(), backUpLeft.y(), backUpLeft.z());
+        glVertex3f(frontUpLeft.x(), frontUpLeft.y(), frontUpLeft.z());
+
+        glVertex3f(backDownLeft.x(), backDownLeft.y(), backDownLeft.z());
+        glVertex3f(frontDownLeft.x(), frontDownLeft.y(), frontDownLeft.z());
+
+        glVertex3f(backDownRight.x(), backDownRight.y(), backDownRight.z());
+        glVertex3f(frontDownRight.x(), frontDownRight.y(), frontDownRight.z());
+    glEnd();
+
+    glLineWidth(2.0f);
+    // draw global coordinate system
+    glBegin(GL_LINES);
+        glColor3f(1.0, 0.0, 0.0);
+        glVertex3f(-1.5, -1.0, -1.0);
+        glVertex3f(1.0, -1.0, -1.0);
+
+        glColor3f(0.0, 1.0, 0.0);
+        glVertex3f(-1.5, -1.0, -1.0);
+        glVertex3f(-1.5, 1.0, -1.0);
+
+        glColor3f(0.0, 0.0, 1.0);
+        glVertex3f(-1.5, -1.0, -1.0);
+        glVertex3f(-1.5, -1.0, 1.0);
+    glEnd();
+
+    // draw global coordinate system
+//    glBegin(GL_LINES);
+//        glColor3f(1.0, 0.0, 0.0);
+//        glVertex3f(0.0, 0.0, 0.0);
+//        glVertex3f(1.5, 00.0, 0.0);
+//
+//        glColor3f(0.0, 1.0, 0.0);
+//        glVertex3f(0.0, 0.0, 0.0);
+//        glVertex3f(0.0, 1.5, 0.0);
+//
+//        glColor3f(0.0, 0.0, 1.0);
+//        glVertex3f(0.0, 0.0, 0.0);
+//        glVertex3f(0.0, 0.0, 1.5);
+//    glEnd();
+
+    glLineWidth(1.0f);
+}
+
 // Initialization of all OpenGL specific parameters.
 void GLCanvas::InitGL()
 {
@@ -607,12 +755,14 @@ int GLCanvas::getObjectIdAt(const wxPoint& pos)
     if (_GLRC)
     {
         SetCurrent(*_GLRC);
-        _renderStyle |= SELECTION_MODE;
+        glDisable(GL_BLEND);
+        _style |= SELECTION_MODE;
         glClearColor(1.0, 1.0, 1.0, 1.0);
-        Render();
+        renderSkeleton();
         glFlush();
         glClearColor(0.0, 0.0, 0.0, 0.0);
-        _renderStyle &= ~SELECTION_MODE;
+        _style &= ~SELECTION_MODE;
+        glEnable(GL_BLEND);
 
         // read the color at pos and convert it to an id
         GLubyte color[3];

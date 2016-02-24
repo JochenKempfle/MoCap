@@ -222,14 +222,14 @@ MotionSequenceFrame TimelineChannel::getFrame(unsigned int time)
     // TODO(JK#1#): get frame can get tricky when there is no track. Solve this by adding a default frame (equal to bone default)
     if (_tracks.size() == 0)
     {
-        return MotionSequenceFrame(_defaultOrientation);
+        return MotionSequenceFrame();
     }
 
     TimelineTrack* track = getTrack(time);
     // if there is no track at specified time point, return default orientation
     if (track == nullptr)
     {
-        return MotionSequenceFrame(_defaultOrientation);
+        return MotionSequenceFrame();
     }
     return track->getFrameFromAbsTime(time);
 }

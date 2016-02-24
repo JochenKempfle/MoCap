@@ -340,6 +340,12 @@ void Quaternion::decomposeSwingTwist(const Vector3 &direction, Quaternion* swing
     *swing = *this * twist->inv();
 }
 
+Quaternion Quaternion::getRotationAround(const Vector3 &direction) const
+{
+    Vector3 p = Vector3(x(), y(), z()).dot(direction) * direction;
+    return Quaternion(u(), p.x(), p.y(), p.z()).normalize();
+}
+
 Quaternion Quaternion::operator*(float val) const
 {
     return Quaternion(u() * val, x() * val, y() * val, z() * val);

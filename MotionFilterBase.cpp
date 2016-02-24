@@ -27,51 +27,62 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORDETAILPANEL_H
-#define SENSORDETAILPANEL_H
+#include "MotionFilterBase.h"
 
-#ifndef WX_PRECOMP
-	//(*HeadersPCH(SensorDetailPanel)
-	#include <wx/sizer.h>
-	#include <wx/panel.h>
-	//*)
-#endif
-//(*Headers(SensorDetailPanel)
-#include "ScrolledContainerPanel.h"
-//*)
-
-#include "SensorDataExtPanel.h"
-#include <map>
-
-class SensorDetailPanel: public wxPanel
+MotionFilterBase::MotionFilterBase()
 {
-	public:
+    _skeleton = nullptr;
+    _frameTime = 0.01f;
+    _recording = false;
+}
 
-		SensorDetailPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~SensorDetailPanel();
+MotionFilterBase::~MotionFilterBase()
+{
+    //dtor
+}
 
-		//(*Declarations(SensorDetailPanel)
-		ScrolledContainerPanel* sensorContainerPanel;
-		wxBoxSizer* BoxSizerSensors;
-		//*)
+void MotionFilterBase::setSensors(std::vector<SensorNode*> sensors)
+{
+    _sensors = sensors;
+}
 
-	protected:
+void MotionFilterBase::setSkeleton(Skeleton* skeleton)
+{
+    _skeleton = skeleton;
+    _sequence.createFromSkeleton(*skeleton);
+}
 
-		//(*Identifiers(SensorDetailPanel)
-		static const long ID_SENSOREXTCONTAINERPANEL;
-		//*)
+void MotionFilterBase::setFrameTime(float frameTime)
+{
+    _frameTime = frameTime;
+}
 
-	private:
+float MotionFilterBase::getFrameTime() const
+{
+    return _frameTime;
+}
 
-		//(*Handlers(SensorDetailPanel)
-		//*)
-		void OnUpdateEvent(wxEvent& event);
+void MotionFilterBase::setRecording(bool recording)
+{
+    if (!_recording && recording)
+    {
+        onStartRecording();
+    }
+    if (_recording && !recording)
+    {
+        onStopRecording();
+    }
+    _recording = recording;
+}
 
-		SensorDataExtPanel* addSensor(const SensorNode* sensor);
+bool MotionFilterBase::isRecording() const
+{
+    return _recording;
+}
 
-		std::map<int, SensorDataExtPanel*> _dataPanelFromId;
+MotionSequence MotionFilterBase::getSequence()
+{
+    return _sequence;
+}
 
-		DECLARE_EVENT_TABLE()
-};
 
-#endif

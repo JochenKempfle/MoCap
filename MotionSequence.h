@@ -39,6 +39,7 @@ class MotionSequence
 {
   public:
     MotionSequence();
+    MotionSequence(const MotionSequence &other);
     virtual ~MotionSequence();
 
     void setName(std::string name);
@@ -52,11 +53,14 @@ class MotionSequence
     void setFrameTime(float time);
     float getFrameTime() const { return _frameTime; }
 
+    void createFromSkeleton(const Skeleton &skeleton);
+
     size_t getNumChannels() const { return _channels.size(); }
     int createChannel(int parent = -1);
     int createChannel(const MotionSequenceChannel &channelData, int parent = -1);
     bool eraseChannel(int id, bool eraseChildren = false);
     void clear();
+    void clearFrames();
 
     std::vector<int> getChannelIds() const;
 
@@ -70,6 +74,7 @@ class MotionSequence
 
     bool readBVH(std::string path);
 
+    // TODO(JK#1#): add copy constructor and assignment operator to MotionSequence!
     std::map<int, MotionSequenceChannel*>::iterator beginChannels() { return _channels.begin(); }
     std::map<int, MotionSequenceChannel*>::iterator endChannels() { return _channels.end(); }
   protected:

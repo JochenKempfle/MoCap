@@ -27,51 +27,21 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORDETAILPANEL_H
-#define SENSORDETAILPANEL_H
+#ifndef SENSORRAWDATA_H
+#define SENSORRAWDATA_H
 
-#ifndef WX_PRECOMP
-	//(*HeadersPCH(SensorDetailPanel)
-	#include <wx/sizer.h>
-	#include <wx/panel.h>
-	//*)
-#endif
-//(*Headers(SensorDetailPanel)
-#include "ScrolledContainerPanel.h"
-//*)
 
-#include "SensorDataExtPanel.h"
-#include <map>
-
-class SensorDetailPanel: public wxPanel
+// POD type
+struct SensorRawData
 {
-	public:
+  public:
+    SensorRawData();
+    ~SensorRawData();
 
-		SensorDetailPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~SensorDetailPanel();
-
-		//(*Declarations(SensorDetailPanel)
-		ScrolledContainerPanel* sensorContainerPanel;
-		wxBoxSizer* BoxSizerSensors;
-		//*)
-
-	protected:
-
-		//(*Identifiers(SensorDetailPanel)
-		static const long ID_SENSOREXTCONTAINERPANEL;
-		//*)
-
-	private:
-
-		//(*Handlers(SensorDetailPanel)
-		//*)
-		void OnUpdateEvent(wxEvent& event);
-
-		SensorDataExtPanel* addSensor(const SensorNode* sensor);
-
-		std::map<int, SensorDataExtPanel*> _dataPanelFromId;
-
-		DECLARE_EVENT_TABLE()
+    unsigned int id;
+    unsigned int timestamp;
+    float rotation[4];
+    // float position[3];
 };
 
-#endif
+#endif // SENSORRAWDATA_H

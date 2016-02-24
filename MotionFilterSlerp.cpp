@@ -27,51 +27,43 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORDETAILPANEL_H
-#define SENSORDETAILPANEL_H
+#include "MotionFilterSlerp.h"
 
-#ifndef WX_PRECOMP
-	//(*HeadersPCH(SensorDetailPanel)
-	#include <wx/sizer.h>
-	#include <wx/panel.h>
-	//*)
-#endif
-//(*Headers(SensorDetailPanel)
-#include "ScrolledContainerPanel.h"
-//*)
-
-#include "SensorDataExtPanel.h"
-#include <map>
-
-class SensorDetailPanel: public wxPanel
+MotionFilterSlerp::MotionFilterSlerp() : MotionFilterBase()
 {
-	public:
+    //ctor
+}
 
-		SensorDetailPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~SensorDetailPanel();
+MotionFilterSlerp::~MotionFilterSlerp()
+{
+    //dtor
+}
 
-		//(*Declarations(SensorDetailPanel)
-		ScrolledContainerPanel* sensorContainerPanel;
-		wxBoxSizer* BoxSizerSensors;
-		//*)
 
-	protected:
+std::string MotionFilterSlerp::getName() const
+{
+    return "MotionFilterSlerp";
+}
 
-		//(*Identifiers(SensorDetailPanel)
-		static const long ID_SENSOREXTCONTAINERPANEL;
-		//*)
+void MotionFilterSlerp::update()
+{
+    if (_skeleton == nullptr)
+    {
+        return;
+    }
+    for (size_t i = 0; i < _sensors.size(); ++i)
+    {
+//        std::list<std::pair<unsigned int, SensorData> >* buffer = _sensors[i]->getBuffer();
+//        if (buffer->size() > 1)
+        {
+            //_skeleton->setAbsBoneRotation(_sensors[i]->getBoneId(), buffer->front().second.getOrientation());
+        }
+//        for (auto it = buffer->begin(); it != buffer->end(); ++it)
+        {
 
-	private:
+        }
+    }
+    _skeleton->update();
+}
 
-		//(*Handlers(SensorDetailPanel)
-		//*)
-		void OnUpdateEvent(wxEvent& event);
 
-		SensorDataExtPanel* addSensor(const SensorNode* sensor);
-
-		std::map<int, SensorDataExtPanel*> _dataPanelFromId;
-
-		DECLARE_EVENT_TABLE()
-};
-
-#endif

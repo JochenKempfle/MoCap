@@ -29,6 +29,7 @@ OF SUCH DAMAGE.
 
 #include "wx_pch.h"
 #include "SensorDataExtPanel.h"
+#include "SensorManager.h"
 #include <math.h>
 
 #ifndef WX_PRECOMP
@@ -41,21 +42,12 @@ OF SUCH DAMAGE.
 //*)
 
 //(*IdInit(SensorDataExtPanel)
-const long SensorDataExtPanel::ID_STATICTEXT1 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXT2 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXT15 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXT6 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXT7 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXT8 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXTPITCH = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXTYAW = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXTROLL = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXT9 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXT10 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXT11 = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXTX = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXTY = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXTZ = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTNAME = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTIP = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTSTATE = wxNewId();
+const long SensorDataExtPanel::ID_GLCANVAS = wxNewId();
+const long SensorDataExtPanel::ID_TOGGLEBUTTONOFFSET = wxNewId();
+const long SensorDataExtPanel::ID_PANELPLOT = wxNewId();
 //*)
 
 BEGIN_EVENT_TABLE(SensorDataExtPanel,wxPanel)
@@ -66,9 +58,6 @@ END_EVENT_TABLE()
 SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
 	//(*Initialize(SensorDataExtPanel)
-	wxBoxSizer* BoxSizer5;
-	wxBoxSizer* BoxSizer7;
-	wxBoxSizer* BoxSizer8;
 	wxBoxSizer* BoxSizer2;
 	wxBoxSizer* BoxSizer1;
 	wxBoxSizer* BoxSizer3;
@@ -78,55 +67,41 @@ SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPo
 	BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
 	StaticBoxSizerInfo = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Sensor Info"));
 	BoxSizer2 = new wxBoxSizer(wxVERTICAL);
-	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
-	BoxSizer2->Add(StaticText1, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticText2 = new wxStaticText(this, ID_STATICTEXT2, _("Affiliation"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
-	BoxSizer2->Add(StaticText2, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticText15 = new wxStaticText(this, ID_STATICTEXT15, _("State"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT15"));
-	BoxSizer2->Add(StaticText15, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticBoxSizerInfo->Add(BoxSizer2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer1->Add(StaticBoxSizerInfo, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticBoxSizerRotation = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Rotation"));
-	BoxSizer5 = new wxBoxSizer(wxVERTICAL);
-	StaticText6 = new wxStaticText(this, ID_STATICTEXT6, _("pitch"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
-	BoxSizer5->Add(StaticText6, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticText7 = new wxStaticText(this, ID_STATICTEXT7, _("yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT7"));
-	BoxSizer5->Add(StaticText7, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticText8 = new wxStaticText(this, ID_STATICTEXT8, _("roll"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT8"));
-	BoxSizer5->Add(StaticText8, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticBoxSizerRotation->Add(BoxSizer5, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	StaticTextName = new wxStaticText(this, ID_STATICTEXTNAME, _("Sensor Name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTNAME"));
+	BoxSizer2->Add(StaticTextName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	StaticTextIP = new wxStaticText(this, ID_STATICTEXTIP, _("IP"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTIP"));
+	BoxSizer2->Add(StaticTextIP, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	StaticTextState = new wxStaticText(this, ID_STATICTEXTSTATE, _("State"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTSTATE"));
+	BoxSizer2->Add(StaticTextState, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	StaticBoxSizerInfo->Add(BoxSizer2, 1, wxALL|wxEXPAND, 5);
+	BoxSizer1->Add(StaticBoxSizerInfo, 0, wxALL|wxEXPAND, 5);
+	int GLCanvasAttributes_1[] = {
+		WX_GL_RGBA,
+		WX_GL_DOUBLEBUFFER,
+		WX_GL_DEPTH_SIZE,      16,
+		WX_GL_STENCIL_SIZE,    0,
+		0, 0 };
+	glCanvas = new GLCanvas(this, ID_GLCANVAS, wxDefaultPosition, wxSize(200,-1), 0, _T("ID_GLCANVAS"), GLCanvasAttributes_1);
+	glCanvas->SetBackgroundColour(wxColour(0,0,0));
+	BoxSizer1->Add(glCanvas, 0, wxALL|wxEXPAND, 5);
 	BoxSizer3 = new wxBoxSizer(wxVERTICAL);
-	StaticTextPitch = new wxStaticText(this, ID_STATICTEXTPITCH, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTPITCH"));
-	BoxSizer3->Add(StaticTextPitch, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticTextYaw = new wxStaticText(this, ID_STATICTEXTYAW, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTYAW"));
-	BoxSizer3->Add(StaticTextYaw, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticTextRoll = new wxStaticText(this, ID_STATICTEXTROLL, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTROLL"));
-	BoxSizer3->Add(StaticTextRoll, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticBoxSizerRotation->Add(BoxSizer3, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer1->Add(StaticBoxSizerRotation, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticBoxSizerPosition = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Position"));
-	BoxSizer7 = new wxBoxSizer(wxVERTICAL);
-	StaticText9 = new wxStaticText(this, ID_STATICTEXT9, _("x"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT9"));
-	BoxSizer7->Add(StaticText9, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticText10 = new wxStaticText(this, ID_STATICTEXT10, _("y"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
-	BoxSizer7->Add(StaticText10, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticText11 = new wxStaticText(this, ID_STATICTEXT11, _("z"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
-	BoxSizer7->Add(StaticText11, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticBoxSizerPosition->Add(BoxSizer7, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer8 = new wxBoxSizer(wxVERTICAL);
-	StaticTextX = new wxStaticText(this, ID_STATICTEXTX, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTX"));
-	BoxSizer8->Add(StaticTextX, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticTextY = new wxStaticText(this, ID_STATICTEXTY, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTY"));
-	BoxSizer8->Add(StaticTextY, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticTextZ = new wxStaticText(this, ID_STATICTEXTZ, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTZ"));
-	BoxSizer8->Add(StaticTextZ, 1, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	StaticBoxSizerPosition->Add(BoxSizer8, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer1->Add(StaticBoxSizerPosition, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer1->Add(-1,-1,2, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ToggleButtonOffset = new wxToggleButton(this, ID_TOGGLEBUTTONOFFSET, _("Remove Offset"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TOGGLEBUTTONOFFSET"));
+	BoxSizer3->Add(ToggleButtonOffset, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer1->Add(BoxSizer3, 0, wxALL|wxEXPAND, 5);
+	PanelPlot = new wxPanel(this, ID_PANELPLOT, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER, _T("ID_PANELPLOT"));
+	PanelPlot->SetBackgroundColour(wxColour(255,255,255));
+	BoxSizer1->Add(PanelPlot, 1, wxALL|wxEXPAND, 5);
+	BoxSizer1->Add(-1,-1,0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
+
+	Connect(ID_TOGGLEBUTTONOFFSET,wxEVT_COMMAND_TOGGLEBUTTON_CLICKED,(wxObjectEventFunction)&SensorDataExtPanel::OnToggleButtonOffsetToggle);
+	PanelPlot->Connect(wxEVT_PAINT,(wxObjectEventFunction)&SensorDataExtPanel::OnPanelPlotPaint,0,this);
 	//*)
+	glCanvas->setStyle(SINGLE_SENSOR_MODE);
+	_updateCounter = 0;
+	_sensorId = -1;
 }
 
 SensorDataExtPanel::~SensorDataExtPanel()
@@ -135,24 +110,112 @@ SensorDataExtPanel::~SensorDataExtPanel()
 	//*)
 }
 
-void SensorDataExtPanel::update(const SensorNode &sensor)
+void SensorDataExtPanel::update(const SensorNode* sensor)
 {
-    Vector3 rotation = sensor.toEuler();
-    wxString value;
-    value << rotation.x()*180.0/M_PI;
-    StaticTextPitch->SetLabel(value);
-    value.clear();
-    value << rotation.y()*180.0/M_PI;
-    StaticTextYaw->SetLabel(value);
-    value.clear();
-    value << rotation.z()*180.0/M_PI;
-    StaticTextRoll->SetLabel(value);
-    value.clear();
+    // TODO(JK#3#): handle sensor is offline case for displaying
+    ++_updateCounter;
+    if (_updateCounter >= 10)
+    {
+        _updateCounter = 0;
+
+        if (!sensor->isUpdated())
+        {
+            StaticTextState->SetLabel(_("offline"));
+        }
+    }
+	if (sensor->isUpdated())
+    {
+        StaticTextState->SetLabel(_("online"));
+    }
+
+    if (ToggleButtonOffset->GetValue())
+    {
+        Quaternion q = sensor->getRotation() * _offset.inv();
+        glCanvas->setSensorOrientation(q);
+        _plotData.push_back(q.toEuler());
+    }
+    else
+    {
+        Quaternion q = sensor->getRotation();
+        glCanvas->setSensorOrientation(q);
+        _plotData.push_back(q.toEuler());
+    }
+
+    if (_plotData.size() > _numPlotPoints)
+    {
+        _plotData.pop_front();
+    }
+
+	glCanvas->Refresh();
+	StaticTextState->Refresh();
+	PanelPlot->Refresh();
+
     // StaticBoxSizerInfo->Layout();
     // StaticBoxSizerRotation->Layout();
     // StaticBoxSizerPosition->Layout();
     // Refresh();
 }
 
+void SensorDataExtPanel::OnToggleButtonOffsetToggle(wxCommandEvent& event)
+{
+    if (ToggleButtonOffset->GetValue())
+    {
+        _offset = theSensorManager.getSensor(_sensorId)->getRotation();
+    }
+}
 
+void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
+{
+    wxPaintDC dc(PanelPlot);
+    if (!dc.IsOk())
+    {
+        return;
+    }
+    wxSize size = PanelPlot->GetSize();
 
+    //dc.DrawRectangle(wxPoint(0, 0), size);
+
+    size -= wxSize(2, 2);
+    int x = 0;
+    int y = size.y/2;
+    int step = size.x/_numPlotPoints;
+
+    dc.DrawText(_("180"), wxPoint(size.x - dc.GetTextExtent(_("180")).x, 0));
+    dc.DrawText(_("0"), wxPoint(size.x - dc.GetTextExtent(_("0")).x, y - dc.GetTextExtent(_("0")).y/2));
+    dc.DrawText(_("-180"), wxPoint(size.x - dc.GetTextExtent(_("-180")).x, size.y - dc.GetTextExtent(_("-180")).y));
+
+    dc.SetPen(wxPen(wxColour(100, 100, 100), 1, wxPENSTYLE_LONG_DASH));
+    dc.DrawLine(wxPoint(0, y), wxPoint(size.x - 10, y));
+
+    dc.SetPen(wxPen(wxColour(255, 0, 0)));
+    wxPoint last = wxPoint(0, y + _plotData.front().x()/M_PI * y + 1);
+    for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
+    {
+        wxPoint next(x, y + it->x()/M_PI * y);
+        dc.DrawLine(last, next);
+        last = next;
+        x += step;
+    }
+
+    x = 0;
+    dc.SetPen(wxPen(wxColour(0, 255, 0)));
+    last = wxPoint(0, y + _plotData.front().y()/M_PI * y + 1);
+    for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
+    {
+        wxPoint next(x, y + it->y()/M_PI * y);
+        dc.DrawLine(last, next);
+        last = next;
+        x += step;
+    }
+
+    x = 0;
+    dc.SetPen(wxPen(wxColour(0, 0, 255)));
+    last = wxPoint(0, y + _plotData.front().z()/M_PI * y + 1);
+    for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
+    {
+        wxPoint next(x, y + it->z()/M_PI * y);
+        dc.DrawLine(last, next);
+        last = next;
+        x += step;
+    }
+}

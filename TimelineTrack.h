@@ -27,8 +27,8 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef MOTIONTRACK_H
-#define MOTIONTRACK_H
+#ifndef TIMELINETRACK_H
+#define TIMELINETRACK_H
 
 #include "MotionSequence.h"
 #include "MotionSequenceChannel.h"
@@ -93,4 +93,4 @@ class TimelineTrack
     std::vector<MotionSequenceFrame> _frames;
 };
 
-#endif // MOTIONTRACK_H
+#endif // TIMELINETRACK_H

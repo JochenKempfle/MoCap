@@ -43,9 +43,9 @@ OF SUCH DAMAGE.
 //*)
 
 //(*IdInit(SkeletonCreatorPanel)
-const long SkeletonCreatorPanel::ID_BUTTON1 = wxNewId();
-const long SkeletonCreatorPanel::ID_BUTTON2 = wxNewId();
-const long SkeletonCreatorPanel::ID_BUTTON3 = wxNewId();
+const long SkeletonCreatorPanel::ID_BUTTONLOAD = wxNewId();
+const long SkeletonCreatorPanel::ID_BUTTONSAVE = wxNewId();
+const long SkeletonCreatorPanel::ID_BUTTONRESET = wxNewId();
 const long SkeletonCreatorPanel::ID_GLCANVAS = wxNewId();
 const long SkeletonCreatorPanel::ID_TREECTRLSKELETON = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT1 = wxNewId();
@@ -53,7 +53,7 @@ const long SkeletonCreatorPanel::ID_TEXTCTRLNAME = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT2 = wxNewId();
 const long SkeletonCreatorPanel::ID_CHOICEPARENT = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT9 = wxNewId();
-const long SkeletonCreatorPanel::ID_TEXTCTRL2 = wxNewId();
+const long SkeletonCreatorPanel::ID_TEXTCTRLLENGTH = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT6 = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT7 = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT8 = wxNewId();
@@ -69,8 +69,8 @@ const long SkeletonCreatorPanel::ID_STATICTEXT5 = wxNewId();
 const long SkeletonCreatorPanel::ID_TEXTCTRL5 = wxNewId();
 const long SkeletonCreatorPanel::ID_TEXTCTRL8 = wxNewId();
 const long SkeletonCreatorPanel::ID_TEXTCTRL11 = wxNewId();
-const long SkeletonCreatorPanel::ID_BUTTON4 = wxNewId();
-const long SkeletonCreatorPanel::ID_BUTTON5 = wxNewId();
+const long SkeletonCreatorPanel::ID_BUTTONADDBONE = wxNewId();
+const long SkeletonCreatorPanel::ID_BUTTONREMOVEBONE = wxNewId();
 //*)
 
 BEGIN_EVENT_TABLE(SkeletonCreatorPanel,wxPanel)
@@ -96,13 +96,13 @@ SkeletonCreatorPanel::SkeletonCreatorPanel(wxWindow* parent,wxWindowID id,const 
     BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
     BoxSizer2 = new wxBoxSizer(wxVERTICAL);
     BoxSizer2->Add(-1,-1,1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button1 = new wxButton(this, ID_BUTTON1, _("Label"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
-    BoxSizer2->Add(Button1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button2 = new wxButton(this, ID_BUTTON2, _("Label"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
-    BoxSizer2->Add(Button2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button3 = new wxButton(this, ID_BUTTON3, _("Label"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
-    BoxSizer2->Add(Button3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer1->Add(BoxSizer2, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonLoad = new wxButton(this, ID_BUTTONLOAD, _("Load"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONLOAD"));
+    BoxSizer2->Add(ButtonLoad, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonSave = new wxButton(this, ID_BUTTONSAVE, _("Save"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSAVE"));
+    BoxSizer2->Add(ButtonSave, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonReset = new wxButton(this, ID_BUTTONRESET, _("Reset"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONRESET"));
+    BoxSizer2->Add(ButtonReset, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer1->Add(BoxSizer2, 0, wxEXPAND, 5);
     BoxSizer3 = new wxBoxSizer(wxHORIZONTAL);
     int GLCanvasAttributes_1[] = {
     	WX_GL_RGBA,
@@ -112,30 +112,30 @@ SkeletonCreatorPanel::SkeletonCreatorPanel(wxWindow* parent,wxWindowID id,const 
     	0, 0 };
     glCanvas = new GLCanvas(this, ID_GLCANVAS, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE, _T("ID_GLCANVAS"), GLCanvasAttributes_1);
     glCanvas->SetBackgroundColour(wxColour(0,0,0));
-    BoxSizer3->Add(glCanvas, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer1->Add(BoxSizer3, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer3->Add(glCanvas, 1, wxALL|wxEXPAND, 5);
+    BoxSizer1->Add(BoxSizer3, 1, wxEXPAND, 5);
     BoxSizer4 = new wxBoxSizer(wxVERTICAL);
     TreeCtrlSkeleton = new wxTreeCtrl(this, ID_TREECTRLSKELETON, wxDefaultPosition, wxDefaultSize, wxTR_EDIT_LABELS|wxTR_DEFAULT_STYLE, wxDefaultValidator, _T("ID_TREECTRLSKELETON"));
-    BoxSizer4->Add(TreeCtrlSkeleton, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer4->Add(TreeCtrlSkeleton, 1, wxALL|wxEXPAND, 5);
     BoxSizer5 = new wxBoxSizer(wxVERTICAL);
     BoxSizer6 = new wxBoxSizer(wxHORIZONTAL);
     StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
     BoxSizer6->Add(StaticText1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrlName = new wxTextCtrl(this, ID_TEXTCTRLNAME, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRLNAME"));
+    TextCtrlName = new wxTextCtrl(this, ID_TEXTCTRLNAME, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER, wxDefaultValidator, _T("ID_TEXTCTRLNAME"));
     BoxSizer6->Add(TextCtrlName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer5->Add(BoxSizer6, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer5->Add(BoxSizer6, 0, wxEXPAND, 5);
     BoxSizer7 = new wxBoxSizer(wxHORIZONTAL);
     StaticText2 = new wxStaticText(this, ID_STATICTEXT2, _("Parent"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
     BoxSizer7->Add(StaticText2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ChoiceParent = new wxChoice(this, ID_CHOICEPARENT, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHOICEPARENT"));
     BoxSizer7->Add(ChoiceParent, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer5->Add(BoxSizer7, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer5->Add(BoxSizer7, 0, wxEXPAND, 5);
     BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
     StaticText9 = new wxStaticText(this, ID_STATICTEXT9, _("Length"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT9"));
     BoxSizer8->Add(StaticText9, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl2 = new wxTextCtrl(this, ID_TEXTCTRL2, _("1"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TEXTCTRL2"));
-    BoxSizer8->Add(TextCtrl2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer5->Add(BoxSizer8, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    TextCtrlLength = new wxTextCtrl(this, ID_TEXTCTRLLENGTH, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER, wxFloatingPointValidator<float>(), _T("ID_TEXTCTRLLENGTH"));
+    BoxSizer8->Add(TextCtrlLength, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer5->Add(BoxSizer8, 0, wxEXPAND, 5);
     GridSizer1 = new wxGridSizer(4, 4, 0, 0);
     GridSizer1->Add(-1,-1,0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText6 = new wxStaticText(this, ID_STATICTEXT6, _("Yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
@@ -170,13 +170,13 @@ SkeletonCreatorPanel::SkeletonCreatorPanel(wxWindow* parent,wxWindowID id,const 
     GridSizer1->Add(TextCtrl11, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer5->Add(GridSizer1, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer9 = new wxBoxSizer(wxHORIZONTAL);
-    Button4 = new wxButton(this, ID_BUTTON4, _("Add Bone"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON4"));
-    BoxSizer9->Add(Button4, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    Button5 = new wxButton(this, ID_BUTTON5, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON5"));
-    BoxSizer9->Add(Button5, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer5->Add(BoxSizer9, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer4->Add(BoxSizer5, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    BoxSizer1->Add(BoxSizer4, 0, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonAddBone = new wxButton(this, ID_BUTTONADDBONE, _("Add Bone"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONADDBONE"));
+    BoxSizer9->Add(ButtonAddBone, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonRemoveBone = new wxButton(this, ID_BUTTONREMOVEBONE, _("Remove"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONREMOVEBONE"));
+    BoxSizer9->Add(ButtonRemoveBone, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer5->Add(BoxSizer9, 0, wxEXPAND, 5);
+    BoxSizer4->Add(BoxSizer5, 0, wxEXPAND, 5);
+    BoxSizer1->Add(BoxSizer4, 0, wxEXPAND, 5);
     SetSizer(BoxSizer1);
     BoxSizer1->Fit(this);
     BoxSizer1->SetSizeHints(this);
@@ -186,12 +186,16 @@ SkeletonCreatorPanel::SkeletonCreatorPanel(wxWindow* parent,wxWindowID id,const 
     Connect(ID_TREECTRLSKELETON,wxEVT_COMMAND_TREE_DELETE_ITEM,(wxObjectEventFunction)&SkeletonCreatorPanel::OnTreeCtrlSkeletonDeleteItem);
     Connect(ID_TREECTRLSKELETON,wxEVT_COMMAND_TREE_SEL_CHANGED,(wxObjectEventFunction)&SkeletonCreatorPanel::OnTreeCtrlSkeletonSelectionChanged);
     Connect(ID_TREECTRLSKELETON,wxEVT_COMMAND_TREE_KEY_DOWN,(wxObjectEventFunction)&SkeletonCreatorPanel::OnTreeCtrlSkeletonKeyDown);
+    Connect(ID_TEXTCTRLNAME,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&SkeletonCreatorPanel::OnTextCtrlNameTextEnter);
     Connect(ID_CHOICEPARENT,wxEVT_COMMAND_CHOICE_SELECTED,(wxObjectEventFunction)&SkeletonCreatorPanel::OnChoiceParentSelect);
+    Connect(ID_TEXTCTRLLENGTH,wxEVT_COMMAND_TEXT_ENTER,(wxObjectEventFunction)&SkeletonCreatorPanel::OnTextCtrlLengthTextEnter);
     //*)
     glCanvas->Connect(wxEVT_MOUSE_CAPTURE_LOST, (wxObjectEventFunction)&SkeletonCreatorPanel::OnMouseCaptureLost,0,this);
 
 	glCanvas->setSkeleton(theMoCapManager.getSkeleton());
-	glCanvas->setRenderStyle(DRAW_SPIN_ARROWS | HIGHLIGHT_SELECTED_BONE);
+	glCanvas->setStyle(DRAW_SPIN_ARROWS | HIGHLIGHT_SELECTED_BONE | DRAW_LOCAL_COORDINATE_SYSTEM);
+
+	static_cast<wxFloatingPointValidator<float>*>(TextCtrlLength->GetValidator())->SetMin(0.0f);
     // _skeleton = theMoCapManager.getSkeleton();
     updateTreeCtrlSkeleton();
     // updateBoneInfo();
@@ -299,8 +303,11 @@ void SkeletonCreatorPanel::updateBoneInfo()
         return;
     }
 
-    TextCtrlName->SetLabel(theMoCapManager.getBoneName(bone->getId()));
+    TextCtrlName->ChangeValue(bone->getName());
     ChoiceParent->Clear();
+    wxString lengthString;
+    lengthString << bone->getLength();
+    TextCtrlLength->ChangeValue(lengthString);
 
     if (bone->getParent() != nullptr)
     {
@@ -399,7 +406,62 @@ void SkeletonCreatorPanel::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
 
 void SkeletonCreatorPanel::OnChoiceParentSelect(wxCommandEvent& event)
 {
-    wxString msg = _("bone id: ");
-    msg << static_cast<Bone*>(event.GetClientData())->getId();
-    wxMessageBox(msg);
+    int boneId = theMoCapManager.getSelectedBoneId();
+    if (boneId < 0)
+    {
+        return;
+    }
+    Bone* parentBone = static_cast<Bone*>(event.GetClientData());
+    if (theMoCapManager.getSkeleton()->reparent(boneId, parentBone->getId(), true))
+    {
+        theMoCapManager.getSkeleton()->update();
+        updateTreeCtrlSkeleton();
+        updateBoneInfo();
+        glCanvas->Refresh();
+    }
+    else
+    {
+        wxString msg;
+        if (parentBone == nullptr)
+        {
+            // this should never happen as only existing bones are displayed, but who knows. This way at least an unknown bug gets correctly reported
+            msg << _("Failed to set the selected bone as parent.\nCould not find the new parent bone or the bone does not exist.");
+        }
+        else
+        {
+            msg << _("Failed to set ") << parentBone->getName() << _(" as new parent of ") << theMoCapManager.getSelectedBone()->getName();
+        }
+        wxMessageBox(msg, _("Error"), wxICON_EXCLAMATION);
+    }
+}
+
+void SkeletonCreatorPanel::OnTextCtrlNameTextEnter(wxCommandEvent& event)
+{
+    Bone* bone = theMoCapManager.getSelectedBone();
+    if (bone != nullptr)
+    {
+        bone->setName(event.GetString().ToStdString());
+    }
+    updateTreeCtrlSkeleton();
+    updateBoneInfo();
+}
+
+void SkeletonCreatorPanel::OnTextCtrlLengthTextEnter(wxCommandEvent& event)
+{
+    Bone* bone = theMoCapManager.getSelectedBone();
+    if (bone != nullptr)
+    {
+        double length;
+        if(event.GetString().ToDouble(&length))
+        {
+            if (length == 0.0f)
+            {
+                length = 0.000001f;
+            }
+            bone->setLength(length);
+            bone->update();
+        }
+        updateBoneInfo();
+        glCanvas->Refresh();
+    }
 }

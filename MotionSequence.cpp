@@ -36,6 +36,18 @@ MotionSequence::MotionSequence()
     _frameTime = 0.0;
 }
 
+MotionSequence::MotionSequence(const MotionSequence &other)
+{
+    _name = other._name;
+    _skeleton = other._skeleton;
+    _numFrames = other._numFrames;
+    _frameTime = other._frameTime;
+    for (auto it = other._channels.begin(); it != other._channels.end(); ++it)
+    {
+        _channels[it->first] = new MotionSequenceChannel(*(it->second));
+    }
+}
+
 MotionSequence::~MotionSequence()
 {
     clear();
@@ -60,19 +72,30 @@ void MotionSequence::setFrameTime(float time)
     }
 }
 
+void MotionSequence::createFromSkeleton(const Skeleton &skeleton)
+{
+    clear();
+    _skeleton = skeleton;
+    auto boneIdsWithName = skeleton.getBoneIdsWithName();
+    for (size_t i = 0; i < boneIdsWithName.size(); ++i)
+    {
+        MotionSequenceChannel* channel = new MotionSequenceChannel(boneIdsWithName[i].first);
+        channel->setName(boneIdsWithName[i].second);
+        _channels[boneIdsWithName[i].first] = channel;
+    }
+}
+
 int MotionSequence::createChannel(int parent)
 {
     int id = _skeleton.createBone(parent);
-    MotionSequenceChannel* channel = new MotionSequenceChannel(id);
-    _channels[id] = channel;
+    _channels[id] = new MotionSequenceChannel(id);
     return id;
 }
 
 int MotionSequence::createChannel(const MotionSequenceChannel &channelData, int parent)
 {
     int id = _skeleton.createBone(parent);
-    MotionSequenceChannel* channel = new MotionSequenceChannel(id, channelData);
-    _channels[id] = channel;
+    _channels[id] = new MotionSequenceChannel(id, channelData);
     return id;
 }
 
@@ -131,6 +154,14 @@ void MotionSequence::clear()
         delete it->second;
     }
     _channels.clear();
+}
+
+void MotionSequence::clearFrames()
+{
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        it->second->clear();
+    }
 }
 
 std::vector<int> MotionSequence::getChannelIds() const

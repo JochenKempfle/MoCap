@@ -187,13 +187,19 @@ void Timeline::moveTrack(int trackId, int toChannel, unsigned int toTime)
     {
         return;
     }
+    TimelineTrack* track = it->second;
+
+    if (track->getStartTime() == toTime && track->getChannel() == toChannel)
+    {
+        // nothing to do
+        return;
+    }
     // if the channel does not exist yet, initialize it with the correct channel position
     if (_channels.find(toChannel) == _channels.end())
     {
         _channels[toChannel] = TimelineChannel(toChannel);
     }
 
-    TimelineTrack* track = it->second;
 
     _channels[track->getChannel()].remove(trackId, track->getStartTime());
     _channels[toChannel].insert(track, toTime);

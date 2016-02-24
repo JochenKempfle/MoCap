@@ -41,6 +41,7 @@ class MotionSequenceChannel
   public:
     MotionSequenceChannel();
     MotionSequenceChannel(int id);
+    MotionSequenceChannel(const MotionSequenceChannel &other);
     MotionSequenceChannel(int id, const MotionSequenceChannel &other);
 
     virtual ~MotionSequenceChannel();
@@ -48,19 +49,8 @@ class MotionSequenceChannel
     void setId(int id) { _id = id; }
     int getId() const { return _id; }
 
-    MotionSequenceChannel& copyContent(const MotionSequenceChannel &other);
-
     void setName(std::string name);
     std::string getName() const;
-
-    void setParent(MotionSequenceChannel* parent);
-    MotionSequenceChannel* getParent();
-    void appendChild(MotionSequenceChannel* child);
-    std::vector<MotionSequenceChannel*> getChildren();
-    void removeChild(int id);
-    void removeChild(MotionSequenceChannel* channel);
-    bool hasChild(MotionSequenceChannel* child) const;
-    bool hasChild(int id) const;
 
     void setFrame(size_t frameNumber, const MotionSequenceFrame &frame);
     void appendFrame(const MotionSequenceFrame &frame);
@@ -71,6 +61,8 @@ class MotionSequenceChannel
 
     void setFrameTime(float time) { _frameTime = time; }
     float getFrameTime() const { return _frameTime; }
+
+    void clear();
 
     void setBoneLength(float length);
     float getBoneLength() const;

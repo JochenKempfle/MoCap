@@ -46,7 +46,8 @@ OF SUCH DAMAGE.
 //*)
 
 //(*IdInit(ViewPanel)
-const long ViewPanel::ID_BUTTONSTART = wxNewId();
+const long ViewPanel::ID_BUTTONSIMULATE = wxNewId();
+const long ViewPanel::ID_BUTTONRECORD = wxNewId();
 const long ViewPanel::ID_BUTTONSTOP = wxNewId();
 const long ViewPanel::ID_BUTTONAUTOASSIGN = wxNewId();
 const long ViewPanel::ID_BUTTONCALIBRATE = wxNewId();
@@ -69,8 +70,10 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
 	BoxSizerControl = new wxBoxSizer(wxVERTICAL);
 	BoxSizerControl->Add(-1,-1,1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	ButtonStart = new wxButton(this, ID_BUTTONSTART, _("Start"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSTART"));
-	BoxSizerControl->Add(ButtonStart, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonSimulate = new wxButton(this, ID_BUTTONSIMULATE, _("Simulate"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSIMULATE"));
+	BoxSizerControl->Add(ButtonSimulate, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonRecord = new wxButton(this, ID_BUTTONRECORD, _("Record"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONRECORD"));
+	BoxSizerControl->Add(ButtonRecord, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonStop = new wxButton(this, ID_BUTTONSTOP, _("Stop"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSTOP"));
 	ButtonStop->Hide();
 	BoxSizerControl->Add(ButtonStop, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -100,7 +103,8 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
 
-	Connect(ID_BUTTONSTART,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonStartClick);
+	Connect(ID_BUTTONSIMULATE,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonSimulateClick);
+	Connect(ID_BUTTONRECORD,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonRecordClick);
 	Connect(ID_BUTTONSTOP,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonStopClick);
 	Connect(ID_BUTTONAUTOASSIGN,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonAutoAssignClick);
 	Connect(ID_BUTTONCALIBRATE,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonCalibrateClick);
@@ -110,6 +114,7 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	// addSensor(1);//(new SensorDataPanel(sensorContainerPanel->ScrolledWindow));
 
 	glCanvas->setSkeleton(theMoCapManager.getSkeleton());
+	glCanvas->setStyle(DRAW_LOCAL_COORDINATE_SYSTEM);
 
     _counter = 0;
     _simulationStarted = false;
@@ -142,10 +147,10 @@ void ViewPanel::OnUpdateEvent(wxEvent& event)
             }
         }
         // update sensor states displayed in the GUI
-        std::vector<SensorNode> sensors = theSensorManager.getSensors();
+        std::vector<SensorNode*> sensors = theSensorManager.getSensors();
         for (size_t i = 0; i < sensors.size(); ++i)
         {
-            int id = sensors[i].getId();
+            int id = sensors[i]->getId();
             auto it = _dataPanelFromId.find(id);
             if (it != _dataPanelFromId.end())
             {
@@ -180,11 +185,11 @@ SensorDataPanel* ViewPanel::addSensor(int id)
 }
 
 
-void ViewPanel::OnButtonStartClick(wxCommandEvent& event)
+void ViewPanel::OnButtonSimulateClick(wxCommandEvent& event)
 {
     _simulationStarted = true;
     Freeze();
-    ButtonStart->Hide();
+    ButtonSimulate->Hide();
     ButtonCalibrate->Hide();
     ButtonStop->Show();
     BoxSizerControl->Layout();
@@ -193,17 +198,33 @@ void ViewPanel::OnButtonStartClick(wxCommandEvent& event)
     // TODO(JK#3#): check if connection is not lost while started
 }
 
+void ViewPanel::OnButtonRecordClick(wxCommandEvent& event)
+{
+    _simulationStarted = true;
+    Freeze();
+    ButtonSimulate->Hide();
+    ButtonRecord->Hide();
+    ButtonCalibrate->Hide();
+    ButtonStop->Show();
+    BoxSizerControl->Layout();
+    Thaw();
+    Refresh();
+    theMoCapManager.startRecording();
+}
+
 void ViewPanel::OnButtonStopClick(wxCommandEvent& event)
 {
     _simulationStarted = false;
     Freeze();
     ButtonStop->Hide();
     ButtonCalibrate->Show();
-    ButtonStart->Show();
+    ButtonSimulate->Show();
+    ButtonRecord->Show();
     BoxSizerControl->Layout();
     theMoCapManager.resetSkeleton();
     Thaw();
     Refresh();
+    theMoCapManager.stopRecording();
 }
 
 void ViewPanel::OnButtonAutoAssignClick(wxCommandEvent& event)
@@ -232,3 +253,7 @@ void ViewPanel::OnButtonCalibrateClick(wxCommandEvent& event)
 {
     theMoCapManager.calibrate();
 }
+
+
+
+

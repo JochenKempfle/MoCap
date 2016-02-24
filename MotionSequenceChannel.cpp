@@ -39,10 +39,21 @@ MotionSequenceChannel::MotionSequenceChannel(int id) : _id(id)
 
 }
 
+MotionSequenceChannel::MotionSequenceChannel(const MotionSequenceChannel &other)
+{
+    _id = other._id;
+    _name = other._name;
+    _frames = other._frames;
+    _frameTime = other._frameTime;
+    _initialPose = other._initialPose;
+    _boneLength = other._boneLength;
+}
+
 MotionSequenceChannel::MotionSequenceChannel(int id, const MotionSequenceChannel &other) : _id(id)
 {
     _name = other._name;
     _frames = other._frames;
+    _frameTime = other._frameTime;
     _initialPose = other._initialPose;
     _boneLength = other._boneLength;
 }
@@ -50,15 +61,6 @@ MotionSequenceChannel::MotionSequenceChannel(int id, const MotionSequenceChannel
 MotionSequenceChannel::~MotionSequenceChannel()
 {
     //dtor
-}
-
-MotionSequenceChannel& MotionSequenceChannel::copyContent(const MotionSequenceChannel &other)
-{
-    _name = other._name;
-    _frames = other._frames;
-    _initialPose = other._initialPose;
-    _boneLength = other._boneLength;
-    return *this;
 }
 
 void MotionSequenceChannel::setName(std::string name)
@@ -90,6 +92,10 @@ void MotionSequenceChannel::appendFrame(const MotionSequenceFrame &frame)
 
 MotionSequenceFrame MotionSequenceChannel::getFrame(size_t frameNumber) const
 {
+    if (_frames.size() == 0)
+    {
+        return MotionSequenceFrame();
+    }
     if (frameNumber < _frames.size())
     {
         return _frames[frameNumber];
@@ -100,6 +106,11 @@ MotionSequenceFrame MotionSequenceChannel::getFrame(size_t frameNumber) const
 size_t MotionSequenceChannel::getNumFrames() const
 {
     return _frames.size();
+}
+
+void MotionSequenceChannel::clear()
+{
+    _frames.clear();
 }
 
 void MotionSequenceChannel::setBoneLength(float length)

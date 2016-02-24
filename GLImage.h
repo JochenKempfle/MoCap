@@ -30,8 +30,14 @@ OF SUCH DAMAGE.
 #ifndef GLIMAGE_H
 #define GLIMAGE_H
 
+
+#if defined(__WXMAC__) || defined(__WXCOCOA__)
+    #include <OpenGL/gl.h>
+#else
+    #include <GL/gl.h>
+#endif
+
 #include "Vector3.h"
-#include <GL/gl.h>
 #include <wx/image.h>
 #include <wx/bitmap.h>
 
@@ -61,6 +67,9 @@ class GLImage
     void scale(float x, float y) { _scaleX = x; _scaleY = y; }
     float getScaleX() const { return _scaleX; }
     float getScaleY() const { return _scaleY; }
+
+    float getWidth() const { return _width; }
+    float getHeight() const { return _height; }
 
   protected:
 

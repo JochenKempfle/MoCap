@@ -130,6 +130,8 @@ class Quaternion
 
     void decomposeSwingTwist(const Vector3 &direction, Quaternion* swing, Quaternion* twist) const;
 
+    Quaternion getRotationAround(const Vector3 &direction) const;
+
     Quaternion operator*(float val) const;
     Quaternion operator+(const Quaternion &other) const;
 

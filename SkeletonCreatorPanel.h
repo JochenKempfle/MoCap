@@ -34,6 +34,7 @@ OF SUCH DAMAGE.
 #include "GLCanvas.h"
 #include "TreeItemBoneData.h"
 #include <map>
+#include <wx/valnum.h>
 
 #ifndef WX_PRECOMP
 	//(*HeadersPCH(SkeletonCreatorPanel)
@@ -60,27 +61,27 @@ class SkeletonCreatorPanel: public wxPanel
 		//(*Declarations(SkeletonCreatorPanel)
 		wxStaticText* StaticText9;
 		wxTextCtrl* TextCtrl4;
-		wxButton* Button4;
+		wxTextCtrl* TextCtrlLength;
 		wxStaticText* StaticText2;
-		wxButton* Button1;
 		wxStaticText* StaticText6;
 		wxTextCtrl* TextCtrl6;
 		wxStaticText* StaticText8;
 		wxStaticText* StaticText1;
 		wxStaticText* StaticText3;
-		wxButton* Button2;
 		wxTreeCtrl* TreeCtrlSkeleton;
-		wxButton* Button5;
-		wxButton* Button3;
 		wxStaticText* StaticText5;
 		wxStaticText* StaticText7;
+		wxButton* ButtonSave;
 		wxChoice* ChoiceParent;
 		wxTextCtrl* TextCtrl8;
-		wxTextCtrl* TextCtrl2;
+		wxButton* ButtonRemoveBone;
 		wxTextCtrl* TextCtrl7;
 		wxTextCtrl* TextCtrlName;
+		wxButton* ButtonReset;
 		wxTextCtrl* TextCtrl9;
 		wxTextCtrl* TextCtrl5;
+		wxButton* ButtonLoad;
+		wxButton* ButtonAddBone;
 		wxStaticText* StaticText4;
 		wxTextCtrl* TextCtrl3;
 		wxTextCtrl* TextCtrl10;
@@ -95,9 +96,9 @@ class SkeletonCreatorPanel: public wxPanel
 	protected:
 
 		//(*Identifiers(SkeletonCreatorPanel)
-		static const long ID_BUTTON1;
-		static const long ID_BUTTON2;
-		static const long ID_BUTTON3;
+		static const long ID_BUTTONLOAD;
+		static const long ID_BUTTONSAVE;
+		static const long ID_BUTTONRESET;
 		static const long ID_GLCANVAS;
 		static const long ID_TREECTRLSKELETON;
 		static const long ID_STATICTEXT1;
@@ -105,7 +106,7 @@ class SkeletonCreatorPanel: public wxPanel
 		static const long ID_STATICTEXT2;
 		static const long ID_CHOICEPARENT;
 		static const long ID_STATICTEXT9;
-		static const long ID_TEXTCTRL2;
+		static const long ID_TEXTCTRLLENGTH;
 		static const long ID_STATICTEXT6;
 		static const long ID_STATICTEXT7;
 		static const long ID_STATICTEXT8;
@@ -121,8 +122,8 @@ class SkeletonCreatorPanel: public wxPanel
 		static const long ID_TEXTCTRL5;
 		static const long ID_TEXTCTRL8;
 		static const long ID_TEXTCTRL11;
-		static const long ID_BUTTON4;
-		static const long ID_BUTTON5;
+		static const long ID_BUTTONADDBONE;
+		static const long ID_BUTTONREMOVEBONE;
 		//*)
 
 	private:
@@ -134,6 +135,8 @@ class SkeletonCreatorPanel: public wxPanel
 		void OnTreeCtrlSkeletonKeyDown(wxTreeEvent& event);
 		void OnGlCanvasLeftDown(wxMouseEvent& event);
 		void OnChoiceParentSelect(wxCommandEvent& event);
+		void OnTextCtrlNameTextEnter(wxCommandEvent& event);
+		void OnTextCtrlLengthTextEnter(wxCommandEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
 

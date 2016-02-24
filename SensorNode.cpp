@@ -31,13 +31,16 @@ OF SUCH DAMAGE.
 
 SensorNode::SensorNode(int id, std::string IPAddress) : _id(id), _IPAddress(IPAddress)
 {
+    _boneId = -1;
     _state = 0;
-    //ctor
+    _mapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
 }
 
 SensorNode::SensorNode() : _id(-1)
 {
+    _boneId = -1;
     _state = 0;
+    _mapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
 }
 
 SensorNode::~SensorNode()
@@ -45,13 +48,19 @@ SensorNode::~SensorNode()
     //dtor
 }
 
-void SensorNode::update(const SensorData &data)
+void SensorNode::update(const SensorRawData &data)
 {
     // TODO(JK#2#): implement some kind of filtering here!
     _rotation.u() = data.rotation[0];
     _rotation.x() = data.rotation[1];
     _rotation.y() = data.rotation[2];
     _rotation.z() = data.rotation[3];
+    // TODO(JK#1#): remove sensor mapping from SensorNode::update() as soon as there is a valid mapping routine
+    Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
+    x = y*x;
+    _rotation = x*_rotation*x.inv();
+    _buffer.push_back(SensorData(data.timestamp, _rotation));
 
     // TODO(JK#2#): update position of sensor node
 /*    _position.x() = data.position[0];
@@ -64,6 +73,8 @@ void SensorNode::update(const SensorData &data)
 Quaternion SensorNode::getCalRotation() const
 {
     // Quaternion x(1.0, 0.0, 0.0, M_PI*90.0/180.0);
+//    Quaternion offset = _rotationOffset * _mapping;
+//    return offset * _rotation * offset.inv();
     return _rotationOffset * _rotation;
 }
 

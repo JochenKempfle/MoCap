@@ -34,6 +34,12 @@ SensorData::SensorData()
     //ctor
 }
 
+SensorData::SensorData(int timestamp, const Quaternion &orientation)
+{
+    _timestamp = timestamp;
+    _orientation = orientation;
+}
+
 SensorData::~SensorData()
 {
     //dtor

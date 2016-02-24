@@ -27,51 +27,39 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORDETAILPANEL_H
-#define SENSORDETAILPANEL_H
+#ifndef MOTIONFILTERBASE_H
+#define MOTIONFILTERBASE_H
 
-#ifndef WX_PRECOMP
-	//(*HeadersPCH(SensorDetailPanel)
-	#include <wx/sizer.h>
-	#include <wx/panel.h>
-	//*)
-#endif
-//(*Headers(SensorDetailPanel)
-#include "ScrolledContainerPanel.h"
-//*)
+#include "Skeleton.h"
+#include "MotionSequence.h"
+#include "SensorNode.h"
 
-#include "SensorDataExtPanel.h"
-#include <map>
-
-class SensorDetailPanel: public wxPanel
+class MotionFilterBase
 {
-	public:
+  public:
+    MotionFilterBase();
+    virtual ~MotionFilterBase();
+    virtual std::string getName() const = 0;
+    virtual void update() = 0;
+    void setSensors(std::vector<SensorNode*> sensors);
+    void setSkeleton(Skeleton* skeleton);
+    void setFrameTime(float frameTime);
+    float getFrameTime() const;
+    void setRecording(bool recording = true);
+    bool isRecording() const;
+    MotionSequence getSequence();
 
-		SensorDetailPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~SensorDetailPanel();
+  protected:
+    virtual void onStartRecording() = 0;
+    virtual void onStopRecording() = 0;
 
-		//(*Declarations(SensorDetailPanel)
-		ScrolledContainerPanel* sensorContainerPanel;
-		wxBoxSizer* BoxSizerSensors;
-		//*)
+    std::vector<SensorNode*> _sensors;
+    Skeleton* _skeleton;
+    MotionSequence _sequence;
+    float _frameTime;
+    bool _recording;
 
-	protected:
-
-		//(*Identifiers(SensorDetailPanel)
-		static const long ID_SENSOREXTCONTAINERPANEL;
-		//*)
-
-	private:
-
-		//(*Handlers(SensorDetailPanel)
-		//*)
-		void OnUpdateEvent(wxEvent& event);
-
-		SensorDataExtPanel* addSensor(const SensorNode* sensor);
-
-		std::map<int, SensorDataExtPanel*> _dataPanelFromId;
-
-		DECLARE_EVENT_TABLE()
+  private:
 };
 
-#endif
+#endif // MOTIONFILTERBASE_H

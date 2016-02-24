@@ -196,7 +196,7 @@ size_t TimelineTrack::getNumFrames() const
 
 bool TimelineTrack::cut(unsigned int time, TimelineTrack* newTrack)
 {
-    // TODO(JK#1#): implement cutting
+    // TODO(JK#3#): implementation of cutting is buggy. Cutting creates gaps in the timeline due to insufficient time resolution
     unsigned int pos = (time/_frameTime)/1000;
     if (pos <= 0 || pos >= _frames.size())
     {
@@ -223,7 +223,7 @@ MotionSequenceFrame TimelineTrack::getFrameFromAbsTime(unsigned int time) const
     unsigned int pos = ((time - _startTime)/_frameTime)/1000 + _startOffset;
     if (pos >= _frames.size())
     {
-        // TODO(JK#1#): do not return the last frame, also consider returning a pointer or a reference
+        // TODO(JK#1#): do not return the last frame in getFrameFromAbs/RelTime, also consider returning a pointer or a reference
         return _frames.back();
     }
     return _frames[pos];

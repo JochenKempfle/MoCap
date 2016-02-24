@@ -38,9 +38,13 @@ OF SUCH DAMAGE.
 	//*)
 #endif
 //(*Headers(SensorDataExtPanel)
+#include <wx/glcanvas.h>
+#include <wx/tglbtn.h>
 //*)
 
 #include "SensorNode.h"
+#include "GLCanvas.h"
+#include <list>
 
 
 class SensorDataExtPanel: public wxPanel
@@ -50,53 +54,44 @@ class SensorDataExtPanel: public wxPanel
 		SensorDataExtPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
 		virtual ~SensorDataExtPanel();
 
-		void update(const SensorNode &sensor);
+		void setSensorId(int id) { _sensorId = id; }
+		int getSensorId() const { return _sensorId; }
+		void update(const SensorNode* sensor);
 
 		//(*Declarations(SensorDataExtPanel)
-		wxStaticText* StaticText10;
-		wxStaticText* StaticText9;
-		wxStaticText* StaticText2;
-		wxStaticText* StaticTextPitch;
-		wxStaticText* StaticTextYaw;
-		wxStaticText* StaticText6;
-		wxStaticBoxSizer* StaticBoxSizerRotation;
-		wxStaticText* StaticText8;
-		wxStaticText* StaticText11;
-		wxStaticBoxSizer* StaticBoxSizerPosition;
-		wxStaticText* StaticText1;
-		wxStaticText* StaticTextRoll;
-		wxStaticText* StaticTextZ;
-		wxStaticText* StaticText7;
-		wxStaticText* StaticTextY;
+		wxPanel* PanelPlot;
+		wxStaticText* StaticTextState;
+		wxStaticText* StaticTextName;
 		wxStaticBoxSizer* StaticBoxSizerInfo;
-		wxStaticText* StaticText15;
-		wxStaticText* StaticTextX;
+		wxToggleButton* ToggleButtonOffset;
+		wxStaticText* StaticTextIP;
+		GLCanvas* glCanvas;
 		//*)
 
 	protected:
 
 		//(*Identifiers(SensorDataExtPanel)
-		static const long ID_STATICTEXT1;
-		static const long ID_STATICTEXT2;
-		static const long ID_STATICTEXT15;
-		static const long ID_STATICTEXT6;
-		static const long ID_STATICTEXT7;
-		static const long ID_STATICTEXT8;
-		static const long ID_STATICTEXTPITCH;
-		static const long ID_STATICTEXTYAW;
-		static const long ID_STATICTEXTROLL;
-		static const long ID_STATICTEXT9;
-		static const long ID_STATICTEXT10;
-		static const long ID_STATICTEXT11;
-		static const long ID_STATICTEXTX;
-		static const long ID_STATICTEXTY;
-		static const long ID_STATICTEXTZ;
+		static const long ID_STATICTEXTNAME;
+		static const long ID_STATICTEXTIP;
+		static const long ID_STATICTEXTSTATE;
+		static const long ID_GLCANVAS;
+		static const long ID_TOGGLEBUTTONOFFSET;
+		static const long ID_PANELPLOT;
 		//*)
 
 	private:
 
 		//(*Handlers(SensorDataExtPanel)
+		void OnToggleButtonOffsetToggle(wxCommandEvent& event);
+		void OnPanelPlotPaint(wxPaintEvent& event);
 		//*)
+
+		unsigned char _updateCounter;
+		int _sensorId;
+		Quaternion _offset;
+
+		const unsigned int _numPlotPoints = 150;
+		std::list<Vector3> _plotData;
 
 		DECLARE_EVENT_TABLE()
 };

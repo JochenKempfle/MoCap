@@ -34,6 +34,7 @@ OF SUCH DAMAGE.
 #include "Bone.h"
 #include "Vector3.h"
 #include "Quaternion.h"
+#include "MotionFilterBase.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -95,6 +96,9 @@ class MoCapManager
     void autoAssign();
     void calibrate();
 
+    void startRecording();
+    void stopRecording();
+
     void update();
 
   protected:
@@ -107,6 +111,8 @@ class MoCapManager
     std::map<int, int> _sensorIdFromBoneId;
     Skeleton _skeleton;
     int _selectedBoneId;
+
+    std::vector<MotionFilterBase*> _filters;
 
     unsigned char _state;
 };

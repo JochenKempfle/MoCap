@@ -58,12 +58,13 @@ SensorDetailPanel::SensorDetailPanel(wxWindow* parent,wxWindowID id,const wxPoin
 	Create(parent, id, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("id"));
 	BoxSizerSensors = new wxBoxSizer(wxHORIZONTAL);
 	sensorContainerPanel = new ScrolledContainerPanel(this,ID_SENSOREXTCONTAINERPANEL,wxDefaultPosition,wxDefaultSize);
-	BoxSizerSensors->Add(sensorContainerPanel, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizerSensors->Add(sensorContainerPanel, 1, wxALL|wxEXPAND, 5);
 	SetSizer(BoxSizerSensors);
 	BoxSizerSensors->Fit(this);
 	BoxSizerSensors->SetSizeHints(this);
 	//*)
 	Connect(UpdateEvent, (wxObjectEventFunction)&SensorDetailPanel::OnUpdateEvent);
+	// addSensor(0);
 }
 
 SensorDetailPanel::~SensorDetailPanel()
@@ -74,11 +75,11 @@ SensorDetailPanel::~SensorDetailPanel()
 
 void SensorDetailPanel::OnUpdateEvent(wxEvent& event)
 {
-    Freeze();
-    std::vector<SensorNode> sensors = theSensorManager.getSensors();
+    //Freeze();
+    std::vector<SensorNode*> sensors = theSensorManager.getSensors();
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        int id = sensors[i].getId();
+        int id = sensors[i]->getId();
         auto it = _dataPanelFromId.find(id);
         if (it != _dataPanelFromId.end())
         {
@@ -86,19 +87,34 @@ void SensorDetailPanel::OnUpdateEvent(wxEvent& event)
         }
         else
         {
-            addSensor(id)->update(sensors[i]);
+            addSensor(sensors[i])->update(sensors[i]);
+            BoxSizerSensors->Layout();
+            Refresh();
         }
     }
-    BoxSizerSensors->Layout();
-    Thaw();
-    Refresh();
+    theSensorManager.resetAllSensorStatesUpdated();
+    //Thaw();
 }
 
-SensorDataExtPanel* SensorDetailPanel::addSensor(int id)
+SensorDataExtPanel* SensorDetailPanel::addSensor(const SensorNode* sensor)
 {
     SensorDataExtPanel* sensorPanel = new SensorDataExtPanel(sensorContainerPanel->ScrolledWindow);
     sensorContainerPanel->add(sensorPanel);
-    _dataPanelFromId[id] = sensorPanel;
+    _dataPanelFromId[sensor->getId()] = sensorPanel;
+    sensorPanel->setSensorId(sensor->getId());
+    wxString name;
+    name << _("Sensor ") << sensor->getId();
+    sensorPanel->StaticTextName->SetLabel(name);
+    sensorPanel->StaticTextIP->SetLabel(sensor->getIPAddress());
+    if (sensor->isUpdated())
+    {
+        sensorPanel->StaticTextState->SetLabel(_("online"));
+    }
+    else
+    {
+        sensorPanel->StaticTextState->SetLabel(_("offline"));
+    }
+
     return sensorPanel;
 }
 

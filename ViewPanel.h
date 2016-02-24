@@ -55,19 +55,21 @@ class ViewPanel: public wxPanel
 
 		//(*Declarations(ViewPanel)
 		ScrolledContainerPanel* sensorContainerPanel;
+		wxButton* ButtonRecord;
 		wxBoxSizer* BoxSizerSensors;
 		wxButton* ButtonCalibrate;
 		wxButton* ButtonAutoAssign;
-		wxButton* ButtonStart;
 		wxButton* ButtonStop;
 		wxBoxSizer* BoxSizerControl;
 		GLCanvas* glCanvas;
+		wxButton* ButtonSimulate;
 		//*)
 
 	protected:
 
 		//(*Identifiers(ViewPanel)
-		static const long ID_BUTTONSTART;
+		static const long ID_BUTTONSIMULATE;
+		static const long ID_BUTTONRECORD;
 		static const long ID_BUTTONSTOP;
 		static const long ID_BUTTONAUTOASSIGN;
 		static const long ID_BUTTONCALIBRATE;
@@ -78,10 +80,11 @@ class ViewPanel: public wxPanel
 	private:
 
 		//(*Handlers(ViewPanel)
-		void OnButtonStartClick(wxCommandEvent& event);
+		void OnButtonSimulateClick(wxCommandEvent& event);
 		void OnButtonStopClick(wxCommandEvent& event);
 		void OnButtonAutoAssignClick(wxCommandEvent& event);
 		void OnButtonCalibrateClick(wxCommandEvent& event);
+		void OnButtonRecordClick(wxCommandEvent& event);
 		//*)
 		void OnUpdateEvent(wxEvent& event);
         void OnPopupClick(wxCommandEvent& event);

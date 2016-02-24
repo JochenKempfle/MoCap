@@ -13,28 +13,28 @@
 						<option>1</option>
 					</object>
 					<object class="sizeritem">
-						<object class="wxButton" name="ID_BUTTON1" variable="Button1" member="yes">
-							<label>Label</label>
+						<object class="wxButton" name="ID_BUTTONLOAD" variable="ButtonLoad" member="yes">
+							<label>Load</label>
 						</object>
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 						<border>5</border>
 					</object>
 					<object class="sizeritem">
-						<object class="wxButton" name="ID_BUTTON2" variable="Button2" member="yes">
-							<label>Label</label>
+						<object class="wxButton" name="ID_BUTTONSAVE" variable="ButtonSave" member="yes">
+							<label>Save</label>
 						</object>
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 						<border>5</border>
 					</object>
 					<object class="sizeritem">
-						<object class="wxButton" name="ID_BUTTON3" variable="Button3" member="yes">
-							<label>Label</label>
+						<object class="wxButton" name="ID_BUTTONRESET" variable="ButtonReset" member="yes">
+							<label>Reset</label>
 						</object>
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 						<border>5</border>
 					</object>
 				</object>
-				<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<flag>wxEXPAND</flag>
 				<border>5</border>
 			</object>
 			<object class="sizeritem">
@@ -46,12 +46,12 @@
 							<style>wxFULL_REPAINT_ON_RESIZE</style>
 							<handler function="OnGlCanvasLeftDown" entry="EVT_LEFT_DOWN" />
 						</object>
-						<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<flag>wxALL|wxEXPAND</flag>
 						<border>5</border>
 						<option>1</option>
 					</object>
 				</object>
-				<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<flag>wxEXPAND</flag>
 				<border>5</border>
 				<option>1</option>
 			</object>
@@ -75,7 +75,7 @@
 							<handler function="OnTreeCtrlSkeletonSelectionChanged" entry="EVT_TREE_SEL_CHANGED" />
 							<handler function="OnTreeCtrlSkeletonKeyDown" entry="EVT_TREE_KEY_DOWN" />
 						</object>
-						<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<flag>wxALL|wxEXPAND</flag>
 						<border>5</border>
 						<option>1</option>
 					</object>
@@ -92,13 +92,16 @@
 										<border>5</border>
 									</object>
 									<object class="sizeritem">
-										<object class="wxTextCtrl" name="ID_TEXTCTRLNAME" variable="TextCtrlName" member="yes" />
+										<object class="wxTextCtrl" name="ID_TEXTCTRLNAME" variable="TextCtrlName" member="yes">
+											<style>wxTE_PROCESS_ENTER</style>
+											<handler function="OnTextCtrlNameTextEnter" entry="EVT_TEXT_ENTER" />
+										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
 										<option>1</option>
 									</object>
 								</object>
-								<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+								<flag>wxEXPAND</flag>
 								<border>5</border>
 							</object>
 							<object class="sizeritem">
@@ -120,7 +123,7 @@
 										<option>1</option>
 									</object>
 								</object>
-								<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+								<flag>wxEXPAND</flag>
 								<border>5</border>
 							</object>
 							<object class="sizeritem">
@@ -133,15 +136,17 @@
 										<border>5</border>
 									</object>
 									<object class="sizeritem">
-										<object class="wxTextCtrl" name="ID_TEXTCTRL2" variable="TextCtrl2" member="yes">
-											<value>1</value>
+										<object class="wxTextCtrl" name="ID_TEXTCTRLLENGTH" variable="TextCtrlLength" member="yes">
+											<validator>wxFloatingPointValidator&lt;float&gt;()</validator>
+											<style>wxTE_PROCESS_ENTER</style>
+											<handler function="OnTextCtrlLengthTextEnter" entry="EVT_TEXT_ENTER" />
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
 										<option>1</option>
 									</object>
 								</object>
-								<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+								<flag>wxEXPAND</flag>
 								<border>5</border>
 							</object>
 							<object class="sizeritem">
@@ -273,29 +278,29 @@
 							<object class="sizeritem">
 								<object class="wxBoxSizer" variable="BoxSizer9" member="no">
 									<object class="sizeritem">
-										<object class="wxButton" name="ID_BUTTON4" variable="Button4" member="yes">
+										<object class="wxButton" name="ID_BUTTONADDBONE" variable="ButtonAddBone" member="yes">
 											<label>Add Bone</label>
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
 									</object>
 									<object class="sizeritem">
-										<object class="wxButton" name="ID_BUTTON5" variable="Button5" member="yes">
+										<object class="wxButton" name="ID_BUTTONREMOVEBONE" variable="ButtonRemoveBone" member="yes">
 											<label>Remove</label>
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
 									</object>
 								</object>
-								<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+								<flag>wxEXPAND</flag>
 								<border>5</border>
 							</object>
 						</object>
-						<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<flag>wxEXPAND</flag>
 						<border>5</border>
 					</object>
 				</object>
-				<flag>wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<flag>wxEXPAND</flag>
 				<border>5</border>
 			</object>
 		</object>

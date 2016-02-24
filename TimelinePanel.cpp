@@ -357,7 +357,7 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
         endFrame = track->getNumFrames();
     }
 
-    // TODO(JK#1#): how to draw 10* 100* ... frames? bold or large or other color?
+    // TODO(JK#3#): how to draw 10* 100* ... frames? bold or large or other color?
     int frameLength = getLengthFromTime(1000 * track->getFrameTime());
     if (getLengthFromTime(100 * 1000 * track->getFrameTime()) > 10)
     {
@@ -629,8 +629,8 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
 
     // reset all variables
     _clickedChannel = -1;
-    _selectedTrack = -1;
     _clickedTime = false;
+    _dragging = false;
 
     if (pos.x < _timelineStartX)
     {
@@ -656,11 +656,11 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
         }
         else
         {
-            //_dragging = true;
+            _selectedTrack = -1;
             _clickedChannel = getChannelFromPosition(pos);
             if (theAnimationManager.getTimeline()->isBetweenTwoTracks(_clickedChannel, getTimeFromPosition(pos)))
             {
-                wxMessageBox(_("A"));
+                // wxMessageBox(_("A"));
             }
             // get the track at click position
             TimelineTrack* track = theAnimationManager.getTimeline()->getTrack(_clickedChannel, getTimeFromPosition(pos));
@@ -669,6 +669,9 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
                 _selectedTrack = track->getId();
                 _mouseToTrackOffset = pos.x - getPositionFromTime(track->getStartTime());
                 _draggedTrackLength = track->getLength();
+                _draggedTrackPos = pos.x - _mouseToTrackOffset;
+                _draggedTrackChannel = getChannelFromPosition(pos);
+                _dragging = true;
             }
         }
     }
@@ -704,13 +707,6 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
 {
     wxPoint pos = event.GetPosition();
     wxSize size = GetSize();
-
-    if (!_dragging && event.LeftIsDown() && _selectedTrack >= 0)
-    {
-        // set _dragging only to true if the mouse is moving while left is down, otherwise a click on a track always results in
-        // moving the track (even if it is just moved to its original position)
-        _dragging = true;
-    }
 
     if (_dragging)
     {

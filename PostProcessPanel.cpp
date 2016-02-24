@@ -46,7 +46,7 @@ OF SUCH DAMAGE.
 //(*IdInit(PostProcessPanel)
 const long PostProcessPanel::ID_GLCANVAS = wxNewId();
 const long PostProcessPanel::ID_SLIDER2 = wxNewId();
-const long PostProcessPanel::ID_BUTTON4 = wxNewId();
+const long PostProcessPanel::ID_BUTTONSETSKELETON = wxNewId();
 const long PostProcessPanel::ID_BUTTONPLAY = wxNewId();
 const long PostProcessPanel::ID_TOGGLEBUTTONTIMELINE = wxNewId();
 const long PostProcessPanel::ID_TOGGLEBUTTONPREVIEW = wxNewId();
@@ -61,16 +61,16 @@ const long PostProcessPanel::ID_STATICTEXT5 = wxNewId();
 const long PostProcessPanel::ID_STATICTEXTLENGTH = wxNewId();
 const long PostProcessPanel::ID_CHECKBOXSELECTALL = wxNewId();
 const long PostProcessPanel::ID_PANELDRAGDROPSEQUENCE = wxNewId();
-const long PostProcessPanel::ID_BUTTON2 = wxNewId();
-const long PostProcessPanel::ID_BUTTON3 = wxNewId();
-const long PostProcessPanel::ID_BUTTON5 = wxNewId();
+const long PostProcessPanel::ID_BUTTONEXPORT = wxNewId();
+const long PostProcessPanel::ID_BUTTONSAVE = wxNewId();
+const long PostProcessPanel::ID_BUTTONLOAD = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT1 = wxNewId();
 const long PostProcessPanel::ID_SPINCTRLYAW = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT10 = wxNewId();
 const long PostProcessPanel::ID_SPINCTRLPITCH = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT11 = wxNewId();
 const long PostProcessPanel::ID_SPINCTRLROLL = wxNewId();
-const long PostProcessPanel::ID_BUTTON1 = wxNewId();
+const long PostProcessPanel::ID_BUTTONFROMSELECTION = wxNewId();
 const long PostProcessPanel::ID_PANELDRAGDROPFRAME = wxNewId();
 const long PostProcessPanel::ID_TIMELINE = wxNewId();
 //*)
@@ -114,8 +114,8 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	Slider2 = new wxSlider(this, ID_SLIDER2, 0, 0, 100, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_SLIDER2"));
 	BoxSizer4->Add(Slider2, 0, wxEXPAND, 5);
 	BoxSizer9 = new wxBoxSizer(wxHORIZONTAL);
-	Button4 = new wxButton(this, ID_BUTTON4, _("Set Skeleton"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON4"));
-	BoxSizer9->Add(Button4, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonSetSkeleton = new wxButton(this, ID_BUTTONSETSKELETON, _("Set Skeleton"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSETSKELETON"));
+	BoxSizer9->Add(ButtonSetSkeleton, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer9->Add(-1,-1,1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonPlay = new wxButton(this, ID_BUTTONPLAY, _("Play"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONPLAY"));
 	ButtonPlay->SetDefault();
@@ -163,12 +163,12 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	BoxSizer8->Add(StaticBoxSizer1, 2, wxALL|wxEXPAND, 5);
 	BoxSizer5 = new wxBoxSizer(wxVERTICAL);
 	StaticBoxSizer3 = new wxStaticBoxSizer(wxVERTICAL, this, _("Export/Save"));
-	Button2 = new wxButton(this, ID_BUTTON2, _("Export"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON2"));
-	StaticBoxSizer3->Add(Button2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	Button3 = new wxButton(this, ID_BUTTON3, _("Save"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON3"));
-	StaticBoxSizer3->Add(Button3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	Button5 = new wxButton(this, ID_BUTTON5, _("Load"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON5"));
-	StaticBoxSizer3->Add(Button5, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonExport = new wxButton(this, ID_BUTTONEXPORT, _("Export"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONEXPORT"));
+	StaticBoxSizer3->Add(ButtonExport, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonSave = new wxButton(this, ID_BUTTONSAVE, _("Save"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSAVE"));
+	StaticBoxSizer3->Add(ButtonSave, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonLoad = new wxButton(this, ID_BUTTONLOAD, _("Load"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONLOAD"));
+	StaticBoxSizer3->Add(ButtonLoad, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer5->Add(StaticBoxSizer3, 0, wxALL|wxEXPAND, 5);
 	StaticBoxSizer2 = new wxStaticBoxSizer(wxVERTICAL, this, _("Custom Frame"));
 	GridSizer2 = new wxGridSizer(3, 2, 0, 0);
@@ -188,8 +188,8 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	SpinCtrlRoll->SetValue(_T("0"));
 	GridSizer2->Add(SpinCtrlRoll, 0, wxALL|wxEXPAND, 5);
 	StaticBoxSizer2->Add(GridSizer2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	Button1 = new wxButton(this, ID_BUTTON1, _("Set from selection"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTON1"));
-	StaticBoxSizer2->Add(Button1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonFromSelection = new wxButton(this, ID_BUTTONFROMSELECTION, _("Set from selection"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONFROMSELECTION"));
+	StaticBoxSizer2->Add(ButtonFromSelection, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticBoxSizer2->Add(-1,-1,1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	PanelDragDropFrame = new wxPanel(this, ID_PANELDRAGDROPFRAME, wxDefaultPosition, wxSize(160,60), wxSIMPLE_BORDER|wxTAB_TRAVERSAL, _T("ID_PANELDRAGDROPFRAME"));
 	PanelDragDropFrame->SetBackgroundColour(wxColour(230,230,130));
@@ -228,6 +228,8 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
     theAnimationManager.setTimelineSkeleton(theMoCapManager.getSkeleton());
 
     glCanvas->setSkeleton(theAnimationManager.getTimelineSkeleton());
+	glCanvas->setStyle(DRAW_LOCAL_COORDINATE_SYSTEM);
+
     timelinePanel->setGLCanvas(glCanvas);
     _currentFrame = 0;
     _currentProjectSequence = -1;
@@ -357,6 +359,10 @@ void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
 
 void PostProcessPanel::OnToggleButtonTimelineToggle(wxCommandEvent& event)
 {
+    if (_previewMode)
+    {
+        stop();
+    }
     _previewMode = false;
     ToggleButtonPreview->SetValue(false);
     ToggleButtonTimeline->SetValue(true);
@@ -366,6 +372,10 @@ void PostProcessPanel::OnToggleButtonTimelineToggle(wxCommandEvent& event)
 
 void PostProcessPanel::OnToggleButtonPreviewToggle(wxCommandEvent& event)
 {
+    if (!_previewMode)
+    {
+        stop();
+    }
     _previewMode = true;
     ToggleButtonPreview->SetValue(true);
     ToggleButtonTimeline->SetValue(false);
@@ -398,30 +408,49 @@ void PostProcessPanel::OnPanelDragDropFramePaint(wxPaintEvent& event)
 
 void PostProcessPanel::OnButtonPlayClick(wxCommandEvent& event)
 {
-    play();
+    if (_timer->IsRunning())
+    {
+        ButtonPlay->SetLabel(_("Play"));
+        stop();
+    }
+    else
+    {
+        ButtonPlay->SetLabel(_("Stop"));
+        play();
+    }
 }
 
 void PostProcessPanel::play()
 {
-    if (ToggleButtonPreview->GetValue())
+    if (_previewMode)
     {
-        _currentFrame = 0;
         MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
-        if (sequence == nullptr)
+        if (sequence != nullptr)
         {
-            return;
+            sequence->setToFrame(_currentFrame);
+            glCanvas->Refresh();
+            _timer->Start(sequence->getFrameTime() * 1000);
         }
-        _timer->Start(sequence->getFrameTime() * 1000);
-        //_currentFrame += 1;
-        sequence->setToFrame(_currentFrame);
-        glCanvas->Refresh();
     }
     else if (ToggleButtonTimeline->GetValue())
     {
 
     }
+}
 
-    //static_cast<MoCapFrame*>(GetParent())->startTimer(25);
+void PostProcessPanel::stop()
+{
+    _timer->Stop();
+    if (_previewMode)
+    {
+        _currentFrame = 0;
+        MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
+        if (sequence != nullptr)
+        {
+            sequence->setToFrame(_currentFrame);
+            glCanvas->Refresh();
+        }
+    }
 }
 
 void PostProcessPanel::updateListBoxSequences()

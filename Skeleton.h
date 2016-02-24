@@ -48,7 +48,7 @@ class Skeleton
 
     void setBoneName(int id, std::string name);
     std::string getBoneName(int id) const;
-    std::vector<std::pair<int, std::string> > getBoneIdsWithName();
+    std::vector<std::pair<int, std::string> > getBoneIdsWithName() const;
 
     void setToDefault();
     void setCurrentAsDefault();
@@ -58,6 +58,8 @@ class Skeleton
     // Does not erase the bone, when more than one child could possibly become the new root.
     bool eraseBone(int id, bool eraseChildren = false);
     void clear();
+
+    bool reparent(int boneId, int parentId, bool keepChildren = true);
 
     std::vector<int> getBoneIds() const;
     int getRootId() const;

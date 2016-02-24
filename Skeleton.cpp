@@ -144,7 +144,7 @@ std::string Skeleton::getBoneName(int id) const
     return it->second->getName();
 }
 
-std::vector<std::pair<int, std::string> > Skeleton::getBoneIdsWithName()
+std::vector<std::pair<int, std::string> > Skeleton::getBoneIdsWithName() const
 {
     std::vector<std::pair<int, std::string> > bones;
     for (auto it = _bones.begin(); it != _bones.end(); ++it)
@@ -245,6 +245,30 @@ void Skeleton::clear()
     _nextId = 0;
 }
 
+bool Skeleton::reparent(int boneId, int newParentId, bool keepChildren)
+{
+    if (boneId == newParentId)
+    {
+        return false;
+    }
+    auto it = _bones.find(boneId);
+    if (it == _bones.end())
+    {
+        return false;
+    }
+    Bone* bone = it->second;
+    it = _bones.find(newParentId);
+    Bone* parentBone;
+    if (it == _bones.end())
+    {
+        parentBone = nullptr;
+    }
+    else
+    {
+        parentBone = it->second;
+    }
+    return bone->reparent(parentBone, keepChildren);
+}
 
 std::vector<int> Skeleton::getBoneIds() const
 {

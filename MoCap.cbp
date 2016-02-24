@@ -82,6 +82,8 @@
 		<Unit filename="CustomEvents.h" />
 		<Unit filename="GLCanvas.cpp" />
 		<Unit filename="GLCanvas.h" />
+		<Unit filename="GLImage.cpp" />
+		<Unit filename="GLImage.h" />
 		<Unit filename="MoCapApp.cpp" />
 		<Unit filename="MoCapApp.h" />
 		<Unit filename="MoCapMain.cpp" />

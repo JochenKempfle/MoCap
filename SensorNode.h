@@ -32,8 +32,10 @@ OF SUCH DAMAGE.
 
 #include "Vector3.h"
 #include "Quaternion.h"
+#include "SensorRawData.h"
 #include "SensorData.h"
 #include <string>
+#include <list>
 
 
 
@@ -54,10 +56,13 @@ class SensorNode
     SensorNode();
     virtual ~SensorNode();
 
-    void update(const SensorData &data);
+    void update(const SensorRawData &data);
 
     int getId() const { return _id; }
     std::string getIPAddress() const { return _IPAddress; }
+
+    void setBoneId(int id) { _boneId = id; }
+    int getBoneId() const { return _boneId; }
 
     unsigned char getState() const { return _state; }
     void setState(unsigned char state) { _state = state; }
@@ -66,6 +71,7 @@ class SensorNode
     void setHasBone(bool value = true) { _state = (value ? _state | SensorState::HAS_BONE : _state & ~SensorState::HAS_BONE); }
     void setCalibrated(bool value = true) { _state = (value ? _state | SensorState::CALIBRATED : _state & ~SensorState::CALIBRATED); }
 
+    // TODO(JK#4#): handle SensorState somehow else, depending on member variables (i.e. buffer size, _boneId > 0 etc.)
     bool isUpdated() const { return _state & SensorState::UPDATED ? true : false; }
     bool hasBone() const { return _state & SensorState::HAS_BONE ? true : false; }
     bool isCalibrated() const { return _state & SensorState::CALIBRATED ? true : false; }
@@ -78,6 +84,8 @@ class SensorNode
     void setRotation(const Quaternion &rotation) { _rotation = rotation; }
     // void setRotation(float u, float x, float y, float z) { _rotation = Quaternionf(u, x, y, z); }
 
+    void setMapping(const Quaternion &mapping) { _mapping = mapping; }
+    Quaternion getMapping() const { return _mapping; }
     // returns the relative rotation to the offset
     Quaternion getCalRotation() const;// { return _rotationOffset * _rotation; }
 
@@ -87,13 +95,20 @@ class SensorNode
     // returns the rotation in euler angles, using the 1-2-3 convention
     Vector3 toEuler() const;
 
+    std::list<SensorData>* getBuffer() { return &_buffer; }
+
   private:
     int _id;
+    int _boneId;
     unsigned char _state;
     std::string _IPAddress;
     Quaternion _rotation;
     Quaternion _rotationOffset;
+    // how to map from sensor coordinates to simulation coordinates
+    Quaternion _mapping;
     Vector3 _position;
+
+    std::list<SensorData> _buffer;
 };
 
 #endif // SENSORNODE_H

@@ -59,6 +59,31 @@ Bone::~Bone()
     //dtor
 }
 
+bool Bone::reparent(Bone* parent, bool keepChildren)
+{
+    if (!keepChildren)
+    {
+        if (_parent == nullptr)
+        {
+            if (_children.size() > 1)
+            {
+                // not clear how to reorganize child bones if there is more than one child. Do nothing
+                return false;
+            }
+        }
+        for (size_t i = 0; i < _children.size(); ++i)
+        {
+            _children[i]->setParent(_parent);
+        }
+    }
+    if (hasChild(parent, true))
+    {
+        parent->setParent(_parent);
+    }
+    setParent(parent);
+    return true;
+}
+
 void Bone::setParent(Bone* parent)
 {
     if (_parent != parent)
@@ -114,25 +139,33 @@ std::vector<Bone*> Bone::getAllChildren()
     return bones;
 }
 
-bool Bone::hasChild(Bone* child) const
+bool Bone::hasChild(Bone* child, bool checkGrandChildren) const
 {
-    for (size_t i = 0; i < _children.size(); ++i)
+    if (child == nullptr)
     {
-        if (child->_id == _children[i]->_id)
-        {
-            return true;
-        }
+        return false;
     }
-    return false;
+    return hasChild(child->getId(), checkGrandChildren);
 }
 
-bool Bone::hasChild(int id) const
+bool Bone::hasChild(int id, bool checkGrandChildren) const
 {
     for (size_t i = 0; i < _children.size(); ++i)
     {
         if (id == _children[i]->_id)
         {
             return true;
+        }
+    }
+
+    if (checkGrandChildren)
+    {
+        for (size_t i = 0; i < _children.size(); ++i)
+        {
+            if (_children[i]->hasChild(id, true))
+            {
+                return true;
+            }
         }
     }
     return false;

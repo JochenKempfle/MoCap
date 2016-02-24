@@ -68,12 +68,8 @@ class Bone
     void setStartPos(float x, float y, float z) { _startPos = Vector3(x, y, z); }
 
     void setEndPos(const Vector3 &pos) { _endPos = pos; }
-    void setParent(Bone* parent);
-    // TODO(JK#9#): move functions alternating bones' parent/children to protected as this should only be done by Skeleton class.
-    void appendChild(Bone* child);
-    // Removes the child from the list of children, but does not delete the child. To delete a child, use the Skeleton class.
-    void removeChild(int id);
-    void removeChild(Bone* bone);
+
+    bool reparent(Bone* parent, bool keepChildren = true);
 
     void setToDefault() { setRelOrientation(Quaternion()); }
 
@@ -88,8 +84,9 @@ class Bone
     std::vector<Bone*> getChildren() { return _children; }
     // Returns all direct and indirect children breadth first sorted
     std::vector<Bone*> getAllChildren();
-    bool hasChild(Bone* child) const;
-    bool hasChild(int id) const;
+
+    bool hasChild(Bone* child, bool checkGrandChildren = false) const;
+    bool hasChild(int id, bool checkGrandChildren = false) const;
 
     Bone& copyContent(const Bone &other);
     void update();
@@ -103,6 +100,13 @@ class Bone
   protected:
     Bone(int id);
     Bone(int id, const Bone &other);
+
+    void setParent(Bone* parent);
+    // TODO(JK#9#): move functions alternating bones' parent/children to protected as this should only be done by Skeleton class.
+    void appendChild(Bone* child);
+    // Removes the child from the list of children, but does not delete the child. To delete a child, use the Skeleton class.
+    void removeChild(int id);
+    void removeChild(Bone* bone);
 
   private:
     int _id;

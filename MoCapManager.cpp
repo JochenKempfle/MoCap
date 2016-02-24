@@ -32,12 +32,15 @@ OF SUCH DAMAGE.
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "SensorManager.h"
+#include "MotionFilterNone.h"
+#include "AnimationManager.h"
 
 MoCapManager::MoCapManager()
 {
     _state = RECORD;
     // create a skeleton
     createSkeleton();
+    _filters.push_back(new MotionFilterNone(&_skeleton));
 }
 
 MoCapManager::~MoCapManager()
@@ -75,6 +78,8 @@ void MoCapManager::assignSensorToBone(int sensorId, int boneId)
     _boneIdFromSensorId[sensorId] = boneId;
     _sensorIdFromBoneId[boneId] = sensorId;
     theSensorManager.setSensorStateHasBone(sensorId, true);
+    theSensorManager.getSensor(sensorId)->setBoneId(boneId);
+    _filters[0]->setSensors(theSensorManager.getSensors());
 }
 
 void MoCapManager::removeSensorFromBones(int sensorId)
@@ -137,26 +142,48 @@ void MoCapManager::resetSkeleton()
 
 void MoCapManager::calibrate()
 {
-    std::vector<SensorNode> sensors = theSensorManager.getSensors();
+    std::vector<SensorNode*> sensors = theSensorManager.getSensors();
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        Quaternion rotationOffset = sensors[i].getRotation().inv();
-        if (theSensorManager.setSensorOffset(sensors[i].getId(), rotationOffset))
+        Quaternion rotationOffset = sensors[i]->getRotation().inv();
+        if (theSensorManager.setSensorOffset(sensors[i]->getId(), rotationOffset))
         {
-            theSensorManager.setSensorStateCalibrated(sensors[i].getId(), true);
+            theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
         }
 
         // TODO(JK#4#): calibration! If bone.dir does not match, rotate 180° around y
     }
 }
 
+void MoCapManager::startRecording()
+{
+    _filters[0]->setRecording(true);
+}
+
+void MoCapManager::stopRecording()
+{
+    if (!_filters[0]->isRecording())
+    {
+        return;
+    }
+    _filters[0]->setRecording(false);
+    MotionSequence* sequence = new MotionSequence(_filters[0]->getSequence());
+    // TODO(JK#1#): set recorded MotionSequence details (name, frameTime, numFrames etc in appropriate function eg in the filter)
+    sequence->setName("recording");
+    sequence->setFrameTime(0.01f);
+    theAnimationManager.addProjectSequence(sequence);
+}
+
 void MoCapManager::update()
 {
-    std::vector<SensorNode> sensors = theSensorManager.getSensors();
+    _filters[0]->update();
+    return;
+    std::vector<SensorNode*> sensors = theSensorManager.getSensors();
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        int boneId = getBoneIdFromSensorId(sensors[i].getId());
-        _skeleton.setAbsBoneRotation(boneId, sensors[i].getCalRotation());
+        int boneId = getBoneIdFromSensorId(sensors[i]->getId());
+        // TODO(JK#1#): update skeleton from sensor data abs or rel or allow both (set flag)?
+        _skeleton.setAbsBoneRotation(boneId, sensors[i]->getCalRotation());
     }
 
     // as for now only the new rotations were set, update the skeleton to also get new bone positions

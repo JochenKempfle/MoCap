@@ -27,51 +27,48 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORDETAILPANEL_H
-#define SENSORDETAILPANEL_H
+#ifndef SENSORBUFFER_H
+#define SENSORBUFFER_H
 
-#ifndef WX_PRECOMP
-	//(*HeadersPCH(SensorDetailPanel)
-	#include <wx/sizer.h>
-	#include <wx/panel.h>
-	//*)
-#endif
-//(*Headers(SensorDetailPanel)
-#include "ScrolledContainerPanel.h"
-//*)
+#include "SensorData.h"
+#include <list>
 
-#include "SensorDataExtPanel.h"
-#include <map>
+class SensorNode;
 
-class SensorDetailPanel: public wxPanel
+class SensorBuffer : public std::list<SensorData>
 {
-	public:
+  public:
+    SensorBuffer();
+    SensorBuffer(SensorNode* sensor);
+    virtual ~SensorBuffer();
 
-		SensorDetailPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~SensorDetailPanel();
+    void subscribe(SensorNode* sensor);
+    void unsubscribe();
 
-		//(*Declarations(SensorDetailPanel)
-		ScrolledContainerPanel* sensorContainerPanel;
-		wxBoxSizer* BoxSizerSensors;
-		//*)
+    SensorNode* getSensor() const { return _sensor; }
 
-	protected:
+//    void push_back(const SensorData &data);
+//    void push_front(const SensorData &data);
+//
+//    void pop_back() { }
+//    void pop_front();
+//
+//    SensorData back() const { return _buffer.back(); }
+//    SensorData front() const { return _buffer.front(); }
+//
+//    size_t size();
+//
+//    std::list<SensorData>::iterator begin() { return _buffer.begin(); }
+//    std::list<SensorData>::iterator end() { return _buffer.end(); }
+//
+//    std::list<SensorData>::const_iterator begin() const { return _buffer.begin(); }
+//    std::list<SensorData>::const_iterator end() const { return _buffer.end(); }
 
-		//(*Identifiers(SensorDetailPanel)
-		static const long ID_SENSOREXTCONTAINERPANEL;
-		//*)
+  protected:
 
-	private:
-
-		//(*Handlers(SensorDetailPanel)
-		//*)
-		void OnUpdateEvent(wxEvent& event);
-
-		SensorDataExtPanel* addSensor(SensorNode* sensor);
-
-		std::map<int, SensorDataExtPanel*> _dataPanelFromId;
-
-		DECLARE_EVENT_TABLE()
+  private:
+    SensorNode* _sensor;
+    // std::list<SensorData> _buffer;
 };
 
-#endif
+#endif // SENSORBUFFER_H

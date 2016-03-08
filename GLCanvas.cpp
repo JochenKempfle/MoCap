@@ -199,6 +199,14 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
     {
         wxPoint delta = event.GetPosition() - _mousePosAtClick;
         _xRotation -= 0.1f * M_PI/180.0f * float(delta.y);
+        if (_xRotation > M_PI/2.0)
+        {
+            _xRotation = M_PI/2.0;
+        }
+        else if (_xRotation < -M_PI/2.0)
+        {
+            _xRotation = -M_PI/2.0;
+        }
         _yRotation -= 0.1f * M_PI/180.0f * float(delta.x);
         _cameraFront = Vector3(cos(_xRotation) * sin(_yRotation), sin(_xRotation), cos(_xRotation) * cos(_yRotation)).normalized();
         _cameraUp = Vector3(sin(_yRotation - M_PI/2.0f), 0.0f, cos(_yRotation - M_PI/2.0f)).cross(_cameraFront).normalized();
@@ -208,7 +216,7 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
         // SetCursorPos(cursorPos.x, cursorPos.y);
         Refresh();
     }
-    else if (_lClicked)
+    if (_lClicked)
     {
         wxPoint delta = event.GetPosition() - _mousePosAtClick;
         _cameraPosition -= _cameraSpeed * float(delta.x) * _cameraFront.cross(_cameraUp).normalized();

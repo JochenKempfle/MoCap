@@ -189,7 +189,7 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
 
     _addressPeer.BroadcastAddress();
     _addressPeer.Service(5050);
-    _addressLocal.Hostname(wxGetFullHostName());
+    _addressLocal.Hostname(_("192.168.0.102"));//wxGetFullHostName());
     _addressLocal.Service(5050);
 
     _socket = nullptr;

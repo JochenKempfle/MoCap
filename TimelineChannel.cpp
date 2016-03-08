@@ -70,7 +70,7 @@ int TimelineChannel::getBoneId() const
     return _boneId;
 }
 
-void TimelineChannel::insert(TimelineTrack* track, unsigned int time)
+void TimelineChannel::insert(TimelineTrack* track, uint64_t time)
 {
     track->setChannel(_channelPos);
     track->setStartTime(time);
@@ -78,7 +78,7 @@ void TimelineChannel::insert(TimelineTrack* track, unsigned int time)
     _tracks[time] = track;
 }
 
-bool TimelineChannel::remove(int id, unsigned int timeHint)
+bool TimelineChannel::remove(int id, uint64_t timeHint)
 {
     auto it = _tracks.lower_bound(timeHint);
     if (it != _tracks.end())
@@ -130,7 +130,7 @@ void TimelineChannel::clear()
     _tracks.clear();
 }
 
-TimelineTrack* TimelineChannel::getTrackBefore(unsigned int time)
+TimelineTrack* TimelineChannel::getTrackBefore(uint64_t time)
 {
     auto it = _tracks.upper_bound(time);
     if (it == _tracks.begin() || _tracks.size() == 0)
@@ -141,7 +141,7 @@ TimelineTrack* TimelineChannel::getTrackBefore(unsigned int time)
     return it->second;
 }
 
-TimelineTrack* TimelineChannel::getTrackAfter(unsigned int time)
+TimelineTrack* TimelineChannel::getTrackAfter(uint64_t time)
 {
     auto it = _tracks.upper_bound(time);
     if (it == _tracks.end())
@@ -151,7 +151,7 @@ TimelineTrack* TimelineChannel::getTrackAfter(unsigned int time)
     return it->second;
 }
 
-bool TimelineChannel::isBetweenTwoTracks(unsigned int time) const
+bool TimelineChannel::isBetweenTwoTracks(uint64_t time) const
 {
     auto it = _tracks.upper_bound(time);
     if (it == _tracks.begin() || it == _tracks.end())
@@ -166,7 +166,7 @@ bool TimelineChannel::isBetweenTwoTracks(unsigned int time) const
     return false;
 }
 
-std::vector<TimelineTrack*> TimelineChannel::getInRange(unsigned int startTime, unsigned int endTime)
+std::vector<TimelineTrack*> TimelineChannel::getInRange(uint64_t startTime, uint64_t endTime)
 {
     std::vector<TimelineTrack*> tracks;
 
@@ -197,7 +197,7 @@ std::vector<TimelineTrack*> TimelineChannel::getInRange(unsigned int startTime, 
     return tracks;
 }
 
-TimelineTrack* TimelineChannel::getTrack(unsigned int time)
+TimelineTrack* TimelineChannel::getTrack(uint64_t time)
 {
     std::vector<TimelineTrack*> tracks = getInRange(time, time);
     if (tracks.size() == 0)
@@ -217,7 +217,7 @@ std::vector<TimelineTrack*> TimelineChannel::getTracks()
     return tracks;
 }
 
-MotionSequenceFrame TimelineChannel::getFrame(unsigned int time)
+MotionSequenceFrame TimelineChannel::getFrame(uint64_t time)
 {
     // TODO(JK#1#): get frame can get tricky when there is no track. Solve this by adding a default frame (equal to bone default)
     if (_tracks.size() == 0)

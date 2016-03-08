@@ -126,14 +126,20 @@ class Quaternion
     float getShortestAngleTo(const Quaternion &other) const;
 
     Quaternion lerp(const Quaternion &other, float t) const;
+    Quaternion lerpEuler(const Quaternion &other, float t) const;
     Quaternion slerp(const Quaternion &other, double t) const;
 
     void decomposeSwingTwist(const Vector3 &direction, Quaternion* swing, Quaternion* twist) const;
 
     Quaternion getRotationAround(const Vector3 &direction) const;
 
+    Quaternion exp() const;
+    Quaternion log() const;
+    Quaternion pow(float value) const;
+
     Quaternion operator*(float val) const;
     Quaternion operator+(const Quaternion &other) const;
+    Quaternion operator-(const Quaternion &other) const;
 
     void operator/= (float x);
     Quaternion& operator= (const Quaternion& other);

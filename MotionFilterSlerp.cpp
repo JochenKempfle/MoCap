@@ -51,7 +51,7 @@ void MotionFilterSlerp::update()
     {
         return;
     }
-    for (size_t i = 0; i < _sensors.size(); ++i)
+    for (size_t i = 0; i < _buffers.size(); ++i)
     {
 //        std::list<std::pair<unsigned int, SensorData> >* buffer = _sensors[i]->getBuffer();
 //        if (buffer->size() > 1)

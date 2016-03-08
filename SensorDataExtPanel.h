@@ -43,6 +43,7 @@ OF SUCH DAMAGE.
 //*)
 
 #include "SensorNode.h"
+#include "SensorBuffer.h"
 #include "GLCanvas.h"
 #include <list>
 
@@ -54,9 +55,9 @@ class SensorDataExtPanel: public wxPanel
 		SensorDataExtPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
 		virtual ~SensorDataExtPanel();
 
-		void setSensorId(int id) { _sensorId = id; }
-		int getSensorId() const { return _sensorId; }
-		void update(const SensorNode* sensor);
+		void setSensor(SensorNode* sensor);
+		int getSensorId() const { return _sensor->getId(); }
+		void update();
 
 		//(*Declarations(SensorDataExtPanel)
 		wxPanel* PanelPlot;
@@ -87,10 +88,11 @@ class SensorDataExtPanel: public wxPanel
 		//*)
 
 		unsigned char _updateCounter;
-		int _sensorId;
+		SensorNode* _sensor;
 		Quaternion _offset;
 
 		const unsigned int _numPlotPoints = 150;
+		SensorBuffer _buffer;
 		std::list<Vector3> _plotData;
 
 		DECLARE_EVENT_TABLE()

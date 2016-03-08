@@ -64,12 +64,12 @@ const long PostProcessPanel::ID_PANELDRAGDROPSEQUENCE = wxNewId();
 const long PostProcessPanel::ID_BUTTONEXPORT = wxNewId();
 const long PostProcessPanel::ID_BUTTONSAVE = wxNewId();
 const long PostProcessPanel::ID_BUTTONLOAD = wxNewId();
-const long PostProcessPanel::ID_STATICTEXT1 = wxNewId();
-const long PostProcessPanel::ID_SPINCTRLYAW = wxNewId();
-const long PostProcessPanel::ID_STATICTEXT10 = wxNewId();
-const long PostProcessPanel::ID_SPINCTRLPITCH = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT11 = wxNewId();
 const long PostProcessPanel::ID_SPINCTRLROLL = wxNewId();
+const long PostProcessPanel::ID_STATICTEXT10 = wxNewId();
+const long PostProcessPanel::ID_SPINCTRLPITCH = wxNewId();
+const long PostProcessPanel::ID_STATICTEXT1 = wxNewId();
+const long PostProcessPanel::ID_SPINCTRLYAW = wxNewId();
 const long PostProcessPanel::ID_BUTTONFROMSELECTION = wxNewId();
 const long PostProcessPanel::ID_PANELDRAGDROPFRAME = wxNewId();
 const long PostProcessPanel::ID_TIMELINE = wxNewId();
@@ -172,21 +172,21 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	BoxSizer5->Add(StaticBoxSizer3, 0, wxALL|wxEXPAND, 5);
 	StaticBoxSizer2 = new wxStaticBoxSizer(wxVERTICAL, this, _("Custom Frame"));
 	GridSizer2 = new wxGridSizer(3, 2, 0, 0);
-	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
-	GridSizer2->Add(StaticText1, 0, wxALL|wxEXPAND, 5);
-	SpinCtrlYaw = new wxSpinCtrl(this, ID_SPINCTRLYAW, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLYAW"));
-	SpinCtrlYaw->SetValue(_T("0"));
-	GridSizer2->Add(SpinCtrlYaw, 0, wxALL|wxEXPAND, 5);
-	StaticText10 = new wxStaticText(this, ID_STATICTEXT10, _("Pitch"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
-	GridSizer2->Add(StaticText10, 0, wxALL|wxEXPAND, 5);
-	SpinCtrlPitch = new wxSpinCtrl(this, ID_SPINCTRLPITCH, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLPITCH"));
-	SpinCtrlPitch->SetValue(_T("0"));
-	GridSizer2->Add(SpinCtrlPitch, 0, wxALL|wxEXPAND, 5);
 	StaticText11 = new wxStaticText(this, ID_STATICTEXT11, _("Roll"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
 	GridSizer2->Add(StaticText11, 0, wxALL|wxEXPAND, 5);
 	SpinCtrlRoll = new wxSpinCtrl(this, ID_SPINCTRLROLL, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLROLL"));
 	SpinCtrlRoll->SetValue(_T("0"));
 	GridSizer2->Add(SpinCtrlRoll, 0, wxALL|wxEXPAND, 5);
+	StaticText10 = new wxStaticText(this, ID_STATICTEXT10, _("Pitch"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
+	GridSizer2->Add(StaticText10, 0, wxALL|wxEXPAND, 5);
+	SpinCtrlPitch = new wxSpinCtrl(this, ID_SPINCTRLPITCH, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLPITCH"));
+	SpinCtrlPitch->SetValue(_T("0"));
+	GridSizer2->Add(SpinCtrlPitch, 0, wxALL|wxEXPAND, 5);
+	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
+	GridSizer2->Add(StaticText1, 0, wxALL|wxEXPAND, 5);
+	SpinCtrlYaw = new wxSpinCtrl(this, ID_SPINCTRLYAW, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLYAW"));
+	SpinCtrlYaw->SetValue(_T("0"));
+	GridSizer2->Add(SpinCtrlYaw, 0, wxALL|wxEXPAND, 5);
 	StaticBoxSizer2->Add(GridSizer2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonFromSelection = new wxButton(this, ID_BUTTONFROMSELECTION, _("Set from selection"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONFROMSELECTION"));
 	StaticBoxSizer2->Add(ButtonFromSelection, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -429,7 +429,7 @@ void PostProcessPanel::play()
         {
             sequence->setToFrame(_currentFrame);
             glCanvas->Refresh();
-            _timer->Start(sequence->getFrameTime() * 1000);
+            _timer->Start(sequence->getFrameTime() * 1000.0f);
         }
     }
     else if (ToggleButtonTimeline->GetValue())

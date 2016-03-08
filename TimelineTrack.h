@@ -38,7 +38,7 @@ class TimelineTrack
   public:
     TimelineTrack();
     TimelineTrack(MotionSequenceChannel* channel);
-    TimelineTrack(MotionSequenceChannel* channel, int startTime);
+    TimelineTrack(MotionSequenceChannel* channel, uint64_t startTime);
     virtual ~TimelineTrack();
 
     void setId(int id);
@@ -50,18 +50,12 @@ class TimelineTrack
     void setName(std::string name);
     std::string getName() const;
 
-    void setStartTime(unsigned int startTime);
-    unsigned int getStartTime() const;
-    unsigned int getEndTime() const;
+    void setStartTime(uint64_t startTime);
+    uint64_t getStartTime() const;
+    uint64_t getEndTime() const;
 
-    int getLength() const;
-    int getMaxLength() const;
-
-    void setStartOffset(int offset);
-    int getStartOffset() const;
-
-    void setEndOffset(int offset);
-    int getEndOffset() const;
+    uint64_t getLength() const;
+    uint64_t getMaxLength() const;
 
     void setFrameTime(float frameTime);
     float getFrameTime() const;
@@ -75,20 +69,21 @@ class TimelineTrack
 
     size_t getNumFrames() const;
 
-    bool cut(unsigned int time, TimelineTrack* newTrack = nullptr);
+    bool cut(uint64_t time, TimelineTrack* newTrack = nullptr);
 
-    MotionSequenceFrame getFrameFromAbsTime(unsigned int time) const;
-    MotionSequenceFrame getFrameFromRelTime(unsigned int time) const;
+    MotionSequenceFrame getFrameFromAbsTime(uint64_t time) const;
+    MotionSequenceFrame getFrameFromRelTime(uint64_t time) const;
     MotionSequenceFrame getFrame(unsigned int pos) const;
+
+    MotionSequenceFrame getFirstFrame() const;
+    MotionSequenceFrame getLastFrame() const;
 
   protected:
   private:
     int _id;
     int _channel;
     std::string _name;
-    unsigned int _startTime;
-    int _startOffset;
-    int _endOffset;
+    uint64_t _startTime;
     float _frameTime;
     std::vector<MotionSequenceFrame> _frames;
 };

@@ -310,23 +310,23 @@ bool Skeleton::setBoneData(int id, const Bone &boneData)
     return false;
 }
 
-bool Skeleton::setAbsBoneRotation(int id, const Quaternion &rotation)
+bool Skeleton::setAbsBoneOrientation(int id, const Quaternion &orientation)
 {
     auto it = _bones.find(id);
     if (it != _bones.end())
     {
-        it->second->setAbsOrientation(rotation);
+        it->second->setAbsOrientation(orientation);
         return true;
     }
     return false;
 }
 
-bool Skeleton::setRelBoneRotation(int id, const Quaternion &rotation)
+bool Skeleton::setRelBoneOrientation(int id, const Quaternion &orientation)
 {
     auto it = _bones.find(id);
     if (it != _bones.end())
     {
-        it->second->setRelOrientation(rotation);
+        it->second->setRelOrientation(orientation);
         return true;
     }
     return false;

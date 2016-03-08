@@ -56,17 +56,19 @@ void MotionFilterNone::update()
     {
         return;
     }
-    for (size_t i = 0; i < _sensors.size(); ++i)
+    for (size_t i = 0; i < _buffers.size(); ++i)
     {
-        int boneId = _sensors[i]->getBoneId();
-        std::list<SensorData>* buffer = _sensors[i]->getBuffer();
+        SensorBuffer* buffer = _buffers[i];
+        SensorNode* sensor = buffer->getSensor();
+        int boneId = sensor->getBoneId();
+
         size_t bufferSize = buffer->size();
         if (boneId < 0 || bufferSize == 0)
         {
             continue;
         }
         // TODO(JK#1#): updating the skeleton needs abs orientation(sensors measure abs values, but the MotionSequence needs rel values
-        _skeleton->setRelBoneRotation(boneId, buffer->back().getOrientation());
+        _skeleton->setAbsBoneOrientation(boneId, sensor->getCalRotation());//buffer->back().getOrientation());
         if (!_recording)
         {
             buffer->clear();
@@ -90,15 +92,17 @@ void MotionFilterNone::update()
 void MotionFilterNone::onStartRecording()
 {
     _sequence.clearFrames();
-    for (size_t i = 0; i < _sensors.size(); ++i)
+    _sequence.setFrameTime(0.01f);
+    _sequence.setHasAbsOrientations(true);
+    for (size_t i = 0; i < _buffers.size(); ++i)
     {
-        _sensors[i]->getBuffer()->clear();
+        _buffers[i]->clear();
     }
 }
 
 void MotionFilterNone::onStopRecording()
 {
-
+    _sequence.convertToRelOrientations();
 }
 
 

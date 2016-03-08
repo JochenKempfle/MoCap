@@ -73,17 +73,21 @@ class Bone
 
     void setToDefault() { setRelOrientation(Quaternion()); }
 
-    Quaternion getAbsOrientation() const { return _absOrientation; }
+    Quaternion getChainedOrientation() const { return _chainedOrientation; }
+    Quaternion getAbsOrientation() const { return _chainedOrientation * _defaultOrientation; }
     Quaternion getRelOrientation() const { return _relOrientation; }
     Quaternion getDefaultOrientation() const { return _defaultOrientation; }
+
     Vector3 getStartPos() const { return _startPos; }
     Vector3 getEndPos() const { return _endPos; }
+
     Bone* getParent() { return _parent; }
     int getParentId() const { return _parent == nullptr ? -1 : _parent->getId(); }
     size_t getNumChildren() const { return _children.size(); }
     std::vector<Bone*> getChildren() { return _children; }
     // Returns all direct and indirect children breadth first sorted
     std::vector<Bone*> getAllChildren();
+    std::vector<Bone*> getAllChildrenDFS();
 
     bool hasChild(Bone* child, bool checkGrandChildren = false) const;
     bool hasChild(int id, bool checkGrandChildren = false) const;
@@ -112,7 +116,7 @@ class Bone
     int _id;
     std::string _name;
     float _length;
-    Quaternion _absOrientation;
+    Quaternion _chainedOrientation;
     Quaternion _relOrientation;
     Quaternion _defaultOrientation;
     Vector3 _startPos;

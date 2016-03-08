@@ -67,8 +67,8 @@ class Skeleton
 
     Bone* getBone(int id);
     bool setBoneData(int id, const Bone &boneData);
-    bool setAbsBoneRotation(int id, const Quaternion &rotation);
-    bool setRelBoneRotation(int id, const Quaternion &rotation);
+    bool setAbsBoneOrientation(int id, const Quaternion &orientation);
+    bool setRelBoneOrientation(int id, const Quaternion &orientation);
     int getNextFreeId() const { return _nextId; }
     void update();
 

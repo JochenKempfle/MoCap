@@ -34,8 +34,10 @@ OF SUCH DAMAGE.
 #include "Quaternion.h"
 #include "SensorRawData.h"
 #include "SensorData.h"
+#include "SensorBuffer.h"
 #include <string>
 #include <list>
+#include <vector>
 
 
 
@@ -84,8 +86,12 @@ class SensorNode
     void setRotation(const Quaternion &rotation) { _rotation = rotation; }
     // void setRotation(float u, float x, float y, float z) { _rotation = Quaternionf(u, x, y, z); }
 
-    void setMapping(const Quaternion &mapping) { _mapping = mapping; }
-    Quaternion getMapping() const { return _mapping; }
+    void setMapping(const Quaternion &mapping) { _coordinateMapping = mapping; }
+    Quaternion getMapping() const { return _coordinateMapping; }
+
+    void setBoneMapping(const Quaternion &mapping) { _boneMapping = mapping; }
+    Quaternion getBoneMapping() const { return _boneMapping; }
+
     // returns the relative rotation to the offset
     Quaternion getCalRotation() const;// { return _rotationOffset * _rotation; }
 
@@ -94,6 +100,9 @@ class SensorNode
 
     // returns the rotation in euler angles, using the 1-2-3 convention
     Vector3 toEuler() const;
+
+    void addBuffer(SensorBuffer* buffer);
+    void removeBuffer(SensorBuffer* buffer);
 
     std::list<SensorData>* getBuffer() { return &_buffer; }
 
@@ -104,11 +113,14 @@ class SensorNode
     std::string _IPAddress;
     Quaternion _rotation;
     Quaternion _rotationOffset;
+    Quaternion _boneOffset;
     // how to map from sensor coordinates to simulation coordinates
-    Quaternion _mapping;
+    Quaternion _coordinateMapping;
+    Quaternion _boneMapping;
     Vector3 _position;
 
     std::list<SensorData> _buffer;
+    std::vector<SensorBuffer*> _buffers;
 };
 
 #endif // SENSORNODE_H

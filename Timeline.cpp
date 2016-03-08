@@ -39,11 +39,28 @@ Timeline::~Timeline()
     //dtor
 }
 
-void Timeline::setSkeletonToTime(unsigned int time)
+void Timeline::setSkeletonToTime(uint64_t time)
 {
+    /*
+    for (auto it = _boneToChannel.begin(); it != _boneToChannel.end(); ++it)
+    {
+        Quaternion q = _channels.find(*it->second.begin())->second.getFrame(time).getOrientation();
+        for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+        {
+            auto channelIt = _channels.find(*it2);
+            if (channelIt == _channels.end())
+            {
+                continue;
+            }
+            Quaternion p = channelIt->second.getFrame(time).getOrientation();
+            q = q.slerp(p, 0.5f);
+        }
+        _skeleton.setRelBoneRotation(it->first, q);
+    }
+    */
     for (auto it = _channels.begin(); it != _channels.end(); ++it)
     {
-        _skeleton.setRelBoneRotation(it->second.getBoneId(), it->second.getFrame(time).getOrientation());
+        _skeleton.setRelBoneOrientation(it->second.getBoneId(), it->second.getFrame(time).getOrientation());
     }
     _skeleton.update();
 }
@@ -115,7 +132,7 @@ std::string Timeline::getChannelAffiliationName(int channelId) const
     return _skeleton.getBoneName(it->second.getBoneId());
 }
 
-void Timeline::insert(MotionSequence* sequence, int toChannel, unsigned int time)
+void Timeline::insert(MotionSequence* sequence, int toChannel, uint64_t time)
 {
     if (sequence->getNumChannels() == 0)
     {
@@ -127,7 +144,7 @@ void Timeline::insert(MotionSequence* sequence, int toChannel, unsigned int time
     }
 }
 
-void Timeline::insert(MotionSequenceChannel* channel, int toChannel, unsigned int time, std::string name)
+void Timeline::insert(MotionSequenceChannel* channel, int toChannel, uint64_t time, std::string name)
 {
     TimelineTrack* newTrack = new TimelineTrack(channel);
     newTrack->setId(_nextTrackId);
@@ -146,7 +163,7 @@ void Timeline::insert(MotionSequenceChannel* channel, int toChannel, unsigned in
     ++_nextTrackId;
 }
 
-void Timeline::insert(const TimelineTrack &track, int toChannel, unsigned int time)
+void Timeline::insert(const TimelineTrack &track, int toChannel, uint64_t time)
 {
     TimelineTrack* newTrack = new TimelineTrack(track);
     newTrack->setId(_nextTrackId);
@@ -180,7 +197,7 @@ void Timeline::moveChannelsDown(int startChannel, unsigned int num)
     }
 }
 
-void Timeline::moveTrack(int trackId, int toChannel, unsigned int toTime)
+void Timeline::moveTrack(int trackId, int toChannel, uint64_t toTime)
 {
     auto it = _tracks.find(trackId);
     if (it == _tracks.end())
@@ -257,7 +274,7 @@ void Timeline::sortChannels()
 
 }
 
-void Timeline::cut(int trackId, unsigned int time)
+void Timeline::cut(int trackId, uint64_t time)
 {
     auto it = _tracks.find(trackId);
     if (it == _tracks.end())
@@ -276,7 +293,7 @@ void Timeline::cut(int trackId, unsigned int time)
     }
 }
 
-void Timeline::cut(unsigned int time)
+void Timeline::cut(uint64_t time)
 {
     for (auto it = _channels.begin(); it != _channels.end(); ++it)
     {
@@ -298,7 +315,7 @@ TimelineTrack* Timeline::getTrack(int id)
     return it->second;
 }
 
-TimelineTrack* Timeline::getTrack(int channel, unsigned int time)
+TimelineTrack* Timeline::getTrack(int channel, uint64_t time)
 {
     auto it = _channels.find(channel);
     if (it == _channels.end())
@@ -308,7 +325,7 @@ TimelineTrack* Timeline::getTrack(int channel, unsigned int time)
     return it->second.getTrack(time);
 }
 
-TimelineTrack* Timeline::getTrackBefore(int channel, unsigned int time)
+TimelineTrack* Timeline::getTrackBefore(int channel, uint64_t time)
 {
     auto it = _channels.find(channel);
     if (it == _channels.end())
@@ -318,7 +335,7 @@ TimelineTrack* Timeline::getTrackBefore(int channel, unsigned int time)
     return it->second.getTrackBefore(time);
 }
 
-TimelineTrack* Timeline::getTrackAfter(int channel, unsigned int time)
+TimelineTrack* Timeline::getTrackAfter(int channel, uint64_t time)
 {
     auto it = _channels.find(channel);
     if (it == _channels.end())
@@ -328,7 +345,7 @@ TimelineTrack* Timeline::getTrackAfter(int channel, unsigned int time)
     return it->second.getTrackAfter(time);
 }
 
-bool Timeline::isBetweenTwoTracks(int channel, unsigned int time) const
+bool Timeline::isBetweenTwoTracks(int channel, uint64_t time) const
 {
     auto it = _channels.find(channel);
     if (it == _channels.end())
@@ -338,7 +355,7 @@ bool Timeline::isBetweenTwoTracks(int channel, unsigned int time) const
     return it->second.isBetweenTwoTracks(time);
 }
 
-std::vector<TimelineTrack*> Timeline::getInRange(int channel, unsigned int startTime, unsigned int endTime)
+std::vector<TimelineTrack*> Timeline::getInRange(int channel, uint64_t startTime, uint64_t endTime)
 {
     auto it = _channels.find(channel);
     if (it == _channels.end())

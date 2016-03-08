@@ -41,6 +41,7 @@ MoCapManager::MoCapManager()
     // create a skeleton
     createSkeleton();
     _filters.push_back(new MotionFilterNone(&_skeleton));
+    _recording = false;
 }
 
 MoCapManager::~MoCapManager()
@@ -61,6 +62,7 @@ MoCapManager& MoCapManager::getInstance()
 
 void MoCapManager::assignSensorToBone(int sensorId, int boneId)
 {
+    // TODO(JK#1#): assign sensor to bone is sometimes buggy (assigns multiple sensors to same bone) rewrite!
     if (sensorId < 0)
     {
         return;
@@ -79,6 +81,7 @@ void MoCapManager::assignSensorToBone(int sensorId, int boneId)
     _sensorIdFromBoneId[boneId] = sensorId;
     theSensorManager.setSensorStateHasBone(sensorId, true);
     theSensorManager.getSensor(sensorId)->setBoneId(boneId);
+    // TODO(JK#1#): set sensors to filter only when recording
     _filters[0]->setSensors(theSensorManager.getSensors());
 }
 
@@ -145,7 +148,8 @@ void MoCapManager::calibrate()
     std::vector<SensorNode*> sensors = theSensorManager.getSensors();
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        Quaternion rotationOffset = sensors[i]->getRotation().inv();
+        Quaternion rotationOffset = sensors[i]->getRotation();//.inv();
+        // TODO(JK#1#): do not use the sensor manager to set the sensor offset, use sensors[i]->setOffset()
         if (theSensorManager.setSensorOffset(sensors[i]->getId(), rotationOffset))
         {
             theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
@@ -155,27 +159,52 @@ void MoCapManager::calibrate()
     }
 }
 
+void MoCapManager::setSensorBoneMapping()
+{
+    std::vector<SensorNode*> sensors = theSensorManager.getSensors();
+    for (size_t i = 0; i < sensors.size(); ++i)
+    {
+        Bone* bone = _skeleton.getBone(sensors[i]->getBoneId());
+        if (bone == nullptr)
+        {
+            continue;
+        }
+        Quaternion mapped = sensors[i]->getRotation();
+        mapped = sensors[i]->getRotationOffset().inv() * mapped;// * sensors[i]->getRotationOffset();
+        mapped = bone->getDefaultOrientation() * mapped.inv();
+        sensors[i]->setBoneMapping(mapped);
+        {
+            theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
+        }
+    }
+}
+
+
 void MoCapManager::startRecording()
 {
     _filters[0]->setRecording(true);
+    _recording = true;
 }
 
-void MoCapManager::stopRecording()
+MotionSequence* MoCapManager::stopRecording()
 {
-    if (!_filters[0]->isRecording())
+    if (!_recording)
     {
-        return;
+        return nullptr;
     }
+    _recording = false;
     _filters[0]->setRecording(false);
     MotionSequence* sequence = new MotionSequence(_filters[0]->getSequence());
     // TODO(JK#1#): set recorded MotionSequence details (name, frameTime, numFrames etc in appropriate function eg in the filter)
     sequence->setName("recording");
     sequence->setFrameTime(0.01f);
     theAnimationManager.addProjectSequence(sequence);
+    return sequence;
 }
 
 void MoCapManager::update()
 {
+    // TODO(JK#1#): don't use a recording filter for update, maybe use special filter
     _filters[0]->update();
     return;
     std::vector<SensorNode*> sensors = theSensorManager.getSensors();
@@ -183,7 +212,7 @@ void MoCapManager::update()
     {
         int boneId = getBoneIdFromSensorId(sensors[i]->getId());
         // TODO(JK#1#): update skeleton from sensor data abs or rel or allow both (set flag)?
-        _skeleton.setAbsBoneRotation(boneId, sensors[i]->getCalRotation());
+        _skeleton.setAbsBoneOrientation(boneId, sensors[i]->getCalRotation());
     }
 
     // as for now only the new rotations were set, update the skeleton to also get new bone positions

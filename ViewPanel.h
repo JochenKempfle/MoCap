@@ -54,7 +54,9 @@ class ViewPanel: public wxPanel
 		virtual ~ViewPanel();
 
 		//(*Declarations(ViewPanel)
+		wxButton* ButtonMapCoordinates;
 		ScrolledContainerPanel* sensorContainerPanel;
+		wxButton* ButtonMapBones;
 		wxButton* ButtonRecord;
 		wxBoxSizer* BoxSizerSensors;
 		wxButton* ButtonCalibrate;
@@ -73,6 +75,8 @@ class ViewPanel: public wxPanel
 		static const long ID_BUTTONSTOP;
 		static const long ID_BUTTONAUTOASSIGN;
 		static const long ID_BUTTONCALIBRATE;
+		static const long ID_BUTTONMAPCOORDINATES;
+		static const long ID_BUTTONMAPBONES;
 		static const long ID_GLCANVAS;
 		static const long ID_SENSORCONTAINERPANEL;
 		//*)
@@ -85,6 +89,8 @@ class ViewPanel: public wxPanel
 		void OnButtonAutoAssignClick(wxCommandEvent& event);
 		void OnButtonCalibrateClick(wxCommandEvent& event);
 		void OnButtonRecordClick(wxCommandEvent& event);
+		void OnButtonMapCoordinatesClick(wxCommandEvent& event);
+		void OnButtonMapBonesClick(wxCommandEvent& event);
 		//*)
 		void OnUpdateEvent(wxEvent& event);
         void OnPopupClick(wxCommandEvent& event);

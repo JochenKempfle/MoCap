@@ -27,51 +27,32 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORDETAILPANEL_H
-#define SENSORDETAILPANEL_H
+#ifndef FILEHANDLER_H
+#define FILEHANDLER_H
 
-#ifndef WX_PRECOMP
-	//(*HeadersPCH(SensorDetailPanel)
-	#include <wx/sizer.h>
-	#include <wx/panel.h>
-	//*)
-#endif
-//(*Headers(SensorDetailPanel)
-#include "ScrolledContainerPanel.h"
-//*)
+#include "MotionSequence.h"
+#include <wx/string.h>
 
-#include "SensorDataExtPanel.h"
-#include <map>
-
-class SensorDetailPanel: public wxPanel
+class FileHandler
 {
-	public:
+  public:
+    FileHandler();
+    virtual ~FileHandler();
 
-		SensorDetailPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~SensorDetailPanel();
+    MotionSequence* read(wxString filename);
+    bool write(wxString filename, MotionSequence* sequence);
 
-		//(*Declarations(SensorDetailPanel)
-		ScrolledContainerPanel* sensorContainerPanel;
-		wxBoxSizer* BoxSizerSensors;
-		//*)
+    Skeleton* readBVHSkeleton(wxString filename);
+    MotionSequence* readBVH(wxString filename);
+    bool writeBVH(wxString filename, MotionSequence* sequence);
 
-	protected:
+    Skeleton* readHTRSkeleton(wxString filename);
+    MotionSequence* readHTR(wxString filename);
+    bool writeHTR(wxString filename, MotionSequence* sequence);
 
-		//(*Identifiers(SensorDetailPanel)
-		static const long ID_SENSOREXTCONTAINERPANEL;
-		//*)
+  protected:
 
-	private:
-
-		//(*Handlers(SensorDetailPanel)
-		//*)
-		void OnUpdateEvent(wxEvent& event);
-
-		SensorDataExtPanel* addSensor(SensorNode* sensor);
-
-		std::map<int, SensorDataExtPanel*> _dataPanelFromId;
-
-		DECLARE_EVENT_TABLE()
+  private:
 };
 
-#endif
+#endif // FILEHANDLER_H

@@ -250,14 +250,14 @@
 													<cols>2</cols>
 													<rows>3</rows>
 													<object class="sizeritem">
-														<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticText1" member="yes">
-															<label>Yaw</label>
+														<object class="wxStaticText" name="ID_STATICTEXT11" variable="StaticText11" member="yes">
+															<label>Roll</label>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
 													</object>
 													<object class="sizeritem">
-														<object class="wxSpinCtrl" name="ID_SPINCTRLYAW" variable="SpinCtrlYaw" member="yes">
+														<object class="wxSpinCtrl" name="ID_SPINCTRLROLL" variable="SpinCtrlRoll" member="yes">
 															<value>0</value>
 															<max>360</max>
 															<style>wxSP_ARROW_KEYS</style>
@@ -282,14 +282,14 @@
 														<border>5</border>
 													</object>
 													<object class="sizeritem">
-														<object class="wxStaticText" name="ID_STATICTEXT11" variable="StaticText11" member="yes">
-															<label>Roll</label>
+														<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticText1" member="yes">
+															<label>Yaw</label>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
 													</object>
 													<object class="sizeritem">
-														<object class="wxSpinCtrl" name="ID_SPINCTRLROLL" variable="SpinCtrlRoll" member="yes">
+														<object class="wxSpinCtrl" name="ID_SPINCTRLYAW" variable="SpinCtrlYaw" member="yes">
 															<value>0</value>
 															<max>360</max>
 															<style>wxSP_ARROW_KEYS</style>

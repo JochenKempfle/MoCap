@@ -87,6 +87,7 @@ TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,c
 	Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&TimelinePanel::OnLeftDown);
 	Connect(wxEVT_LEFT_UP,(wxObjectEventFunction)&TimelinePanel::OnLeftUp);
 	Connect(wxEVT_RIGHT_DOWN,(wxObjectEventFunction)&TimelinePanel::OnRightDown);
+	Connect(wxEVT_RIGHT_UP,(wxObjectEventFunction)&TimelinePanel::OnRightUp);
 	Connect(wxEVT_MOTION,(wxObjectEventFunction)&TimelinePanel::OnMouseMove);
 	Connect(wxEVT_ENTER_WINDOW,(wxObjectEventFunction)&TimelinePanel::OnMouseEnter);
 	Connect(wxEVT_LEAVE_WINDOW,(wxObjectEventFunction)&TimelinePanel::OnMouseLeave);
@@ -94,7 +95,7 @@ TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,c
 	//*)
 	Connect(wxEVT_MOUSE_CAPTURE_LOST, (wxObjectEventFunction)&TimelinePanel::OnMouseCaptureLost);
 
-	_msPerTimeUnit = 1000;
+	_ysPerTimeUnit = 1000000;
 	_timeOffset = 0;
 	_channelOffset = 0;
 	_cursorPosition = 0;
@@ -128,7 +129,7 @@ void TimelinePanel::prepareAddingSequence(int sequence, const std::vector<int> &
     _dragging = true;
     // initially the drag must not be valid as dragging starts outside the timeline
     _dragIsValid = false;
-    _draggedTrackLength = theAnimationManager.getProjectSequence(sequence)->getLength();
+    _draggedTrackLength = theAnimationManager.getProjectSequence(sequence)->getLength() * 1000;
     _mouseToTrackOffset = 30;
     _sequenceToAdd = sequence;
     _channelsToAdd = channels;
@@ -138,7 +139,7 @@ void TimelinePanel::prepareAddingFrame(const MotionSequenceFrame &frame)
 {
     _dragging = true;
     _dragIsValid = false;
-    _draggedTrackLength = 25;
+    _draggedTrackLength = 25 * 1000;
     _mouseToTrackOffset = 2;
     _trackToAdd.clear();
     _trackToAdd.appendFrame(frame);
@@ -147,12 +148,8 @@ void TimelinePanel::prepareAddingFrame(const MotionSequenceFrame &frame)
     //_frameToAdd = frame;
 }
 
-void TimelinePanel::setCursorPosition(int time)
+void TimelinePanel::setCursorPosition(uint64_t time)
 {
-    if (time < 0)
-    {
-        time = 0;
-    }
     _cursorPosition = time;
     theAnimationManager.getTimeline()->setSkeletonToTime(time);
     update();
@@ -281,24 +278,24 @@ void TimelinePanel::endDragDrop()
     update();
 }
 
-int TimelinePanel::getLengthFromTime(int time) const
+int TimelinePanel::getLengthFromTime(uint64_t time) const
 {
-    return (_numPixelsPerTimeUnit * time) / _msPerTimeUnit;
+    return (_numPixelsPerTimeUnit * time) / _ysPerTimeUnit;
 }
 
 int TimelinePanel::getLengthFromTime(float time) const
 {
-    return (_numPixelsPerTimeUnit * time) / _msPerTimeUnit;
+    return (_numPixelsPerTimeUnit * time) / _ysPerTimeUnit;
 }
 
-int TimelinePanel::getPositionFromTime(int time) const
+int TimelinePanel::getPositionFromTime(int64_t time) const
 {
-    return _timelineStartX + (_numPixelsPerTimeUnit * (time - _timeOffset)) / _msPerTimeUnit;
+    return _timelineStartX + (_numPixelsPerTimeUnit * (time - _timeOffset)) / _ysPerTimeUnit;
 }
 
-int TimelinePanel::getTimeFromPosition(wxPoint pos) const
+int64_t TimelinePanel::getTimeFromPosition(wxPoint pos) const
 {
-    return (_msPerTimeUnit * (pos.x - _timelineStartX)) / _numPixelsPerTimeUnit + _timeOffset;
+    return (_ysPerTimeUnit * (pos.x - _timelineStartX)) / _numPixelsPerTimeUnit + _timeOffset;
 }
 
 int TimelinePanel::getChannelFromPosition(wxPoint pos) const
@@ -346,8 +343,8 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
     }
 
     // draw lines between single frames
-    int startFrame = (_timeOffset - getTimeFromPosition(pos)) / (1000.0f * track->getFrameTime());
-    unsigned int endFrame = (getTimeFromPosition(wxPoint(GetSize().x, GetSize().y)) - getTimeFromPosition(pos)) / (1000.0f * track->getFrameTime()) + 1;
+    int startFrame = (_timeOffset - getTimeFromPosition(pos)) / (1000000.0f * track->getFrameTime());
+    unsigned int endFrame = (getTimeFromPosition(wxPoint(GetSize().x, GetSize().y)) - getTimeFromPosition(pos)) / (1000000.0f * track->getFrameTime()) + 1;
     if (startFrame < 0)
     {
         startFrame = 0;
@@ -358,23 +355,23 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
     }
 
     // TODO(JK#3#): how to draw 10* 100* ... frames? bold or large or other color?
-    int frameLength = getLengthFromTime(1000 * track->getFrameTime());
-    if (getLengthFromTime(100 * 1000 * track->getFrameTime()) > 10)
+    int frameLength = getLengthFromTime(1000000 * track->getFrameTime());
+    if (getLengthFromTime(100 * 1000000 * track->getFrameTime()) > 10)
     {
         //for (int i = pos.x + frameLength; k < pos.x + length; k += frameLength)
         for (unsigned int i = 100*(startFrame/100); i <= endFrame; i += 100)
         {
-            int framePos = pos.x + getLengthFromTime(i * 1000.0f * track->getFrameTime());
+            int framePos = pos.x + getLengthFromTime(i * 1000000.0f * track->getFrameTime());
             dc->DrawLine(wxPoint(framePos, pos.y), wxPoint(framePos, pos.y + 4));
             dc->DrawLine(wxPoint(framePos, pos.y + _channelHeight), wxPoint(framePos, pos.y + _channelHeight - 9));
         }
     }
-    if (getLengthFromTime(10 * 1000 * track->getFrameTime()) > 10)
+    if (getLengthFromTime(10 * 1000000 * track->getFrameTime()) > 10)
     {
         //for (int k = pos.x + frameLength; i < pos.x + length; i += frameLength)
         for (unsigned int i = 10*(startFrame/10); i <= endFrame; i += 10)
         {
-            int framePos = pos.x + getLengthFromTime(i * 1000.0f * track->getFrameTime());
+            int framePos = pos.x + getLengthFromTime(i * 1000000.0f * track->getFrameTime());
             dc->DrawLine(wxPoint(framePos, pos.y), wxPoint(framePos, pos.y + 4));
             dc->DrawLine(wxPoint(framePos, pos.y + _channelHeight), wxPoint(framePos, pos.y + _channelHeight - 6));
         }
@@ -384,7 +381,7 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
         //for (int i = pos.x + frameLength; i < pos.x + length; i += frameLength)
         for (unsigned int i = startFrame; i <= endFrame; ++i)
         {
-            int framePos = pos.x + getLengthFromTime(i * 1000.0f * track->getFrameTime());
+            int framePos = pos.x + getLengthFromTime(i * 1000000.0f * track->getFrameTime());
             dc->DrawLine(wxPoint(framePos, pos.y), wxPoint(framePos, pos.y + 4));
             dc->DrawLine(wxPoint(framePos, pos.y + _channelHeight), wxPoint(framePos, pos.y + _channelHeight - 3));
         }
@@ -418,7 +415,7 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
     unsigned int numChannels = size.y/_channelHeight + 1;
     // the number of currently visible time units
     int numTimeUnits = size.x/_numPixelsPerTimeUnit + 1;
-    int endTime = getTimeFromPosition(wxPoint(size.x, size.y));
+    uint64_t endTime = getTimeFromPosition(wxPoint(size.x, size.y));
 
     Timeline* timeline = theAnimationManager.getTimeline();
 
@@ -458,7 +455,7 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
         dc.SetBrush(brush);
 
         channelPos = _draggedTrackChannel - _channelOffset;
-        int length = getLengthFromTime(_draggedTrackLength);
+        uint64_t length = getLengthFromTime(_draggedTrackLength);
 
         pos.x = _draggedTrackPos;
 
@@ -528,10 +525,10 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
 
     for (int i = 0; i < numTimeUnits; ++i)
     {
-        int time = i * _msPerTimeUnit + _timeOffset;
-        int min = time / (60 * 1000);
-        int sec = (time / 1000) % 60;
-        int ms = time % 1000;
+        uint64_t time = i * _ysPerTimeUnit + _timeOffset;
+        int min = time / (60 * 1000000);
+        int sec = (time / 1000000) % 60;
+        int ms = (time / 1000) % 1000;
 
         wxString timeLabel;
         timeLabel << (min < 10 ? _("0") : _("")) << min << (sec < 10 ? _(":0") : _(":")) << sec;
@@ -694,13 +691,32 @@ void TimelinePanel::OnRightDown(wxMouseEvent& event)
 {
     wxPoint pos = event.GetPosition();
 
-    if (pos.x > _timelineStartX && pos.y < _timelineStartY)
+    if (pos.x > _timelineStartX && pos.y > _timelineStartY)
     {
         if (_interpolationPossible)
         {
             // TODO(JK#1#): do the interpolation stuff
+            unsigned int time = getTimeFromPosition(pos);
+            _interpolationStartTime = theAnimationManager.getTimeline()->getTrackBefore(_interpolationChannel, time)->getEndTime();
+            Quaternion q = theAnimationManager.getTimeline()->getTrackBefore(_interpolationChannel, time)->getLastFrame().getOrientation();
+            Quaternion p = theAnimationManager.getTimeline()->getTrackAfter(_interpolationChannel, time)->getFirstFrame().getOrientation();
+            //Quaternion r = q.slerp(p, 0.5f);
+            TimelineTrack newTrack;
+            newTrack.setFrameTime(0.01);
+            for (int i = 1; i < 10; ++i)
+            {
+                newTrack.appendFrame(MotionSequenceFrame(q.slerp(p, i*0.1f)));
+            }
+            theAnimationManager.getTimeline()->insert(newTrack, _interpolationChannel, _interpolationStartTime);
+            _interpolationStartTime = theAnimationManager.getTimeline()->getTrackBefore(_interpolationChannel, time)->getEndTime();
+            Refresh();
         }
     }
+}
+
+void TimelinePanel::OnRightUp(wxMouseEvent& event)
+{
+    Refresh();
 }
 
 void TimelinePanel::OnMouseMove(wxMouseEvent& event)
@@ -724,7 +740,7 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
             {
                 _draggedTrackPos = getPositionFromTime(0);
             }
-            else if (getTimeFromPosition(wxPoint(_draggedTrackPos, 0)) + _draggedTrackLength > _maxTime)
+            else if (int64_t(_draggedTrackLength) + getTimeFromPosition(wxPoint(_draggedTrackPos, 0)) > _maxTime)
             {
                 _draggedTrackPos = getPositionFromTime(_maxTime - _draggedTrackLength);
             }
@@ -772,10 +788,13 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
     }
     else if (_clickedTime)
     {
-        setCursorPosition(getTimeFromPosition(pos));
-        if (_cursorPosition < _timeOffset)
+        if (pos.x < _timelineStartX)
         {
             setCursorPosition(_timeOffset);
+        }
+        else
+        {
+            setCursorPosition(getTimeFromPosition(pos));
         }
     }
 }
@@ -797,15 +816,15 @@ void TimelinePanel::OnMouseWheel(wxMouseEvent& event)
     }
     else
     {
-        _timeOffset -= _msPerTimeUnit * (event.GetWheelRotation()/event.GetWheelDelta());
+        _timeOffset -= _ysPerTimeUnit * (event.GetWheelRotation()/event.GetWheelDelta());
         if (_timeOffset <= 0)
         {
             _timeOffset = 0;
         }
-        else if (_timeOffset + _msPerTimeUnit * (GetSize().x - _timelineStartX) / _numPixelsPerTimeUnit > _maxTime)
+        else if (_timeOffset + _ysPerTimeUnit * (GetSize().x - _timelineStartX) / _numPixelsPerTimeUnit > _maxTime)
         {
             // if out of time boundary, undo
-            _timeOffset += _msPerTimeUnit * (event.GetWheelRotation()/event.GetWheelDelta());
+            _timeOffset += _ysPerTimeUnit * (event.GetWheelRotation()/event.GetWheelDelta());
         }
     }
     Refresh();
@@ -843,148 +862,153 @@ void TimelinePanel::OnButtonCutClick(wxCommandEvent& event)
 
 void TimelinePanel::OnButtonZoomInClick(wxCommandEvent& event)
 {
-    switch (_msPerTimeUnit)
+    _ysPerTimeUnit /= 1000;
+    switch (_ysPerTimeUnit)
     {
         case 20:
-            _msPerTimeUnit = 10;
+            _ysPerTimeUnit = 10;
             break;
         case 50:
-            _msPerTimeUnit = 20;
+            _ysPerTimeUnit = 20;
             break;
         case 100:
-            _msPerTimeUnit = 50;
+            _ysPerTimeUnit = 50;
             break;
         case 200:
-            _msPerTimeUnit = 100;
+            _ysPerTimeUnit = 100;
             break;
         case 500:
-            _msPerTimeUnit = 200;
+            _ysPerTimeUnit = 200;
             break;
         case 1000:
-            _msPerTimeUnit = 500;
+            _ysPerTimeUnit = 500;
             break;
         case 2000:
-            _msPerTimeUnit = 1000;
+            _ysPerTimeUnit = 1000;
             break;
         case 5000:
-            _msPerTimeUnit = 2000;
+            _ysPerTimeUnit = 2000;
             break;
         case 10000:
-            _msPerTimeUnit = 5000;
+            _ysPerTimeUnit = 5000;
             break;
         case 20000:
-            _msPerTimeUnit = 10000;
+            _ysPerTimeUnit = 10000;
             break;
         case 30000:
-            _msPerTimeUnit = 20000;
+            _ysPerTimeUnit = 20000;
             break;
         case 60000:
-            _msPerTimeUnit = 30000;
+            _ysPerTimeUnit = 30000;
             break;
         case 120000:
-            _msPerTimeUnit = 60000;
+            _ysPerTimeUnit = 60000;
             break;
         case 300000:
-            _msPerTimeUnit = 120000;
+            _ysPerTimeUnit = 120000;
             break;
         case 600000:
-            _msPerTimeUnit = 300000;
+            _ysPerTimeUnit = 300000;
             break;
         default:
             break;
     }
+    _ysPerTimeUnit *= 1000;
     Refresh();
 }
 
 void TimelinePanel::OnButtonZoomOutClick(wxCommandEvent& event)
 {
-    switch (_msPerTimeUnit)
+    _ysPerTimeUnit /= 1000;
+    switch (_ysPerTimeUnit)
     {
         case 10:
-            _msPerTimeUnit = 20;
-            _timeOffset /= 20;
-            _timeOffset *= 20;
+            _ysPerTimeUnit = 20;
+            _timeOffset /= 20 * 1000;
+            _timeOffset *= 20 * 1000;
             break;
         case 20:
-            _msPerTimeUnit = 50;
-            _timeOffset /= 50;
-            _timeOffset *= 50;
+            _ysPerTimeUnit = 50;
+            _timeOffset /= 50 * 1000;
+            _timeOffset *= 50 * 1000;
             break;
         case 50:
-            _msPerTimeUnit = 100;
-            _timeOffset /= 100;
-            _timeOffset *= 100;
+            _ysPerTimeUnit = 100;
+            _timeOffset /= 100 * 1000;
+            _timeOffset *= 100 * 1000;
             break;
         case 100:
-            _msPerTimeUnit = 200;
-            _timeOffset /= 200;
-            _timeOffset *= 200;
+            _ysPerTimeUnit = 200;
+            _timeOffset /= 200 * 1000;
+            _timeOffset *= 200 * 1000;
             break;
         case 200:
-            _msPerTimeUnit = 500;
-            _timeOffset /= 500;
-            _timeOffset *= 500;
+            _ysPerTimeUnit = 500;
+            _timeOffset /= 500 * 1000;
+            _timeOffset *= 500 * 1000;
             break;
         case 500:
-            _msPerTimeUnit = 1000;
-            _timeOffset /= 1000;
-            _timeOffset *= 1000;
+            _ysPerTimeUnit = 1000;
+            _timeOffset /= 1000 * 1000;
+            _timeOffset *= 1000 * 1000;
             break;
         case 1000:
-            _msPerTimeUnit = 2000;
-            _timeOffset /= 2000;
-            _timeOffset *= 2000;
+            _ysPerTimeUnit = 2000;
+            _timeOffset /= 2000 * 1000;
+            _timeOffset *= 2000 * 1000;
             break;
         case 2000:
-            _msPerTimeUnit = 5000;
-            _timeOffset /= 5000;
-            _timeOffset *= 5000;
+            _ysPerTimeUnit = 5000;
+            _timeOffset /= 5000 * 1000;
+            _timeOffset *= 5000 * 1000;
             break;
         case 5000:
-            _msPerTimeUnit = 10000;
-            _timeOffset /= 10000;
-            _timeOffset *= 10000;
+            _ysPerTimeUnit = 10000;
+            _timeOffset /= 10000 * 1000;
+            _timeOffset *= 10000 * 1000;
             break;
         case 10000:
-            _msPerTimeUnit = 20000;
-            _timeOffset /= 20000;
-            _timeOffset *= 20000;
+            _ysPerTimeUnit = 20000;
+            _timeOffset /= 20000 * 1000;
+            _timeOffset *= 20000 * 1000;
             break;
         case 20000:
-            _msPerTimeUnit = 30000;
-            _timeOffset /= 30000;
-            _timeOffset *= 30000;
+            _ysPerTimeUnit = 30000;
+            _timeOffset /= 30000 * 1000;
+            _timeOffset *= 30000 * 1000;
             break;
         case 30000:
-            _msPerTimeUnit = 60000;
-            _timeOffset /= 60000;
-            _timeOffset *= 60000;
+            _ysPerTimeUnit = 60000;
+            _timeOffset /= 60000 * 1000;
+            _timeOffset *= 60000 * 1000;
             break;
         case 60000:
-            _msPerTimeUnit = 120000;
-            _timeOffset /= 120000;
-            _timeOffset *= 120000;
+            _ysPerTimeUnit = 120000;
+            _timeOffset /= 120000 * 1000;
+            _timeOffset *= 120000 * 1000;
             break;
         case 120000:
-            _msPerTimeUnit = 300000;
-            _timeOffset /= 300000;
-            _timeOffset *= 300000;
+            _ysPerTimeUnit = 300000;
+            _timeOffset /= 300000 * 1000;
+            _timeOffset *= 300000 * 1000;
             break;
         case 300000:
-            _msPerTimeUnit = 600000;
-            _timeOffset /= 600000;
-            _timeOffset *= 600000;
+            _ysPerTimeUnit = 600000;
+            _timeOffset /= 600000 * 1000;
+            _timeOffset *= 600000 * 1000;
             break;
         default:
             break;
     }
+    _ysPerTimeUnit *= 1000;
     // adjust time offset to time boundary
-    while (_timeOffset + _msPerTimeUnit * (GetSize().x - _timelineStartX) / _numPixelsPerTimeUnit >= _maxTime)
+    while (_timeOffset + _ysPerTimeUnit * (GetSize().x - _timelineStartX) / _numPixelsPerTimeUnit >= _maxTime)
     {
-        _timeOffset -= _msPerTimeUnit;
+        _timeOffset -= _ysPerTimeUnit;
     }
     Refresh();
 }
+
 
 
 

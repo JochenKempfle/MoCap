@@ -95,9 +95,11 @@ class MoCapManager
 
     void autoAssign();
     void calibrate();
+    void setSensorBoneMapping();
 
     void startRecording();
-    void stopRecording();
+    MotionSequence* stopRecording();
+    bool isRecording() const { return _recording; }
 
     void update();
 
@@ -111,6 +113,7 @@ class MoCapManager
     std::map<int, int> _sensorIdFromBoneId;
     Skeleton _skeleton;
     int _selectedBoneId;
+    bool _recording;
 
     std::vector<MotionFilterBase*> _filters;
 

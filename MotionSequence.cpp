@@ -34,6 +34,7 @@ MotionSequence::MotionSequence()
     //ctor
     _numFrames = 0;
     _frameTime = 0.0;
+    _hasAbsOrientations = false;
 }
 
 MotionSequence::MotionSequence(const MotionSequence &other)
@@ -42,6 +43,7 @@ MotionSequence::MotionSequence(const MotionSequence &other)
     _skeleton = other._skeleton;
     _numFrames = other._numFrames;
     _frameTime = other._frameTime;
+    _hasAbsOrientations = other._hasAbsOrientations;
     for (auto it = other._channels.begin(); it != other._channels.end(); ++it)
     {
         _channels[it->first] = new MotionSequenceChannel(*(it->second));
@@ -70,6 +72,28 @@ void MotionSequence::setFrameTime(float time)
     {
         it->second->setFrameTime(time);
     }
+}
+
+void MotionSequence::convertToRelOrientations()
+{
+    if (_hasAbsOrientations == false)
+    {
+        return;
+    }
+    for (size_t i = 0; i < _numFrames; ++i)
+    {
+        setToFrame(i);
+        for (auto it = _channels.begin(); it != _channels.end(); ++it)
+        {
+            MotionSequenceFrame frame(_skeleton.getBone(it->second->getId())->getRelOrientation());
+            if (it->second->getFrame(i).hasPositionData())
+            {
+                frame.setPosition(it->second->getFrame(i).getPosition());
+            }
+            it->second->setFrame(i, frame);
+        }
+    }
+    _hasAbsOrientations = false;
 }
 
 void MotionSequence::createFromSkeleton(const Skeleton &skeleton)
@@ -203,7 +227,14 @@ void MotionSequence::setToFrame(unsigned int frame)
 {
     for (auto it = _channels.begin(); it != _channels.end(); ++it)
     {
-        _skeleton.getBone(it->first)->setRelOrientation(it->second->getFrame(frame).getOrientation());
+        if (_hasAbsOrientations && frame < it->second->getNumFrames())
+        {
+            _skeleton.getBone(it->first)->setAbsOrientation(it->second->getFrame(frame).getOrientation());
+        }
+        else
+        {
+            _skeleton.getBone(it->first)->setRelOrientation(it->second->getFrame(frame).getOrientation());
+        }
         if (it->second->getFrame(frame).hasPositionData())
         {
             _skeleton.getBone(it->first)->setStartPos(it->second->getFrame(frame).getPosition());

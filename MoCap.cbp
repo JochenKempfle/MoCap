@@ -80,6 +80,8 @@
 		<Unit filename="ConnectionDialog.cpp" />
 		<Unit filename="ConnectionDialog.h" />
 		<Unit filename="CustomEvents.h" />
+		<Unit filename="FileHandler.cpp" />
+		<Unit filename="FileHandler.h" />
 		<Unit filename="GLCanvas.cpp" />
 		<Unit filename="GLCanvas.h" />
 		<Unit filename="GLImage.cpp" />
@@ -90,6 +92,12 @@
 		<Unit filename="MoCapMain.h" />
 		<Unit filename="MoCapManager.cpp" />
 		<Unit filename="MoCapManager.h" />
+		<Unit filename="MotionFilterBase.cpp" />
+		<Unit filename="MotionFilterBase.h" />
+		<Unit filename="MotionFilterNone.cpp" />
+		<Unit filename="MotionFilterNone.h" />
+		<Unit filename="MotionFilterSlerp.cpp" />
+		<Unit filename="MotionFilterSlerp.h" />
 		<Unit filename="MotionSequence.cpp" />
 		<Unit filename="MotionSequence.h" />
 		<Unit filename="MotionSequenceChannel.cpp" />
@@ -102,6 +110,8 @@
 		<Unit filename="Quaternion.h" />
 		<Unit filename="ScrolledContainerPanel.cpp" />
 		<Unit filename="ScrolledContainerPanel.h" />
+		<Unit filename="SensorBuffer.cpp" />
+		<Unit filename="SensorBuffer.h" />
 		<Unit filename="SensorData.cpp" />
 		<Unit filename="SensorData.h" />
 		<Unit filename="SensorDataExtPanel.cpp" />
@@ -114,6 +124,8 @@
 		<Unit filename="SensorManager.h" />
 		<Unit filename="SensorNode.cpp" />
 		<Unit filename="SensorNode.h" />
+		<Unit filename="SensorRawData.cpp" />
+		<Unit filename="SensorRawData.h" />
 		<Unit filename="Skeleton.cpp" />
 		<Unit filename="Skeleton.h" />
 		<Unit filename="SkeletonCreatorPanel.cpp" />

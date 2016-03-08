@@ -28,19 +28,20 @@ OF SUCH DAMAGE.
 
 
 #include "SensorNode.h"
+#include "MoCapManager.h"
 
 SensorNode::SensorNode(int id, std::string IPAddress) : _id(id), _IPAddress(IPAddress)
 {
     _boneId = -1;
     _state = 0;
-    _mapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
 }
 
 SensorNode::SensorNode() : _id(-1)
 {
     _boneId = -1;
     _state = 0;
-    _mapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
 }
 
 SensorNode::~SensorNode()
@@ -59,8 +60,13 @@ void SensorNode::update(const SensorRawData &data)
     Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
     Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
     x = y*x;
-    _rotation = x*_rotation*x.inv();
-    _buffer.push_back(SensorData(data.timestamp, _rotation));
+    _rotation = _coordinateMapping * _rotation * _coordinateMapping.inv();
+
+    for (size_t i = 0; i < _buffers.size(); ++i)
+    {
+        // TODO(JK#1#): what sensor data to push_back in the buffer calRotation?
+        _buffers[i]->push_back(SensorData(data.timestamp, getCalRotation()));
+    }
 
     // TODO(JK#2#): update position of sensor node
 /*    _position.x() = data.position[0];
@@ -75,7 +81,7 @@ Quaternion SensorNode::getCalRotation() const
     // Quaternion x(1.0, 0.0, 0.0, M_PI*90.0/180.0);
 //    Quaternion offset = _rotationOffset * _mapping;
 //    return offset * _rotation * offset.inv();
-    return _rotationOffset * _rotation;
+    return _boneMapping * _rotationOffset.inv() * _rotation;// * _rotationOffset;
 }
 
 Vector3 SensorNode::toEuler() const
@@ -83,4 +89,27 @@ Vector3 SensorNode::toEuler() const
     return _rotation.toEuler();
 }
 
+void SensorNode::addBuffer(SensorBuffer* buffer)
+{
+    for (size_t i = 0; i < _buffers.size(); ++i)
+    {
+        if (_buffers[i] == buffer)
+        {
+            return;
+        }
+    }
+    _buffers.push_back(buffer);
+}
+
+void SensorNode::removeBuffer(SensorBuffer* buffer)
+{
+    for (auto it = _buffers.begin(); it != _buffers.end(); ++it)
+    {
+        if (*it == buffer)
+        {
+            _buffers.erase(it);
+            return;
+        }
+    }
+}
 

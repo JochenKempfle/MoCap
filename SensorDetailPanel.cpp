@@ -83,11 +83,11 @@ void SensorDetailPanel::OnUpdateEvent(wxEvent& event)
         auto it = _dataPanelFromId.find(id);
         if (it != _dataPanelFromId.end())
         {
-            it->second->update(sensors[i]);
+            it->second->update();
         }
         else
         {
-            addSensor(sensors[i])->update(sensors[i]);
+            addSensor(sensors[i])->update();
             BoxSizerSensors->Layout();
             Refresh();
         }
@@ -96,24 +96,12 @@ void SensorDetailPanel::OnUpdateEvent(wxEvent& event)
     //Thaw();
 }
 
-SensorDataExtPanel* SensorDetailPanel::addSensor(const SensorNode* sensor)
+SensorDataExtPanel* SensorDetailPanel::addSensor(SensorNode* sensor)
 {
     SensorDataExtPanel* sensorPanel = new SensorDataExtPanel(sensorContainerPanel->ScrolledWindow);
     sensorContainerPanel->add(sensorPanel);
     _dataPanelFromId[sensor->getId()] = sensorPanel;
-    sensorPanel->setSensorId(sensor->getId());
-    wxString name;
-    name << _("Sensor ") << sensor->getId();
-    sensorPanel->StaticTextName->SetLabel(name);
-    sensorPanel->StaticTextIP->SetLabel(sensor->getIPAddress());
-    if (sensor->isUpdated())
-    {
-        sensorPanel->StaticTextState->SetLabel(_("online"));
-    }
-    else
-    {
-        sensorPanel->StaticTextState->SetLabel(_("offline"));
-    }
+    sensorPanel->setSensor(sensor);
 
     return sensorPanel;
 }

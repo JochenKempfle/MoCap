@@ -62,7 +62,7 @@ class TimelinePanel: public wxPanel
 		void prepareAddingSequence(int sequence, const std::vector<int> &channels);
 		void prepareAddingFrame(const MotionSequenceFrame &frame);
 
-		void setCursorPosition(int time);
+		void setCursorPosition(uint64_t time);
 		int getCursorPosition() const { return _cursorPosition; }
 
 		void update();
@@ -95,6 +95,7 @@ class TimelinePanel: public wxPanel
 		void OnKillFocus(wxFocusEvent& event);
 		void OnButtonCutClick(wxCommandEvent& event);
 		void OnRightDown(wxMouseEvent& event);
+		void OnRightUp(wxMouseEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
         void OnPopupClick(wxCommandEvent& event);
@@ -105,21 +106,21 @@ class TimelinePanel: public wxPanel
 
 		GLCanvas* _glCanvas;
 
-        int getLengthFromTime(int time) const;
+        int getLengthFromTime(uint64_t time) const;
         int getLengthFromTime(float time) const;
-        int getPositionFromTime(int time) const;
+        int getPositionFromTime(int64_t time) const;
         // returns the time point at which the given point will be in current setting (zoom factor, time offset)
         // always check if time is negative, this means the point is before the beginning and therefore invalid
-        int getTimeFromPosition(wxPoint pos) const;
+        int64_t getTimeFromPosition(wxPoint pos) const;
         int getChannelFromPosition(wxPoint pos) const;
         int getPositionFromChannel(int channel) const;
 
 		void drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const;
 
-		int _msPerTimeUnit;
-		int _timeOffset;
+		int64_t _ysPerTimeUnit;
+		int64_t _timeOffset;
 		int _channelOffset;
-		int _cursorPosition;
+		uint64_t _cursorPosition;
 
 		// the x offset of the mouse to the beginning of a track (when clicked and dragged)
 		int _mouseToTrackOffset;
@@ -134,11 +135,11 @@ class TimelinePanel: public wxPanel
         bool _dragIsValid;
         int _draggedTrackPos;
         int _draggedTrackChannel;
-        int _draggedTrackLength;
+        uint64_t _draggedTrackLength;
 
         bool _interpolationPossible;
-        int _interpolationStartTime;
-        int _interpolationEndTime;
+        uint64_t _interpolationStartTime;
+        uint64_t _interpolationEndTime;
         int _interpolationChannel;
 
         int _sequenceToAdd;
@@ -158,7 +159,7 @@ class TimelinePanel: public wxPanel
         const int _timelineStartY = _optionsHeight + _timeHeight;
 
         // const int timeResolution = 1000;
-        const int _maxTime = 42000000;
+        const int64_t _maxTime = 42000000000;
 
 		DECLARE_EVENT_TABLE()
 };

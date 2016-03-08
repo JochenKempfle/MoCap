@@ -45,7 +45,7 @@ Bone::Bone(int id, const Bone &other) : _id(id)
 {
     _name = other._name;
     _length = other._length;
-    _absOrientation = other._absOrientation;
+    _chainedOrientation = other._chainedOrientation;
     _relOrientation = other._relOrientation;
     _defaultOrientation = other._defaultOrientation;
     _startPos = other._startPos;
@@ -139,6 +139,18 @@ std::vector<Bone*> Bone::getAllChildren()
     return bones;
 }
 
+std::vector<Bone*> Bone::getAllChildrenDFS()
+{
+    std::vector<Bone*> bones;
+    for (size_t i = 0; i < _children.size(); ++i)
+    {
+        bones.push_back(_children[i]);
+        std::vector<Bone*> childBones = _children[i]->getAllChildrenDFS();
+        bones.insert(bones.end(), childBones.begin(), childBones.end());
+    }
+    return bones;
+}
+
 bool Bone::hasChild(Bone* child, bool checkGrandChildren) const
 {
     if (child == nullptr)
@@ -175,7 +187,7 @@ Bone& Bone::copyContent(const Bone &other)
 {
     _name = other._name;
     _length = other._length;
-    _absOrientation = other._absOrientation;
+    _chainedOrientation = other._chainedOrientation;
     _relOrientation = other._relOrientation;
     _defaultOrientation = other._defaultOrientation;
     _startPos = other._startPos;
@@ -186,8 +198,9 @@ Bone& Bone::copyContent(const Bone &other)
 
 void Bone::setAbsOrientation(const Quaternion &orientation)
 {
-    // TODO(JK#5#): set abs orientation can get corrupted if child gets updated before parent
-    _absOrientation = orientation.normalized() * _defaultOrientation.inv();
+    // setting the bone to an absolute orientation implies having a specific orientation in the chain,
+    // so set _chainedOrientation accordingly and find the relative orientation in the update() routine (by setting _useAbsOrientation)
+    _chainedOrientation = orientation.normalized() * _defaultOrientation.inv();
     _useAbsOrientation = true;
 }
 
@@ -232,24 +245,35 @@ void Bone::rotate(double roll, double pitch, double yaw)
 
 void Bone::setCurrentOrientationAsDefault()
 {
-    _defaultOrientation = _absOrientation * _defaultOrientation;
+    // the new default orientation becomes the old default orientation rotated by the overall rotation chain,
+    // i.e. the absolute orientation of the bone with respect to the global coordinate system
+    _defaultOrientation = _chainedOrientation * _defaultOrientation;
     _defaultOrientation.normalize();
+    // by setting the current orientation as default, the relative orientation with respect to the bones parent becomes zero (unit quaternion)
     _relOrientation = Quaternion();
-    _absOrientation = Quaternion();
+    // the rotation chain also becomes zero in this bone. The bones' children therefore have a new relative orientation to this bone
+    // equal to the overall rotation chain until this bone + their own relative orientation
+    for (size_t i = 0; i < _children.size(); ++i)
+    {
+        _children[i]->setRelOrientation(_chainedOrientation * _children[i]->getRelOrientation());
+    }
+    _chainedOrientation = Quaternion();
 }
 
 void Bone::update()
 {
     if (_parent == nullptr)
     {
+        // the orientation is an absolute orientation in the global coordinate system
         if (_useAbsOrientation)
         {
-            _relOrientation = _absOrientation;
+            // _chained orientation waa set before by setting the bone to an absolute orientation
+            _relOrientation = _chainedOrientation;
             _useAbsOrientation = false;
         }
         else
         {
-            _absOrientation = _relOrientation;
+            _chainedOrientation = _relOrientation;
         }
     }
     else
@@ -257,12 +281,14 @@ void Bone::update()
         _startPos = _parent->getEndPos();
         if (_useAbsOrientation)
         {
-            _relOrientation = _parent->getAbsOrientation().inv() * _absOrientation;
+            // _chainedOrientation waa set before by setting the bone to an absolute orientation, now find the new relative orientation
+            // of the bone with respect to its parent
+            _relOrientation = _parent->getChainedOrientation().inv() * _chainedOrientation;
             _useAbsOrientation = false;
         }
         else
         {
-            _absOrientation = _parent->getAbsOrientation() * _relOrientation;
+            _chainedOrientation = _parent->getChainedOrientation() * _relOrientation;
         }
     }
     _endPos = getDirection() * _length + _startPos;
@@ -276,16 +302,17 @@ void Bone::update()
 
 Vector3 Bone::getDirection()
 {
-    return (_absOrientation * _defaultOrientation).rotate(Vector3(1.0, 0.0, 0.0));
+    // get the final direction of the bone by finally rotating its default direction by the overall rotation chain
+    return (_chainedOrientation * _defaultOrientation).rotate(Vector3(1.0, 0.0, 0.0));
 }
 
 Vector3 Bone::getUpDirection()
 {
-    return (_absOrientation * _defaultOrientation).rotate(Vector3(0.0, 1.0, 0.0));
+    return (_chainedOrientation * _defaultOrientation).rotate(Vector3(0.0, 1.0, 0.0));
 }
 
 Vector3 Bone::getRightDirection()
 {
-    return (_absOrientation * _defaultOrientation).rotate(Vector3(0.0, 0.0, 1.0));
+    return (_chainedOrientation * _defaultOrientation).rotate(Vector3(0.0, 0.0, 1.0));
 }
 

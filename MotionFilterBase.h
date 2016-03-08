@@ -33,6 +33,7 @@ OF SUCH DAMAGE.
 #include "Skeleton.h"
 #include "MotionSequence.h"
 #include "SensorNode.h"
+#include "SensorBuffer.h"
 
 class MotionFilterBase
 {
@@ -53,7 +54,7 @@ class MotionFilterBase
     virtual void onStartRecording() = 0;
     virtual void onStopRecording() = 0;
 
-    std::vector<SensorNode*> _sensors;
+    std::vector<SensorBuffer*> _buffers;
     Skeleton* _skeleton;
     MotionSequence _sequence;
     float _frameTime;

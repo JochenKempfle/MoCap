@@ -33,6 +33,7 @@ OF SUCH DAMAGE.
 #include "SensorDataPanel.h"
 #include "SensorManager.h"
 #include "MoCapManager.h"
+#include "FileHandler.h"
 #include "CustomEvents.h"
 #include <vector>
 
@@ -51,6 +52,8 @@ const long ViewPanel::ID_BUTTONRECORD = wxNewId();
 const long ViewPanel::ID_BUTTONSTOP = wxNewId();
 const long ViewPanel::ID_BUTTONAUTOASSIGN = wxNewId();
 const long ViewPanel::ID_BUTTONCALIBRATE = wxNewId();
+const long ViewPanel::ID_BUTTONMAPCOORDINATES = wxNewId();
+const long ViewPanel::ID_BUTTONMAPBONES = wxNewId();
 const long ViewPanel::ID_GLCANVAS = wxNewId();
 const long ViewPanel::ID_SENSORCONTAINERPANEL = wxNewId();
 //*)
@@ -81,6 +84,10 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	BoxSizerControl->Add(ButtonAutoAssign, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonCalibrate = new wxButton(this, ID_BUTTONCALIBRATE, _("Calibrate"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONCALIBRATE"));
 	BoxSizerControl->Add(ButtonCalibrate, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonMapCoordinates = new wxButton(this, ID_BUTTONMAPCOORDINATES, _("Map\nCoordinates"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONMAPCOORDINATES"));
+	BoxSizerControl->Add(ButtonMapCoordinates, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonMapBones = new wxButton(this, ID_BUTTONMAPBONES, _("Map to\nBones"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONMAPBONES"));
+	BoxSizerControl->Add(ButtonMapBones, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer1->Add(BoxSizerControl, 0, wxEXPAND, 5);
 	BoxSizer3 = new wxBoxSizer(wxVERTICAL);
 	int GLCanvasAttributes_1[] = {
@@ -108,6 +115,8 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	Connect(ID_BUTTONSTOP,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonStopClick);
 	Connect(ID_BUTTONAUTOASSIGN,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonAutoAssignClick);
 	Connect(ID_BUTTONCALIBRATE,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonCalibrateClick);
+	Connect(ID_BUTTONMAPCOORDINATES,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonMapCoordinatesClick);
+	Connect(ID_BUTTONMAPBONES,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ViewPanel::OnButtonMapBonesClick);
 	//*)
 	Connect(UpdateEvent, (wxObjectEventFunction)&ViewPanel::OnUpdateEvent);
     // addSensor(0);//(new SensorDataPanel(sensorContainerPanel->ScrolledWindow));
@@ -224,7 +233,28 @@ void ViewPanel::OnButtonStopClick(wxCommandEvent& event)
     theMoCapManager.resetSkeleton();
     Thaw();
     Refresh();
-    theMoCapManager.stopRecording();
+    if (theMoCapManager.isRecording())
+    {
+        MotionSequence* sequence = theMoCapManager.stopRecording();
+        if (sequence == nullptr)
+        {
+            return;
+        }
+        // show the file dialog
+        wxFileDialog* fileDialog = new wxFileDialog(this, _("Save bvh file"), _(""), _(""), _("bvh files (*.bvh)|*.bvh"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+        if (fileDialog->ShowModal() == wxID_CANCEL)
+        {
+            fileDialog->Destroy();
+            return;
+        }
+
+        wxString path = fileDialog->GetPath();
+
+        fileDialog->Destroy();
+
+        FileHandler fileHandler;
+        fileHandler.writeBVH(path, sequence);
+    }
 }
 
 void ViewPanel::OnButtonAutoAssignClick(wxCommandEvent& event)
@@ -254,6 +284,16 @@ void ViewPanel::OnButtonCalibrateClick(wxCommandEvent& event)
     theMoCapManager.calibrate();
 }
 
+void ViewPanel::OnButtonMapCoordinatesClick(wxCommandEvent& event)
+{
+//    MotionSequence m;
+//    m.setFrameTime(0.1f);
+//    m.createFromSkeleton(*theMoCapManager.getSkeleton());
+//    FileHandler h;
+//    h.writeBVH(_("C:\\Users\\Jochen\\Desktop\\bla.bvh"), &m);
+}
 
-
-
+void ViewPanel::OnButtonMapBonesClick(wxCommandEvent& event)
+{
+    theMoCapManager.setSensorBoneMapping();
+}

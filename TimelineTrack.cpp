@@ -34,8 +34,6 @@ TimelineTrack::TimelineTrack()
     _id = -1;
     _channel = -1;
     _startTime = 0;
-    _startOffset = 0;
-    _endOffset = 0;
     _frameTime = 0.0f;
 }
 
@@ -44,8 +42,6 @@ TimelineTrack::TimelineTrack(MotionSequenceChannel* channel)
     _id = -1;
     _channel = -1;
     _startTime = 0;
-    _startOffset = 0;
-    _endOffset = 0;
 
     if (channel != nullptr)
     {
@@ -59,12 +55,10 @@ TimelineTrack::TimelineTrack(MotionSequenceChannel* channel)
     }
 }
 
-TimelineTrack::TimelineTrack(MotionSequenceChannel* channel, int startTime)
+TimelineTrack::TimelineTrack(MotionSequenceChannel* channel, uint64_t startTime)
 {
     _id = -1;
     _channel = -1;
-    _startOffset = 0;
-    _endOffset = 0;
 
     if (channel != nullptr)
     {
@@ -115,49 +109,29 @@ std::string TimelineTrack::getName() const
     return _name;
 }
 
-void TimelineTrack::setStartTime(unsigned int startTime)
+void TimelineTrack::setStartTime(uint64_t startTime)
 {
     _startTime = startTime;
 }
 
-unsigned int TimelineTrack::getStartTime() const
+uint64_t TimelineTrack::getStartTime() const
 {
     return _startTime;
 }
 
-unsigned int TimelineTrack::getEndTime() const
+uint64_t TimelineTrack::getEndTime() const
 {
     return _startTime + getLength();
 }
 
-int TimelineTrack::getLength() const
+uint64_t TimelineTrack::getLength() const
 {
-    return round(1000 * _frames.size() * _frameTime);
+    return 1000000 * uint64_t(_frames.size()) * _frameTime;
 }
 
-int TimelineTrack::getMaxLength() const
+uint64_t TimelineTrack::getMaxLength() const
 {
-    return 1000 * _frames.size() * _frameTime;
-}
-
-void TimelineTrack::setStartOffset(int offset)
-{
-    _startOffset = offset;
-}
-
-int TimelineTrack::getStartOffset() const
-{
-    return _startOffset;
-}
-
-void TimelineTrack::setEndOffset(int offset)
-{
-    _endOffset = offset;
-}
-
-int TimelineTrack::getEndOffset() const
-{
-    return _endOffset;
+    return 1000000 * uint64_t(_frames.size()) * _frameTime;
 }
 
 void TimelineTrack::setFrameTime(float frameTime)
@@ -194,10 +168,10 @@ size_t TimelineTrack::getNumFrames() const
     return _frames.size();
 }
 
-bool TimelineTrack::cut(unsigned int time, TimelineTrack* newTrack)
+bool TimelineTrack::cut(uint64_t time, TimelineTrack* newTrack)
 {
     // TODO(JK#3#): implementation of cutting is buggy. Cutting creates gaps in the timeline due to insufficient time resolution
-    unsigned int pos = (time/_frameTime)/1000;
+    unsigned int pos = (time/_frameTime)/1000000;
     if (pos <= 0 || pos >= _frames.size())
     {
         return false;
@@ -207,20 +181,20 @@ bool TimelineTrack::cut(unsigned int time, TimelineTrack* newTrack)
         newTrack->_frames.insert(newTrack->_frames.begin(), _frames.begin() + pos, _frames.end());
         newTrack->_channel = _channel;
         newTrack->_name = _name;
-        newTrack->_startTime = _startTime + round(pos * _frameTime * 1000.0);
+        newTrack->_startTime = _startTime + pos * _frameTime * 1000000.0;
         newTrack->_frameTime = _frameTime;
     }
     _frames.resize(pos);
     return true;
 }
 
-MotionSequenceFrame TimelineTrack::getFrameFromAbsTime(unsigned int time) const
+MotionSequenceFrame TimelineTrack::getFrameFromAbsTime(uint64_t time) const
 {
     if (time < _startTime)
     {
         return MotionSequenceFrame();
     }
-    unsigned int pos = ((time - _startTime)/_frameTime)/1000 + _startOffset;
+    unsigned int pos = ((time - _startTime)/_frameTime)/1000000;
     if (pos >= _frames.size())
     {
         // TODO(JK#1#): do not return the last frame in getFrameFromAbs/RelTime, also consider returning a pointer or a reference
@@ -229,9 +203,9 @@ MotionSequenceFrame TimelineTrack::getFrameFromAbsTime(unsigned int time) const
     return _frames[pos];
 }
 
-MotionSequenceFrame TimelineTrack::getFrameFromRelTime(unsigned int time) const
+MotionSequenceFrame TimelineTrack::getFrameFromRelTime(uint64_t time) const
 {
-    unsigned int pos = (time/_frameTime)/1000 + _startOffset;
+    unsigned int pos = (time/_frameTime)/1000000;
     if (pos >= _frames.size())
     {
         return _frames.back();
@@ -246,5 +220,15 @@ MotionSequenceFrame TimelineTrack::getFrame(unsigned int pos) const
         return _frames.back();
     }
     return _frames[pos];
+}
+
+MotionSequenceFrame TimelineTrack::getFirstFrame() const
+{
+    return _frames.front();
+}
+
+MotionSequenceFrame TimelineTrack::getLastFrame() const
+{
+    return _frames.back();
 }
 

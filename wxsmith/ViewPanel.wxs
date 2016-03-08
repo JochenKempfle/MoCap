@@ -52,6 +52,22 @@
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 						<border>5</border>
 					</object>
+					<object class="sizeritem">
+						<object class="wxButton" name="ID_BUTTONMAPCOORDINATES" variable="ButtonMapCoordinates" member="yes">
+							<label>Map&#x0A;Coordinates</label>
+							<handler function="OnButtonMapCoordinatesClick" entry="EVT_BUTTON" />
+						</object>
+						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<border>5</border>
+					</object>
+					<object class="sizeritem">
+						<object class="wxButton" name="ID_BUTTONMAPBONES" variable="ButtonMapBones" member="yes">
+							<label>Map to&#x0A;Bones</label>
+							<handler function="OnButtonMapBonesClick" entry="EVT_BUTTON" />
+						</object>
+						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<border>5</border>
+					</object>
 				</object>
 				<flag>wxEXPAND</flag>
 				<border>5</border>

@@ -282,13 +282,13 @@ Quaternion Quaternion::normalized() const
 double Quaternion::dot(const Quaternion &other) const
 {
     double n = u() * other.u() + x() * other.x() + y() * other.y() + z() * other.z();
-    // clamp n to -1.0 , 1.0 to account for floating point precision errors
+    // clamp n to -1.0 , 1.0 to account for floating point precision errors. This limits the use of dot() to unit quaternions!
     return n < -1.0 ? -1.0 : (n > 1.0 ? 1.0 : n);
 }
 
 float Quaternion::getShortestAngleTo(const Quaternion &other) const
 {
-    return 2.0 * acos(fabs(dot(other)));
+    return 2.0f * std::acos(std::fabs(dot(other)));
 }
 
 Quaternion Quaternion::lerp(const Quaternion &other, float t) const
@@ -299,6 +299,17 @@ Quaternion Quaternion::lerp(const Quaternion &other, float t) const
     quat.y() = (1.0f - t) * y() + t * other.y();
     quat.z() = (1.0f - t) * z() + t * other.z();
     return quat;
+}
+
+Quaternion Quaternion::lerpEuler(const Quaternion &other, float t) const
+{
+    Vector3 euler = toEuler() * (1.0f - t);
+    Vector3 eulerOther = other.toEuler() * t;
+    Quaternion x = other.getRotationAround(other.rotate(Vector3(1.0f, 0.0f, 0.0f)));
+    Quaternion y = other.getRotationAround(other.rotate(Vector3(0.0f, 1.0f, 0.0f)));
+    Quaternion z = other.getRotationAround(other.rotate(Vector3(0.0f, 0.0f, 1.0f)));
+    return slerp(x, t) * slerp(y, t) * slerp(z, t);
+    return Quaternion(eulerOther);
 }
 
 Quaternion Quaternion::slerp(const Quaternion &other, double t) const
@@ -340,6 +351,45 @@ void Quaternion::decomposeSwingTwist(const Vector3 &direction, Quaternion* swing
     *swing = *this * twist->inv();
 }
 
+Quaternion Quaternion::exp() const
+{
+    double vecNorm = std::sqrt(x() * x() + y() * y() + z() * z());
+    double sinVecNorm;
+    if (vecNorm <= 0.0001)
+    {
+        sinVecNorm = 1 - std::pow(vecNorm, 2.0)/6.0 + std::pow(vecNorm, 4.0)/120.0 - std::pow(vecNorm, 6.0)/5040.0;
+    }
+    else
+    {
+        sinVecNorm = sin(vecNorm)/vecNorm;
+    }
+    double expU = std::exp(u());
+    return Quaternion(expU * cos(vecNorm), expU * sinVecNorm * x(), expU * sinVecNorm * y(), expU * sinVecNorm * z());
+}
+
+Quaternion Quaternion::log() const
+{
+    double vecNorm = std::sqrt(x() * x() + y() * y() + z() * z());
+    float quatNorm = norm();
+    double theta = std::atan2(vecNorm, u());
+    double thetaOverVecNorm;
+    if (vecNorm < 0.0001)
+    {
+        // use Tailor series expansion to compute theta/vecNorm if vecNorm close to zero
+        thetaOverVecNorm = (1 + std::pow(theta, 2)/6.0 + std::pow(theta, 4) * 7.0/360.0 + std::pow(theta, 6) * 31.0/15120.0) / quatNorm;
+    }
+    else
+    {
+        thetaOverVecNorm = theta/vecNorm;
+    }
+    return Quaternion(std::log(quatNorm), thetaOverVecNorm * x(), thetaOverVecNorm * y(), thetaOverVecNorm * z());
+}
+
+Quaternion Quaternion::pow(float value) const
+{
+    return (log() * value).exp();
+}
+
 Quaternion Quaternion::getRotationAround(const Vector3 &direction) const
 {
     Vector3 p = Vector3(x(), y(), z()).dot(direction) * direction;
@@ -354,6 +404,11 @@ Quaternion Quaternion::operator*(float val) const
 Quaternion Quaternion::operator+(const Quaternion &other) const
 {
     return Quaternion(u() + other.u(), x() + other.x(), y() + other.y(), z() + other.z());
+}
+
+Quaternion Quaternion::operator-(const Quaternion &other) const
+{
+    return Quaternion(u() - other.u(), x() - other.x(), y() - other.y(), z() - other.z());
 }
 
 Quaternion& Quaternion::inv_IP()

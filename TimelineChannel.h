@@ -49,33 +49,33 @@ class TimelineChannel
     Quaternion getDefaultOrientation() const { return _defaultOrientation; }
 
     // Insert a track at time point given in ms
-    void insert(TimelineTrack* track, unsigned int time);
+    void insert(TimelineTrack* track, uint64_t time);
 
     // Remove the track with given id. Use timeHint to give a hint where the track may be located (see MotionTrack::getStartTime()).
     // Returns true, if the track was found and successfully removed, else false.
     // Only removes the track from the channel, but does not delete it (use Timeline::erase() for this)
-    bool remove(int id, unsigned int timeHint = 0);
+    bool remove(int id, uint64_t timeHint = 0);
 
     void clear();
 
-    TimelineTrack* getTrackBefore(unsigned int time);
-    TimelineTrack* getTrackAfter(unsigned int time);
+    TimelineTrack* getTrackBefore(uint64_t time);
+    TimelineTrack* getTrackAfter(uint64_t time);
 
-    bool isBetweenTwoTracks(unsigned int time) const;
+    bool isBetweenTwoTracks(uint64_t time) const;
 
     // returns all tracks having a portion in the given range in ms
-    std::vector<TimelineTrack*> getInRange(unsigned int startTime, unsigned int endTime);
+    std::vector<TimelineTrack*> getInRange(uint64_t startTime, uint64_t endTime);
 
-    TimelineTrack* getTrack(unsigned int time);
+    TimelineTrack* getTrack(uint64_t time);
     std::vector<TimelineTrack*> getTracks();
-    MotionSequenceFrame getFrame(unsigned int time);
+    MotionSequenceFrame getFrame(uint64_t time);
   protected:
 
   private:
     int _channelPos;
     int _boneId;
     Quaternion _defaultOrientation;
-    std::map<unsigned int, TimelineTrack*> _tracks;
+    std::map<uint64_t, TimelineTrack*> _tracks;
 };
 
 #endif // TIMELINECHANNEL_H

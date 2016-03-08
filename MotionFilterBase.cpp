@@ -43,7 +43,16 @@ MotionFilterBase::~MotionFilterBase()
 
 void MotionFilterBase::setSensors(std::vector<SensorNode*> sensors)
 {
-    _sensors = sensors;
+    for (size_t i = 0; i < _buffers.size(); ++i)
+    {
+        delete _buffers[i];
+    }
+    _buffers.clear();
+    _buffers.reserve(sensors.size());
+    for (size_t i = 0; i < sensors.size(); ++i)
+    {
+        _buffers.push_back(new SensorBuffer(sensors[i]));
+    }
 }
 
 void MotionFilterBase::setSkeleton(Skeleton* skeleton)

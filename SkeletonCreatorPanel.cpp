@@ -54,13 +54,13 @@ const long SkeletonCreatorPanel::ID_STATICTEXT2 = wxNewId();
 const long SkeletonCreatorPanel::ID_CHOICEPARENT = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT9 = wxNewId();
 const long SkeletonCreatorPanel::ID_TEXTCTRLLENGTH = wxNewId();
-const long SkeletonCreatorPanel::ID_STATICTEXT6 = wxNewId();
-const long SkeletonCreatorPanel::ID_STATICTEXT7 = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT8 = wxNewId();
+const long SkeletonCreatorPanel::ID_STATICTEXT7 = wxNewId();
+const long SkeletonCreatorPanel::ID_STATICTEXT6 = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT3 = wxNewId();
-const long SkeletonCreatorPanel::ID_TEXTCTRL3 = wxNewId();
-const long SkeletonCreatorPanel::ID_TEXTCTRL6 = wxNewId();
-const long SkeletonCreatorPanel::ID_TEXTCTRL9 = wxNewId();
+const long SkeletonCreatorPanel::ID_TEXTCTRLROLL = wxNewId();
+const long SkeletonCreatorPanel::ID_TEXTCTRLPITCH = wxNewId();
+const long SkeletonCreatorPanel::ID_TEXTCTRLYAW = wxNewId();
 const long SkeletonCreatorPanel::ID_STATICTEXT4 = wxNewId();
 const long SkeletonCreatorPanel::ID_TEXTCTRL4 = wxNewId();
 const long SkeletonCreatorPanel::ID_TEXTCTRL7 = wxNewId();
@@ -138,20 +138,20 @@ SkeletonCreatorPanel::SkeletonCreatorPanel(wxWindow* parent,wxWindowID id,const 
     BoxSizer5->Add(BoxSizer8, 0, wxEXPAND, 5);
     GridSizer1 = new wxGridSizer(4, 4, 0, 0);
     GridSizer1->Add(-1,-1,0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText6 = new wxStaticText(this, ID_STATICTEXT6, _("Yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
-    GridSizer1->Add(StaticText6, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    StaticText7 = new wxStaticText(this, ID_STATICTEXT7, _("Pitch"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT7"));
-    GridSizer1->Add(StaticText7, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText8 = new wxStaticText(this, ID_STATICTEXT8, _("Roll"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT8"));
     GridSizer1->Add(StaticText8, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText7 = new wxStaticText(this, ID_STATICTEXT7, _("Pitch"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT7"));
+    GridSizer1->Add(StaticText7, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    StaticText6 = new wxStaticText(this, ID_STATICTEXT6, _("Yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT6"));
+    GridSizer1->Add(StaticText6, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText3 = new wxStaticText(this, ID_STATICTEXT3, _("Default"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
     GridSizer1->Add(StaticText3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl3 = new wxTextCtrl(this, ID_TEXTCTRL3, _("0"), wxDefaultPosition, wxSize(60,20), 0, wxDefaultValidator, _T("ID_TEXTCTRL3"));
-    GridSizer1->Add(TextCtrl3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl6 = new wxTextCtrl(this, ID_TEXTCTRL6, _("0"), wxDefaultPosition, wxSize(60,20), 0, wxDefaultValidator, _T("ID_TEXTCTRL6"));
-    GridSizer1->Add(TextCtrl6, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    TextCtrl9 = new wxTextCtrl(this, ID_TEXTCTRL9, _("0"), wxDefaultPosition, wxSize(60,20), 0, wxDefaultValidator, _T("ID_TEXTCTRL9"));
-    GridSizer1->Add(TextCtrl9, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    TextCtrlRoll = new wxTextCtrl(this, ID_TEXTCTRLROLL, _("0"), wxDefaultPosition, wxSize(60,20), 0, wxDefaultValidator, _T("ID_TEXTCTRLROLL"));
+    GridSizer1->Add(TextCtrlRoll, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    TextCtrlPitch = new wxTextCtrl(this, ID_TEXTCTRLPITCH, _("0"), wxDefaultPosition, wxSize(60,20), 0, wxDefaultValidator, _T("ID_TEXTCTRLPITCH"));
+    GridSizer1->Add(TextCtrlPitch, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    TextCtrlYaw = new wxTextCtrl(this, ID_TEXTCTRLYAW, _("0"), wxDefaultPosition, wxSize(60,20), 0, wxDefaultValidator, _T("ID_TEXTCTRLYAW"));
+    GridSizer1->Add(TextCtrlYaw, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     StaticText4 = new wxStaticText(this, ID_STATICTEXT4, _("Min"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
     GridSizer1->Add(StaticText4, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     TextCtrl4 = new wxTextCtrl(this, ID_TEXTCTRL4, _("0"), wxDefaultPosition, wxSize(60,20), 0, wxDefaultValidator, _T("ID_TEXTCTRL4"));
@@ -305,9 +305,24 @@ void SkeletonCreatorPanel::updateBoneInfo()
 
     TextCtrlName->ChangeValue(bone->getName());
     ChoiceParent->Clear();
-    wxString lengthString;
-    lengthString << bone->getLength();
-    TextCtrlLength->ChangeValue(lengthString);
+    wxString value;
+    value << bone->getLength();
+    TextCtrlLength->ChangeValue(value);
+    value.Clear();
+
+    Vector3 euler = bone->getAbsOrientation().toEuler();
+
+    value << euler.yaw() * 180.0/M_PI;
+    TextCtrlYaw->ChangeValue(value);
+    value.Clear();
+
+    value << euler.pitch() * 180.0/M_PI;
+    TextCtrlPitch->ChangeValue(value);
+    value.Clear();
+
+    value << euler.roll() * 180.0/M_PI;
+    TextCtrlRoll->ChangeValue(value);
+    value.Clear();
 
     if (bone->getParent() != nullptr)
     {

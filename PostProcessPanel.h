@@ -116,12 +116,12 @@ class PostProcessPanel: public wxPanel
 		static const long ID_BUTTONEXPORT;
 		static const long ID_BUTTONSAVE;
 		static const long ID_BUTTONLOAD;
-		static const long ID_STATICTEXT1;
-		static const long ID_SPINCTRLYAW;
-		static const long ID_STATICTEXT10;
-		static const long ID_SPINCTRLPITCH;
 		static const long ID_STATICTEXT11;
 		static const long ID_SPINCTRLROLL;
+		static const long ID_STATICTEXT10;
+		static const long ID_SPINCTRLPITCH;
+		static const long ID_STATICTEXT1;
+		static const long ID_SPINCTRLYAW;
 		static const long ID_BUTTONFROMSELECTION;
 		static const long ID_PANELDRAGDROPFRAME;
 		static const long ID_TIMELINE;

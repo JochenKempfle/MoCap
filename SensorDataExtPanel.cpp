@@ -85,7 +85,7 @@ SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPo
 	glCanvas->SetBackgroundColour(wxColour(0,0,0));
 	BoxSizer1->Add(glCanvas, 0, wxALL|wxEXPAND, 5);
 	BoxSizer3 = new wxBoxSizer(wxVERTICAL);
-	ToggleButtonOffset = new wxToggleButton(this, ID_TOGGLEBUTTONOFFSET, _("Remove Offset"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TOGGLEBUTTONOFFSET"));
+	ToggleButtonOffset = new wxToggleButton(this, ID_TOGGLEBUTTONOFFSET, _("Set Offset"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TOGGLEBUTTONOFFSET"));
 	BoxSizer3->Add(ToggleButtonOffset, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer1->Add(BoxSizer3, 0, wxALL|wxEXPAND, 5);
 	PanelPlot = new wxPanel(this, ID_PANELPLOT, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER, _T("ID_PANELPLOT"));
@@ -101,7 +101,7 @@ SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPo
 	//*)
 	glCanvas->setStyle(SINGLE_SENSOR_MODE);
 	_updateCounter = 0;
-	_sensorId = -1;
+	_sensor = nullptr;
 }
 
 SensorDataExtPanel::~SensorDataExtPanel()
@@ -110,38 +110,72 @@ SensorDataExtPanel::~SensorDataExtPanel()
 	//*)
 }
 
-void SensorDataExtPanel::update(const SensorNode* sensor)
+void SensorDataExtPanel::setSensor(SensorNode* sensor)
 {
+    _sensor = sensor;
+    _buffer.subscribe(sensor);
+
+    wxString name;
+    name << _("Sensor ") << sensor->getId();
+    StaticTextName->SetLabel(name);
+    StaticTextIP->SetLabel(sensor->getIPAddress());
+
+    if (sensor->isUpdated())
+    {
+        StaticTextState->SetLabel(_("online"));
+    }
+    else
+    {
+        StaticTextState->SetLabel(_("offline"));
+    }
+}
+
+void SensorDataExtPanel::update()
+{
+    if (_sensor == nullptr)
+    {
+        return;
+    }
     // TODO(JK#3#): handle sensor is offline case for displaying
     ++_updateCounter;
     if (_updateCounter >= 10)
     {
         _updateCounter = 0;
 
-        if (!sensor->isUpdated())
+        if (!_sensor->isUpdated())
         {
             StaticTextState->SetLabel(_("offline"));
         }
     }
-	if (sensor->isUpdated())
+	if (_sensor->isUpdated())
     {
         StaticTextState->SetLabel(_("online"));
     }
 
     if (ToggleButtonOffset->GetValue())
     {
-        Quaternion q = sensor->getRotation() * _offset.inv();
+        Quaternion q = _offset.inv() * _sensor->getRotation();// * _offset;
         glCanvas->setSensorOrientation(q);
-        _plotData.push_back(q.toEuler());
+        while (_buffer.size() > 0)
+        {
+            q = _offset.inv() * _buffer.front().getOrientation();
+            _plotData.push_back(q.toEuler());
+            _buffer.pop_front();
+        }
     }
     else
     {
-        Quaternion q = sensor->getRotation();
+        Quaternion q = _sensor->getRotation();
         glCanvas->setSensorOrientation(q);
-        _plotData.push_back(q.toEuler());
+        while (_buffer.size() > 0)
+        {
+            q = _buffer.front().getOrientation();
+            _plotData.push_back(q.toEuler());
+            _buffer.pop_front();
+        }
     }
 
-    if (_plotData.size() > _numPlotPoints)
+    while (_plotData.size() > _numPlotPoints)
     {
         _plotData.pop_front();
     }
@@ -160,7 +194,12 @@ void SensorDataExtPanel::OnToggleButtonOffsetToggle(wxCommandEvent& event)
 {
     if (ToggleButtonOffset->GetValue())
     {
-        _offset = theSensorManager.getSensor(_sensorId)->getRotation();
+        _offset = _sensor->getRotation();
+        ToggleButtonOffset->SetLabel(_("Unset Offset"));
+    }
+    else
+    {
+        ToggleButtonOffset->SetLabel(_("Set Offset"));
     }
 }
 
@@ -192,7 +231,10 @@ void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
     for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
     {
         wxPoint next(x, y + it->x()/M_PI * y);
-        dc.DrawLine(last, next);
+        if (abs(next.y - last.y) < y + y/2)
+        {
+            dc.DrawLine(last, next);
+        }
         last = next;
         x += step;
     }
@@ -203,7 +245,10 @@ void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
     for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
     {
         wxPoint next(x, y + it->y()/M_PI * y);
-        dc.DrawLine(last, next);
+        if (abs(next.y - last.y) < y + y/2)
+        {
+            dc.DrawLine(last, next);
+        }
         last = next;
         x += step;
     }
@@ -214,7 +259,10 @@ void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
     for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
     {
         wxPoint next(x, y + it->z()/M_PI * y);
-        dc.DrawLine(last, next);
+        if (abs(next.y - last.y) < y + y/2)
+        {
+            dc.DrawLine(last, next);
+        }
         last = next;
         x += step;
     }

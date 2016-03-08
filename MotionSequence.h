@@ -53,6 +53,11 @@ class MotionSequence
     void setFrameTime(float time);
     float getFrameTime() const { return _frameTime; }
 
+    void setHasAbsOrientations(bool value = true) { _hasAbsOrientations = value; }
+    bool hasAbsOrientations() const { return _hasAbsOrientations; }
+
+    void convertToRelOrientations();
+
     void createFromSkeleton(const Skeleton &skeleton);
 
     size_t getNumChannels() const { return _channels.size(); }
@@ -83,6 +88,7 @@ class MotionSequence
     Skeleton _skeleton;
     unsigned int _numFrames;
     float _frameTime;
+    bool _hasAbsOrientations;
     std::map<int, MotionSequenceChannel*> _channels;
 };
 

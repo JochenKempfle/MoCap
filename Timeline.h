@@ -48,6 +48,7 @@ class Timeline
 
     void setSkeleton(Skeleton* skeleton);
     Skeleton* getSkeleton();
+    bool hasSkeleton() const { return _skeleton.getRootId() >= 0; }
 
     void setChannelAffiliation(int channel, int boneId);
     int getChannelAffiliation(int channelId) const;
@@ -58,6 +59,7 @@ class Timeline
     void insert(MotionSequenceChannel* channel, int toChannel, uint64_t time, std::string name = "");
     void insert(const TimelineTrack &track, int toChannel, uint64_t time);
 
+    void insertChannelAfter(int channel);
     void moveChannelsDown(int startChannel, unsigned int numChannels);
     void moveTrack(int trackId, int toChannel, uint64_t toTime);
 
@@ -74,6 +76,8 @@ class Timeline
     // cut all tracks covering the given time point at this time point
     void cut(uint64_t time);
 
+    size_t getNumTracks() const { return _tracks.size(); }
+
     TimelineTrack* getTrack(int id);
     TimelineTrack* getTrack(int channel, uint64_t time);
 
@@ -81,6 +85,9 @@ class Timeline
     TimelineTrack* getTrackAfter(int channel, uint64_t time);
 
     bool isBetweenTwoTracks(int channel, uint64_t time) const;
+    bool isInsideTrack(int channel, uint64_t time) const;
+
+    std::vector<TimelineTrack*> getOverlapping(const TimelineTrack* track);
 
     std::vector<TimelineTrack*> getInRange(int channel, uint64_t startTime, uint64_t endTime);
 

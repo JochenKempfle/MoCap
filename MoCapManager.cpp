@@ -315,6 +315,7 @@ void MoCapManager::createSkeleton()
     int lLowerLeg = _skeleton.createBone(boneData, lUpperLeg);
     setBoneName(lLowerLeg, "lLowerLeg");
 
+    _skeleton.setName("Default Skeleton");
     _skeleton.update();
     //_skeleton.setCurrentAsDefault();
 }

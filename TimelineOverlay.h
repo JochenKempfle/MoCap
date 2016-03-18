@@ -27,21 +27,43 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORRAWDATA_H
-#define SENSORRAWDATA_H
+#ifndef TIMELINEOVERLAY_H
+#define TIMELINEOVERLAY_H
 
-// POD type
-struct SensorRawData
+enum class OverlayType : unsigned char
 {
-  public:
-    SensorRawData();
-    ~SensorRawData();
-
-    unsigned int id;
-    unsigned int timestamp;
-    float rotation[4];
-    // float position[3];
-    uint64_t receiveTime;
+    ADDITIVE = 1,
+    INTERPOLATION = 2,
+    OVERWRITE = 4
 };
 
-#endif // SENSORRAWDATA_H
+class TimelineTrack;
+
+class TimelineOverlay
+{
+  public:
+    TimelineOverlay();
+    virtual ~TimelineOverlay();
+
+    void setStartTime(uint64_t startTime) { _startTime = startTime; }
+    uint64_t getStartTime() const { return _startTime; }
+
+    void setTrack(TimelineTrack* track) { _track = track; }
+    TimelineTrack* getTrack() const { return _track; }
+
+    void setPriority(unsigned char priority) { _priority = priority; }
+    unsigned char getPriority() const { return _priority; }
+
+    void setType(OverlayType type) { _type = type; }
+    OverlayType getType() const { return _type; }
+
+  protected:
+
+  private:
+    uint64_t _startTime;
+    TimelineTrack* _track;
+    unsigned char _priority;
+    OverlayType _type;
+};
+
+#endif // TIMELINEOVERLAY_H

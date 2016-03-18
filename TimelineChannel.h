@@ -58,10 +58,13 @@ class TimelineChannel
 
     void clear();
 
+    size_t getNumTracks() const { return _tracks.size(); }
+
     TimelineTrack* getTrackBefore(uint64_t time);
     TimelineTrack* getTrackAfter(uint64_t time);
 
     bool isBetweenTwoTracks(uint64_t time) const;
+    bool isInsideTrack(uint64_t time) const;
 
     // returns all tracks having a portion in the given range in ms
     std::vector<TimelineTrack*> getInRange(uint64_t startTime, uint64_t endTime);

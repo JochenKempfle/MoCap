@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include "Bone.h"
 #include "Quaternion.h"
+#include <string>
 #include <vector>
 #include <map>
 
@@ -42,6 +43,9 @@ class Skeleton
     Skeleton(const Skeleton &other);
     Skeleton(Skeleton &&other);
     virtual ~Skeleton();
+
+    void setName(std::string name) { _name = name; }
+    std::string getName() const { return _name; }
 
     int createBone(int parent = -1);
     int createBone(const Bone& boneData, int parent = -1);
@@ -60,6 +64,8 @@ class Skeleton
     void clear();
 
     bool reparent(int boneId, int parentId, bool keepChildren = true);
+
+    void scale(float scaleFactor);
 
     std::vector<int> getBoneIds() const;
     int getRootId() const;
@@ -87,6 +93,7 @@ class Skeleton
   private:
     int _nextId;
     int _selectedBoneId;
+    std::string _name;
     Bone* _root;
     std::map<int, Bone*> _bones;
 };

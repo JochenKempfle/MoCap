@@ -170,7 +170,6 @@ size_t TimelineTrack::getNumFrames() const
 
 bool TimelineTrack::cut(uint64_t time, TimelineTrack* newTrack)
 {
-    // TODO(JK#3#): implementation of cutting is buggy. Cutting creates gaps in the timeline due to insufficient time resolution
     unsigned int pos = (time/_frameTime)/1000000;
     if (pos <= 0 || pos >= _frames.size())
     {

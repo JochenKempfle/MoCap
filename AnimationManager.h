@@ -57,9 +57,9 @@ class AnimationManager
     MotionSequence* getProjectSequence(int pos);
     const std::vector<MotionSequence*>& getProjectSequences();
 
-    void addSequenceToTimeline(int sequenceId, unsigned int targetChannel, unsigned int time = 0);
-    void addChannelsToTimeline(int sequenceId, std::vector<int> channels, unsigned int targetChannel, unsigned int time = 0);
-    void addTrackToTimeline(const TimelineTrack &track, unsigned int targetChannel, unsigned int time = 0);
+    void addSequenceToTimeline(int sequenceId, unsigned int targetChannel, uint64_t time = 0);
+    void addChannelsToTimeline(int sequenceId, std::vector<int> channels, unsigned int targetChannel, uint64_t time = 0);
+    void addTrackToTimeline(const TimelineTrack &track, unsigned int targetChannel, uint64_t time = 0);
 
     // TODO(JK#2#): do not return a pointer, a copy constructor exists and a skeleton pointer is likely to get lost
     Skeleton* readSkeletonFromBVH(wxString filename);

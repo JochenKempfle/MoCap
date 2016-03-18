@@ -31,6 +31,7 @@ OF SUCH DAMAGE.
 #include "MoCapMain.h"
 #include <wx/msgdlg.h>
 #include <wx/utils.h>
+#include <wx/time.h>
 #include "ViewPanel.h"
 #include "SensorDetailPanel.h"
 #include "SkeletonCreatorPanel.h"
@@ -242,6 +243,9 @@ void MoCapFrame::OnAbout(wxCommandEvent& event)
 
 void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 {
+    // get time point at which the data arrived
+    wxLongLong time = wxGetUTCTimeMillis();
+    uint64_t receiveTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
     switch (event.GetSocketEvent())
     {
         case wxSOCKET_INPUT:
@@ -293,6 +297,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 
     if (bytesReceived >= 24 && bytesReceived <= 36)
     {
+        data.receiveTime = receiveTime;
         if (bytesReceived == 24 || bytesReceived == 36)
         {
             data.id = *(reinterpret_cast<uint32_t*>(pBuffer));
@@ -379,7 +384,7 @@ void MoCapFrame::OnTimerEvent(wxTimerEvent& event)
         char dummy = 0;
         if (_socket->SendTo(_addressPeer, &dummy, sizeof(dummy)).LastCount() != sizeof(dummy))
         {
-            wxMessageBox("ERROR: failed to send data");
+            wxLogDebug("ERROR: failed to send data");
             return;
         }
     }

@@ -60,7 +60,7 @@ class TimelinePanel: public wxPanel
 		//*)
 
 		void prepareAddingSequence(int sequence, const std::vector<int> &channels);
-		void prepareAddingFrame(const MotionSequenceFrame &frame);
+		void prepareAddingFrame(const MotionSequenceFrame &frame, float frameTime);
 
 		void setCursorPosition(uint64_t time);
 		int getCursorPosition() const { return _cursorPosition; }
@@ -98,9 +98,9 @@ class TimelinePanel: public wxPanel
 		void OnRightUp(wxMouseEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-        void OnPopupClick(wxCommandEvent& event);
+        void OnPopupBonesClick(wxCommandEvent& event);
 
-        void showPopUp();
+        void showPopUpBones();
 
 		void endDragDrop();
 
@@ -147,6 +147,8 @@ class TimelinePanel: public wxPanel
         std::vector<int> _channelsToAdd;
 
 		// std::vector<std::vector<MotionTrack> > _channelContent;
+
+		const wxSize _channelButtonsSize = wxSize(13, 13);
 
 		// rendering constants
         const int _optionsHeight = 30;

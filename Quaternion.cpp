@@ -301,17 +301,6 @@ Quaternion Quaternion::lerp(const Quaternion &other, float t) const
     return quat;
 }
 
-Quaternion Quaternion::lerpEuler(const Quaternion &other, float t) const
-{
-    Vector3 euler = toEuler() * (1.0f - t);
-    Vector3 eulerOther = other.toEuler() * t;
-    Quaternion x = other.getRotationAround(other.rotate(Vector3(1.0f, 0.0f, 0.0f)));
-    Quaternion y = other.getRotationAround(other.rotate(Vector3(0.0f, 1.0f, 0.0f)));
-    Quaternion z = other.getRotationAround(other.rotate(Vector3(0.0f, 0.0f, 1.0f)));
-    return slerp(x, t) * slerp(y, t) * slerp(z, t);
-    return Quaternion(eulerOther);
-}
-
 Quaternion Quaternion::slerp(const Quaternion &other, double t) const
 {
     // double theta = acos(dot(other));

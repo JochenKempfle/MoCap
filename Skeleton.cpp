@@ -270,6 +270,15 @@ bool Skeleton::reparent(int boneId, int newParentId, bool keepChildren)
     return bone->reparent(parentBone, keepChildren);
 }
 
+void Skeleton::scale(float scaleFactor)
+{
+    for (auto it = _bones.begin(); it != _bones.end(); ++it)
+    {
+        it->second->setLength(it->second->getLength() * scaleFactor);
+    }
+    update();
+}
+
 std::vector<int> Skeleton::getBoneIds() const
 {
     std::vector<int> ids;

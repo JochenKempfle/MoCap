@@ -89,12 +89,12 @@ const std::vector<MotionSequence*>& AnimationManager::getProjectSequences()
     return _projectSequences;
 }
 
-void AnimationManager::addSequenceToTimeline(int sequenceId, unsigned int targetChannel, unsigned int time)
+void AnimationManager::addSequenceToTimeline(int sequenceId, unsigned int targetChannel, uint64_t time)
 {
     _timeline.insert(_projectSequences[sequenceId], targetChannel, time);
 }
 
-void AnimationManager::addChannelsToTimeline(int sequenceId, std::vector<int> channels, unsigned int targetChannel, unsigned int time)
+void AnimationManager::addChannelsToTimeline(int sequenceId, std::vector<int> channels, unsigned int targetChannel, uint64_t time)
 {
     MotionSequence* sequence = _projectSequences[sequenceId];
     for (size_t i = 0; i < channels.size(); ++i)
@@ -105,7 +105,7 @@ void AnimationManager::addChannelsToTimeline(int sequenceId, std::vector<int> ch
     }
 }
 
-void AnimationManager::addTrackToTimeline(const TimelineTrack &track, unsigned int targetChannel, unsigned int time)
+void AnimationManager::addTrackToTimeline(const TimelineTrack &track, unsigned int targetChannel, uint64_t time)
 {
     _timeline.insert(track, targetChannel, time);
 }
@@ -284,7 +284,7 @@ MotionSequence* AnimationManager::readBVH(wxString filename)
     {
         return nullptr;
     }
-    wxFileInputStream input(filename);
+    wxFFileInputStream input(filename);
     wxTextInputStream textIn(input);
 
     if (!input.IsOk() || input.Eof())

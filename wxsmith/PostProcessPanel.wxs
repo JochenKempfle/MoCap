@@ -248,10 +248,10 @@
 											<object class="sizeritem">
 												<object class="wxGridSizer" variable="GridSizer2" member="no">
 													<cols>2</cols>
-													<rows>3</rows>
+													<rows>4</rows>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT11" variable="StaticText11" member="yes">
-															<label>Roll</label>
+															<label>X / Roll</label>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
@@ -267,7 +267,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT10" variable="StaticText10" member="yes">
-															<label>Pitch</label>
+															<label>Y / Pitch</label>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
@@ -283,7 +283,7 @@
 													</object>
 													<object class="sizeritem">
 														<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticText1" member="yes">
-															<label>Yaw</label>
+															<label>Z / Yaw</label>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>
 														<border>5</border>
@@ -292,6 +292,23 @@
 														<object class="wxSpinCtrl" name="ID_SPINCTRLYAW" variable="SpinCtrlYaw" member="yes">
 															<value>0</value>
 															<max>360</max>
+															<style>wxSP_ARROW_KEYS</style>
+														</object>
+														<flag>wxALL|wxEXPAND</flag>
+														<border>5</border>
+													</object>
+													<object class="sizeritem">
+														<object class="wxStaticText" name="ID_STATICTEXT2" variable="StaticText2" member="yes">
+															<label>Frame Time in ms</label>
+														</object>
+														<flag>wxALL|wxEXPAND</flag>
+														<border>5</border>
+													</object>
+													<object class="sizeritem">
+														<object class="wxSpinCtrl" name="ID_SPINCTRLFRAMETIME" variable="SpinCtrlFrameTime" member="yes">
+															<value>100</value>
+															<min>1</min>
+															<max>10000000</max>
 															<style>wxSP_ARROW_KEYS</style>
 														</object>
 														<flag>wxALL|wxEXPAND</flag>

@@ -166,6 +166,21 @@ bool TimelineChannel::isBetweenTwoTracks(uint64_t time) const
     return false;
 }
 
+bool TimelineChannel::isInsideTrack(uint64_t time) const
+{
+    auto it = _tracks.upper_bound(time);
+    if (it == _tracks.begin() || _tracks.size() == 0)
+    {
+        return false;
+    }
+    --it;
+    if (it->second->getEndTime() <= time)
+    {
+        return false;
+    }
+    return true;
+}
+
 std::vector<TimelineTrack*> TimelineChannel::getInRange(uint64_t startTime, uint64_t endTime)
 {
     std::vector<TimelineTrack*> tracks;
@@ -175,13 +190,13 @@ std::vector<TimelineTrack*> TimelineChannel::getInRange(uint64_t startTime, uint
         return tracks;
     }
     auto it = _tracks.lower_bound(startTime);
-    auto end = _tracks.upper_bound(endTime);
+    auto end = _tracks.lower_bound(endTime);
 
     // find tracks starting before startTime but ending after
     while (it != _tracks.begin())
     {
         --it;
-        if (it->second->getStartTime() + it->second->getLength() <= startTime)
+        if (it->second->getEndTime() <= startTime)
         {
             ++it;
             break;
@@ -199,12 +214,17 @@ std::vector<TimelineTrack*> TimelineChannel::getInRange(uint64_t startTime, uint
 
 TimelineTrack* TimelineChannel::getTrack(uint64_t time)
 {
-    std::vector<TimelineTrack*> tracks = getInRange(time, time);
-    if (tracks.size() == 0)
+    auto it = _tracks.upper_bound(time);
+    if (it == _tracks.begin() || _tracks.size() == 0)
     {
         return nullptr;
     }
-    return tracks[0];
+    --it;
+    if (it->second->getEndTime() <= time)
+    {
+        return nullptr;
+    }
+    return it->second;
 }
 
 std::vector<TimelineTrack*> TimelineChannel::getTracks()

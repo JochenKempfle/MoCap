@@ -3241,7 +3241,7 @@
 	<wx/wxprec.h>
 	<wx/wx.h>
 
-1456980326 source:d:\uni\master\4. semester\master thesis\code\quaternion.cpp
+1458169710 source:d:\uni\master\4. semester\master thesis\code\quaternion.cpp
 	"Vector3.h"
 	"Quaternion.h"
 	<cassert>
@@ -3301,12 +3301,13 @@
 	<wx/sizer.h>
 	<wx/panel.h>
 
-1457402196 source:d:\uni\master\4. semester\master thesis\code\skeleton.cpp
+1458245854 source:d:\uni\master\4. semester\master thesis\code\skeleton.cpp
 	"Skeleton.h"
 
-1457402196 d:\uni\master\4. semester\master thesis\code\skeleton.h
+1458245854 d:\uni\master\4. semester\master thesis\code\skeleton.h
 	"Bone.h"
 	"Quaternion.h"
+	<string>
 	<vector>
 	<map>
 
@@ -3377,7 +3378,7 @@
 	"wx/timer.h"
 	"ViewPanel.h"
 
-1457418193 source:d:\uni\master\4. semester\master thesis\code\mocapmanager.cpp
+1457550976 source:d:\uni\master\4. semester\master thesis\code\mocapmanager.cpp
 	"MoCapManager.h"
 	<GL/gl.h>
 	<GL/glu.h>
@@ -3404,18 +3405,19 @@
 	<wx/panel.h>
 	"SensorNode.h"
 
-1456931095 source:d:\uni\master\4. semester\master thesis\code\sensormanager.cpp
+1458169710 source:d:\uni\master\4. semester\master thesis\code\sensormanager.cpp
 	"SensorManager.h"
 
 1457418193 source:d:\uni\master\4. semester\master thesis\code\sensornode.cpp
 	"SensorNode.h"
 	"MoCapManager.h"
 
-1457136691 source:d:\uni\master\4. semester\master thesis\code\mocapmain.cpp
+1458262868 source:d:\uni\master\4. semester\master thesis\code\mocapmain.cpp
 	"wx_pch.h"
 	"MoCapMain.h"
 	<wx/msgdlg.h>
 	<wx/utils.h>
+	<wx/time.h>
 	"ViewPanel.h"
 	"SensorDetailPanel.h"
 	"SkeletonCreatorPanel.h"
@@ -3428,7 +3430,7 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1457415550 source:d:\uni\master\4. semester\master thesis\code\postprocesspanel.cpp
+1457791797 source:d:\uni\master\4. semester\master thesis\code\postprocesspanel.cpp
 	"wx_pch.h"
 	"PostProcessPanel.h"
 	"AnimationManager.h"
@@ -3438,7 +3440,7 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1457238839 d:\uni\master\4. semester\master thesis\code\postprocesspanel.h
+1457789704 d:\uni\master\4. semester\master thesis\code\postprocesspanel.h
 	"GLCanvas.h"
 	"TimelinePanel.h"
 	"TreeItemBoneData.h"
@@ -3524,7 +3526,7 @@
 	"MotionSequenceChannel.h"
 	"Skeleton.h"
 
-1457250583 source:d:\uni\master\4. semester\master thesis\code\timelinepanel.cpp
+1457889062 source:d:\uni\master\4. semester\master thesis\code\timelinepanel.cpp
 	"wx_pch.h"
 	"TimelinePanel.h"
 	"AnimationManager.h"
@@ -3532,7 +3534,7 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1457250531 d:\uni\master\4. semester\master thesis\code\timelinepanel.h
+1457805393 d:\uni\master\4. semester\master thesis\code\timelinepanel.h
 	<vector>
 	"TimelineTrack.h"
 	"GLCanvas.h"
@@ -3540,7 +3542,7 @@
 	<wx/panel.h>
 	<wx/button.h>
 
-1457414639 source:d:\uni\master\4. semester\master thesis\code\animationmanager.cpp
+1457732302 source:d:\uni\master\4. semester\master thesis\code\animationmanager.cpp
 	"AnimationManager.h"
 	<wx/wfstream.h>
 	<wx/txtstrm.h>
@@ -3548,7 +3550,7 @@
 	<wx/filename.h>
 	<utility>
 
-1455855800 d:\uni\master\4. semester\master thesis\code\animationmanager.h
+1457732302 d:\uni\master\4. semester\master thesis\code\animationmanager.h
 	"Skeleton.h"
 	"MotionSequence.h"
 	"Timeline.h"
@@ -3556,13 +3558,13 @@
 	<vector>
 	<wx/string.h>
 
-1457340697 d:\uni\master\4. semester\master thesis\code\bone.h
+1458170828 d:\uni\master\4. semester\master thesis\code\bone.h
 	"Quaternion.h"
 	"Vector3.h"
 	<vector>
 	<string>
 
-1456457351 d:\uni\master\4. semester\master thesis\code\quaternion.h
+1458169711 d:\uni\master\4. semester\master thesis\code\quaternion.h
 	"Vector3.h"
 	<iostream>
 	<vector>
@@ -3628,7 +3630,7 @@
 	<list>
 	<vector>
 
-1456295904 d:\uni\master\4. semester\master thesis\code\sensormanager.h
+1458169711 d:\uni\master\4. semester\master thesis\code\sensormanager.h
 	"SensorNode.h"
 	"SensorRawData.h"
 	<map>
@@ -3803,11 +3805,12 @@
 
 1412627643 d:\engines\wxwidgets-3.0.2\include\wx\os2\tglbtn.h
 
-1457055877 d:\uni\master\4. semester\master thesis\code\timelinetrack.h
+1458250738 d:\uni\master\4. semester\master thesis\code\timelinetrack.h
 	"MotionSequence.h"
 	"MotionSequenceChannel.h"
+	"TimelineOverlay.h"
 
-1457055433 d:\uni\master\4. semester\master thesis\code\timeline.h
+1457805393 d:\uni\master\4. semester\master thesis\code\timeline.h
 	"TimelineChannel.h"
 	"TimelineTrack.h"
 	"Skeleton.h"
@@ -3816,16 +3819,16 @@
 	<set>
 	<string>
 
-1457055433 d:\uni\master\4. semester\master thesis\code\timelinechannel.h
+1457738750 d:\uni\master\4. semester\master thesis\code\timelinechannel.h
 	"TimelineTrack.h"
 
-1457402571 source:d:\uni\master\4. semester\master thesis\code\timeline.cpp
+1458169711 source:d:\uni\master\4. semester\master thesis\code\timeline.cpp
 	"Timeline.h"
 
-1457055433 source:d:\uni\master\4. semester\master thesis\code\timelinechannel.cpp
+1457739337 source:d:\uni\master\4. semester\master thesis\code\timelinechannel.cpp
 	"TimelineChannel.h"
 
-1457060493 source:d:\uni\master\4. semester\master thesis\code\timelinetrack.cpp
+1458169710 source:d:\uni\master\4. semester\master thesis\code\timelinetrack.cpp
 	"TimelineTrack.h"
 
 1456314685 d:\uni\master\4. semester\master thesis\code\glimage.h
@@ -3865,12 +3868,12 @@
 1456311531 d:\uni\master\4. semester\master thesis\code\motionfilternone.h
 	"MotionFilterBase.h"
 
-1456300470 d:\uni\master\4. semester\master thesis\code\sensorrawdata.h
+1458261952 d:\uni\master\4. semester\master thesis\code\sensorrawdata.h
 
 1456291934 source:d:\uni\master\4. semester\master thesis\code\sensorrawdata.cpp
 	"SensorRawData.h"
 
-1457420289 source:d:\uni\master\4. semester\master thesis\code\filehandler.cpp
+1457552890 source:d:\uni\master\4. semester\master thesis\code\filehandler.cpp
 	"FileHandler.h"
 	<wx/wfstream.h>
 	<wx/txtstrm.h>
@@ -3888,4 +3891,9 @@
 1457157615 source:d:\uni\master\4. semester\master thesis\code\sensorbuffer.cpp
 	"SensorBuffer.h"
 	"SensorNode.h"
+
+1458250747 d:\uni\master\4. semester\master thesis\code\timelineoverlay.h
+
+1458250674 source:d:\uni\master\4. semester\master thesis\code\timelineoverlay.cpp
+	"TimelineOverlay.h"
 

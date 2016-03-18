@@ -68,6 +68,7 @@ class PostProcessPanel: public wxPanel
 		wxSpinCtrl* SpinCtrlRoll;
 		wxSlider* Slider2;
 		wxPanel* PanelDragDropSequence;
+		wxStaticText* StaticText2;
 		wxGridSizer* GridSizerSequenceInfo;
 		wxSpinCtrl* SpinCtrlYaw;
 		wxStaticText* StaticTextFPS;
@@ -91,6 +92,7 @@ class PostProcessPanel: public wxPanel
 		wxStaticText* StaticText4;
 		wxToggleButton* ToggleButtonPreview;
 		GLCanvas* glCanvas;
+		wxSpinCtrl* SpinCtrlFrameTime;
 		//*)
 
 	protected:
@@ -122,6 +124,8 @@ class PostProcessPanel: public wxPanel
 		static const long ID_SPINCTRLPITCH;
 		static const long ID_STATICTEXT1;
 		static const long ID_SPINCTRLYAW;
+		static const long ID_STATICTEXT2;
+		static const long ID_SPINCTRLFRAMETIME;
 		static const long ID_BUTTONFROMSELECTION;
 		static const long ID_PANELDRAGDROPFRAME;
 		static const long ID_TIMELINE;

@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include "MotionSequence.h"
 #include "MotionSequenceChannel.h"
+#include "TimelineOverlay.h"
 
 class TimelineTrack
 {
@@ -86,6 +87,7 @@ class TimelineTrack
     uint64_t _startTime;
     float _frameTime;
     std::vector<MotionSequenceFrame> _frames;
+    std::map<uint64_t, TimelineOverlay> _overlays;
 };
 
 #endif // TIMELINETRACK_H

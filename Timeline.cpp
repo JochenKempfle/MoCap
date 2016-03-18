@@ -41,10 +41,9 @@ Timeline::~Timeline()
 
 void Timeline::setSkeletonToTime(uint64_t time)
 {
-    /*
     for (auto it = _boneToChannel.begin(); it != _boneToChannel.end(); ++it)
     {
-        Quaternion q = _channels.find(*it->second.begin())->second.getFrame(time).getOrientation();
+        Quaternion q; // = _channels.find(*it->second.begin())->second.getFrame(time).getOrientation();
         for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
         {
             auto channelIt = _channels.find(*it2);
@@ -52,15 +51,9 @@ void Timeline::setSkeletonToTime(uint64_t time)
             {
                 continue;
             }
-            Quaternion p = channelIt->second.getFrame(time).getOrientation();
-            q = q.slerp(p, 0.5f);
+            q = channelIt->second.getFrame(time).getOrientation() * q;
         }
-        _skeleton.setRelBoneRotation(it->first, q);
-    }
-    */
-    for (auto it = _channels.begin(); it != _channels.end(); ++it)
-    {
-        _skeleton.setRelBoneOrientation(it->second.getBoneId(), it->second.getFrame(time).getOrientation());
+        _skeleton.setRelBoneOrientation(it->first, q);
     }
     _skeleton.update();
 }
@@ -181,19 +174,33 @@ void Timeline::insert(const TimelineTrack &track, int toChannel, uint64_t time)
     ++_nextTrackId;
 }
 
+void Timeline::insertChannelAfter(int channel)
+{
+    if (channel < -1)
+    {
+        return;
+    }
+    moveChannelsDown(channel + 1, 1);
+}
+
 void Timeline::moveChannelsDown(int startChannel, unsigned int num)
 {
-    for (auto it = _channels.rbegin(); it != _channels.rend(); ++it)
+    if (startChannel < 0 || num <= 0)
     {
-        if (it->first < startChannel)
-        {
-            break;
-        }
-
-        int newPos = it->first + num;
-        _channels[newPos] = it->second;
-        _channels[newPos].setChannelPos(newPos);
-        it->second.clear();
+        return;
+    }
+    auto start = _channels.find(startChannel);
+    // if start channel did not exist yet, create it first to have an object to compare against
+    if (start == _channels.end())
+    {
+        _channels[startChannel] = TimelineChannel(startChannel);
+        start = _channels.find(startChannel);
+    }
+    auto it = _channels.end();
+    while (it != start)
+    {
+        --it;
+        swapChannels(it->first, it->first + num);
     }
 }
 
@@ -251,12 +258,22 @@ void Timeline::clear()
 
 void Timeline::swapChannels(int channel1, int channel2)
 {
-    TimelineChannel channel = _channels[channel1];
-    _channels[channel1] = _channels[channel2];
-    _channels[channel2] = channel;
+    if (channel1 < 0 || channel2 < 0)
+    {
+        return;
+    }
+    TimelineChannel &channel_1 = _channels[channel1];
+    TimelineChannel &channel_2 = _channels[channel2];
 
-    _channels[channel1].setChannelPos(channel1);
-    _channels[channel2].setChannelPos(channel2);
+    TimelineChannel swapChannel = channel_1;
+    channel_1 = channel_2;
+    channel_2 = swapChannel;
+
+    channel_1.setChannelPos(channel1);
+    channel_2.setChannelPos(channel2);
+
+    setChannelAffiliation(channel1, channel_1.getBoneId());
+    setChannelAffiliation(channel2, channel_2.getBoneId());
 }
 
 void Timeline::clearChannel(int channel)
@@ -288,7 +305,6 @@ void Timeline::cut(int trackId, uint64_t time)
     TimelineTrack newTrack;
     if (it->second->cut(time - it->second->getStartTime(), &newTrack))
     {
-        // TODO(JK#2#): cutting and inserting cutted track is not accurate and results in gaps. need higher time resolution
         insert(newTrack, it->second->getChannel(), newTrack.getStartTime());
     }
 }
@@ -353,6 +369,54 @@ bool Timeline::isBetweenTwoTracks(int channel, uint64_t time) const
         return false;
     }
     return it->second.isBetweenTwoTracks(time);
+}
+
+bool Timeline::isInsideTrack(int channel, uint64_t time) const
+{
+    auto it = _channels.find(channel);
+    if (it == _channels.end())
+    {
+        return false;
+    }
+    return it->second.isInsideTrack(time);
+}
+
+std::vector<TimelineTrack*> Timeline::getOverlapping(const TimelineTrack* track)
+{
+    std::vector<TimelineTrack*> tracks;
+
+    if (track == nullptr)
+    {
+        return tracks;
+    }
+    auto it = _channels.find(track->getChannel());
+    if (it == _channels.end() || it->second.getBoneId() < 0)
+    {
+        return tracks;
+    }
+    // find channels affiliated with same bone
+    auto it2 = _boneToChannel.find(it->second.getBoneId());
+    if (it2 == _boneToChannel.end())
+    {
+        return tracks;
+    }
+    for (auto channelIt = it2->second.begin(); channelIt != it2->second.end(); ++channelIt)
+    {
+        std::vector<TimelineTrack*> tracksToAdd = getInRange(*channelIt, track->getStartTime(), track->getEndTime());
+        // remove the track for which the overlapping tracks are seeked from the array
+        if (*channelIt == track->getChannel())
+        {
+            for (size_t i = 0; i < tracksToAdd.size(); ++i)
+            {
+                if (tracksToAdd[i] == track)
+                {
+                    tracksToAdd.erase(tracksToAdd.begin() + i);
+                }
+            }
+        }
+        tracks.insert(tracks.end(), tracksToAdd.begin(), tracksToAdd.end());
+    }
+    return tracks;
 }
 
 std::vector<TimelineTrack*> Timeline::getInRange(int channel, uint64_t startTime, uint64_t endTime)

@@ -45,12 +45,37 @@ FileHandler::~FileHandler()
 
 MotionSequence* FileHandler::read(wxString filename)
 {
+    if (filename.Matches(_("*.bvh")))
+    {
+        return readBVH(filename);
+    }
+    else if (filename.Matches(_("*.htr")))
+    {
+        return readHTR(filename);
+    }
     return nullptr;
 }
 
 bool FileHandler::write(wxString filename, MotionSequence* sequence)
 {
-    return true;
+    if (sequence == nullptr)
+    {
+        return false;
+    }
+    if (filename.Matches(_("*.bvh")))
+    {
+        return writeBVH(filename, sequence);
+    }
+    else if (filename.Matches(_("*.htr")))
+    {
+        return writeHTR(filename, sequence);
+    }
+    else
+    {
+        // by default write sequence to a bvh file
+        filename = filename + _(".bvh");
+        return writeBVH(filename, sequence);
+    }
 }
 
 Skeleton* FileHandler::readBVHSkeleton(wxString filename)
@@ -59,7 +84,7 @@ Skeleton* FileHandler::readBVHSkeleton(wxString filename)
     {
         return nullptr;
     }
-    wxFileInputStream input(filename);
+    wxFFileInputStream input(filename);
     wxTextInputStream textIn(input);
 
     if (!input.IsOk() || input.Eof())
@@ -559,7 +584,7 @@ bool FileHandler::writeBVH(wxString filename, MotionSequence* sequence)
         }
     }
 
-    wxFileOutputStream output(filename);
+    wxFFileOutputStream output(filename);
     wxTextOutputStream textOut(output);
 
     std::vector<Bone*> bones = root->getAllChildrenDFS();
@@ -577,7 +602,7 @@ bool FileHandler::writeBVH(wxString filename, MotionSequence* sequence)
             textOut << _("{") << endl;
             offset = root->getStartPos() * 100.0f;
             textOut << _("OFFSET ") << offset.x() << _(" ") << offset.y() << _(" ") << offset.z() << endl;
-            textOut << _("CHANNELS") << _(" 6 Xposition Yposition Zposition Xrotation Yrotation Zrotation") << endl;
+            textOut << _("CHANNELS") << _(" 6 Xposition Yposition Zposition Zrotation Yrotation Xrotation") << endl;
         }
         else
         {
@@ -601,7 +626,7 @@ bool FileHandler::writeBVH(wxString filename, MotionSequence* sequence)
             textOut << _("{") << endl;
             offset = bones[i]->getParent()->getDirection() * bones[i]->getParent()->getLength() * 100.0f;
             textOut << _("OFFSET ") << offset.x() << _(" ") << offset.y() << _(" ") << offset.z() << endl;
-            textOut << _("CHANNELS") << _(" 3 Xrotation Yrotation Zrotation") << endl;
+            textOut << _("CHANNELS") << _(" 3 Zrotation Yrotation Xrotation") << endl;
         }
         if (i == bones.size() - 1)
         {
@@ -637,7 +662,7 @@ bool FileHandler::writeBVH(wxString filename, MotionSequence* sequence)
                 textOut << offset.x() << _(" ") << offset.y() << _(" ") << offset.z();
             }
             euler = sequence->getChannel(bones[j]->getId())->getFrame(i).getOrientation().toEuler() * (180.0/M_PI);
-            textOut  << _(" ") << euler.roll() << _(" ") << euler.pitch() << _(" ") << euler.yaw();
+            textOut  << _(" ") << euler.z() << _(" ") << euler.y() << _(" ") << euler.x();
         }
         textOut << endl;
     }

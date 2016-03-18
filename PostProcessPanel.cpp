@@ -70,6 +70,8 @@ const long PostProcessPanel::ID_STATICTEXT10 = wxNewId();
 const long PostProcessPanel::ID_SPINCTRLPITCH = wxNewId();
 const long PostProcessPanel::ID_STATICTEXT1 = wxNewId();
 const long PostProcessPanel::ID_SPINCTRLYAW = wxNewId();
+const long PostProcessPanel::ID_STATICTEXT2 = wxNewId();
+const long PostProcessPanel::ID_SPINCTRLFRAMETIME = wxNewId();
 const long PostProcessPanel::ID_BUTTONFROMSELECTION = wxNewId();
 const long PostProcessPanel::ID_PANELDRAGDROPFRAME = wxNewId();
 const long PostProcessPanel::ID_TIMELINE = wxNewId();
@@ -171,22 +173,27 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	StaticBoxSizer3->Add(ButtonLoad, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer5->Add(StaticBoxSizer3, 0, wxALL|wxEXPAND, 5);
 	StaticBoxSizer2 = new wxStaticBoxSizer(wxVERTICAL, this, _("Custom Frame"));
-	GridSizer2 = new wxGridSizer(3, 2, 0, 0);
-	StaticText11 = new wxStaticText(this, ID_STATICTEXT11, _("Roll"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
+	GridSizer2 = new wxGridSizer(4, 2, 0, 0);
+	StaticText11 = new wxStaticText(this, ID_STATICTEXT11, _("X / Roll"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT11"));
 	GridSizer2->Add(StaticText11, 0, wxALL|wxEXPAND, 5);
 	SpinCtrlRoll = new wxSpinCtrl(this, ID_SPINCTRLROLL, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLROLL"));
 	SpinCtrlRoll->SetValue(_T("0"));
 	GridSizer2->Add(SpinCtrlRoll, 0, wxALL|wxEXPAND, 5);
-	StaticText10 = new wxStaticText(this, ID_STATICTEXT10, _("Pitch"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
+	StaticText10 = new wxStaticText(this, ID_STATICTEXT10, _("Y / Pitch"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT10"));
 	GridSizer2->Add(StaticText10, 0, wxALL|wxEXPAND, 5);
 	SpinCtrlPitch = new wxSpinCtrl(this, ID_SPINCTRLPITCH, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLPITCH"));
 	SpinCtrlPitch->SetValue(_T("0"));
 	GridSizer2->Add(SpinCtrlPitch, 0, wxALL|wxEXPAND, 5);
-	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
+	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Z / Yaw"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
 	GridSizer2->Add(StaticText1, 0, wxALL|wxEXPAND, 5);
 	SpinCtrlYaw = new wxSpinCtrl(this, ID_SPINCTRLYAW, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 360, 0, _T("ID_SPINCTRLYAW"));
 	SpinCtrlYaw->SetValue(_T("0"));
 	GridSizer2->Add(SpinCtrlYaw, 0, wxALL|wxEXPAND, 5);
+	StaticText2 = new wxStaticText(this, ID_STATICTEXT2, _("Frame Time in ms"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
+	GridSizer2->Add(StaticText2, 0, wxALL|wxEXPAND, 5);
+	SpinCtrlFrameTime = new wxSpinCtrl(this, ID_SPINCTRLFRAMETIME, _T("100"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1, 10000000, 100, _T("ID_SPINCTRLFRAMETIME"));
+	SpinCtrlFrameTime->SetValue(_T("100"));
+	GridSizer2->Add(SpinCtrlFrameTime, 0, wxALL|wxEXPAND, 5);
 	StaticBoxSizer2->Add(GridSizer2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonFromSelection = new wxButton(this, ID_BUTTONFROMSELECTION, _("Set from selection"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONFROMSELECTION"));
 	StaticBoxSizer2->Add(ButtonFromSelection, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -313,8 +320,7 @@ void PostProcessPanel::OnPanelDragDropFrameLeftDown(wxMouseEvent& event)
     SetCursor(wxCURSOR_HAND);
 
     MotionSequenceFrame frame(Quaternion(SpinCtrlRoll->GetValue() * M_PI / 180.0, SpinCtrlPitch->GetValue() * M_PI / 180.0, SpinCtrlYaw->GetValue() * M_PI / 180.0));
-
-    timelinePanel->prepareAddingFrame(frame);
+    timelinePanel->prepareAddingFrame(frame, float(SpinCtrlFrameTime->GetValue()) / 1000.0f);
     timelinePanel->CaptureMouse();
 }
 

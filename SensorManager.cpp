@@ -64,7 +64,7 @@ int SensorManager::createSensorNode(std::string IPAddress)
 
 void SensorManager::updateSensor(std::string IPAddress, const SensorRawData &data)
 {
-    // TODO(JK#1#): the find id solution is not very effisient,
+    // TODO(JK#1#): the find id solution is not very efficient.
     int id;
     auto it = _sensorFromIP.find(IPAddress);
     if (it != _sensorFromIP.end())

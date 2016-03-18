@@ -27,21 +27,14 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORRAWDATA_H
-#define SENSORRAWDATA_H
+#include "TimelineOverlay.h"
 
-// POD type
-struct SensorRawData
+TimelineOverlay::TimelineOverlay()
 {
-  public:
-    SensorRawData();
-    ~SensorRawData();
+    //ctor
+}
 
-    unsigned int id;
-    unsigned int timestamp;
-    float rotation[4];
-    // float position[3];
-    uint64_t receiveTime;
-};
-
-#endif // SENSORRAWDATA_H
+TimelineOverlay::~TimelineOverlay()
+{
+    //dtor
+}

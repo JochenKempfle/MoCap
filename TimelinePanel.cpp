@@ -135,15 +135,16 @@ void TimelinePanel::prepareAddingSequence(int sequence, const std::vector<int> &
     _channelsToAdd = channels;
 }
 
-void TimelinePanel::prepareAddingFrame(const MotionSequenceFrame &frame)
+void TimelinePanel::prepareAddingFrame(const MotionSequenceFrame &frame, float frameTime)
 {
     _dragging = true;
     _dragIsValid = false;
-    _draggedTrackLength = 25 * 1000;
-    _mouseToTrackOffset = 2;
+    // convert frame time given as a fraction of seconds to time in ys
+    _draggedTrackLength = frameTime * 1000 * 1000;
+    _mouseToTrackOffset = 5;
     _trackToAdd.clear();
     _trackToAdd.appendFrame(frame);
-    _trackToAdd.setFrameTime(0.025);
+    _trackToAdd.setFrameTime(frameTime);
     _trackToAdd.setName("Custom Frame");
     //_frameToAdd = frame;
 }
@@ -151,7 +152,6 @@ void TimelinePanel::prepareAddingFrame(const MotionSequenceFrame &frame)
 void TimelinePanel::setCursorPosition(uint64_t time)
 {
     _cursorPosition = time;
-    theAnimationManager.getTimeline()->setSkeletonToTime(time);
     update();
 }
 
@@ -161,6 +161,7 @@ void TimelinePanel::update()
     Update();
     if (_glCanvas != nullptr)
     {
+        theAnimationManager.getTimeline()->setSkeletonToTime(_cursorPosition);
         _glCanvas->Refresh();
         _glCanvas->Update();
     }
@@ -175,10 +176,9 @@ void TimelinePanel::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
     SetCursor(wxCURSOR_ARROW);
 }
 
-void TimelinePanel::OnPopupClick(wxCommandEvent &event)
+void TimelinePanel::OnPopupBonesClick(wxCommandEvent &event)
 {
     int id = event.GetId();
-
     if (id == theAnimationManager.getTimelineSkeleton()->getNextFreeId())
     {
         // set channel to have no bone
@@ -194,7 +194,7 @@ void TimelinePanel::OnPopupClick(wxCommandEvent &event)
     }
 }
 
-void TimelinePanel::showPopUp()
+void TimelinePanel::showPopUpBones()
 {
     auto bones = theAnimationManager.getTimelineSkeleton()->getBoneIdsWithName();
     wxMenu menu;
@@ -210,7 +210,7 @@ void TimelinePanel::showPopUp()
         }
         menu.Append(bones[i].first, name);
     }
- 	menu.Connect(wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&TimelinePanel::OnPopupClick, NULL, this);
+ 	menu.Connect(wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&TimelinePanel::OnPopupBonesClick, NULL, this);
  	PopupMenu(&menu);
 }
 
@@ -228,7 +228,7 @@ void TimelinePanel::endDragDrop()
 
     if (_dragIsValid)
     {
-        int time = getTimeFromPosition(wxPoint(_draggedTrackPos, 0));
+        int64_t time = getTimeFromPosition(wxPoint(_draggedTrackPos, 0));
         // time should normally not be smaller than zero, but to be sure, better check if time is valid
         if (time < 0)
         {
@@ -280,7 +280,8 @@ void TimelinePanel::endDragDrop()
 
 int TimelinePanel::getLengthFromTime(uint64_t time) const
 {
-    return (_numPixelsPerTimeUnit * time) / _ysPerTimeUnit;
+    // add  + _ysPerTimeUnit/2 to avoid rounding errors, otherwise one gets always floor(value)
+    return (_numPixelsPerTimeUnit * time + _ysPerTimeUnit/2) / _ysPerTimeUnit;
 }
 
 int TimelinePanel::getLengthFromTime(float time) const
@@ -290,7 +291,8 @@ int TimelinePanel::getLengthFromTime(float time) const
 
 int TimelinePanel::getPositionFromTime(int64_t time) const
 {
-    return _timelineStartX + (_numPixelsPerTimeUnit * (time - _timeOffset)) / _ysPerTimeUnit;
+    // add  + _ysPerTimeUnit/2 in the division to avoid rounding errors, otherwise one gets always floor(value)
+    return _timelineStartX + (_numPixelsPerTimeUnit * (time - _timeOffset) + _ysPerTimeUnit/2) / _ysPerTimeUnit;
 }
 
 int64_t TimelinePanel::getTimeFromPosition(wxPoint pos) const
@@ -340,6 +342,33 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
             }
         }
         dc->DrawText(track->getName(), textPosition);
+    }
+
+    // draw overlapping
+    std::vector<TimelineTrack*> overlapping = theAnimationManager.getTimeline()->getOverlapping(track);
+    for (size_t i = 0; i < overlapping.size(); ++i)
+    {
+        wxPoint start(pos);
+        wxSize overlapLength(0, _channelHeight/5);
+
+        if (track->getChannel() < overlapping[i]->getChannel())
+        {
+            start.y += _channelHeight - overlapLength.y + 1;
+        }
+
+        if (track->getStartTime() > overlapping[i]->getStartTime())
+        {
+            start.x = getPositionFromTime(track->getStartTime());
+            overlapLength.x = getLengthFromTime(std::min(track->getLength(), overlapping[i]->getEndTime() - track->getStartTime()));
+        }
+        else
+        {
+            start.x = getPositionFromTime(overlapping[i]->getStartTime());
+            overlapLength.x = getLengthFromTime(std::min(overlapping[i]->getLength(), track->getEndTime() - overlapping[i]->getStartTime()));
+        }
+        ++overlapLength.x;
+        dc->SetBrush(wxBrush(wxColour(150, 200, 150)));
+        dc->DrawRectangle(start, overlapLength);
     }
 
     // draw lines between single frames
@@ -489,18 +518,11 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
     // draw interpolation stuff
     if (_interpolationPossible)
     {
-        brush.SetColour(110, 110, 210);
+        brush.SetColour(120, 120, 200);
         dc.SetBrush(brush);
         pos.x = getPositionFromTime(_interpolationStartTime);
         pos.y = getPositionFromChannel(_interpolationChannel);
         dc.DrawRectangle(pos, wxSize(getLengthFromTime(_interpolationEndTime - _interpolationStartTime) + 1, _channelHeight + 1));
-        if (getLengthFromTime(_interpolationEndTime - _interpolationStartTime) > dc.GetTextExtent(_("Right click for")).x + 10)
-        {
-            pos += wxPoint(5, 5);
-            dc.DrawText(_("Right click for"), pos);
-            pos += wxPoint(0, 15);
-            dc.DrawText(_("interpolation"), pos);
-        }
     }
 
 
@@ -553,30 +575,65 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
         dc.GradientFillLinear(wxRect(0, _timelineStartY + i*_channelHeight, _channelOptionsWidth, _channelHeight), wxColour(50, 50, 50), wxColour(200, 200, 200), wxUP);
         dc.DrawLine(wxPoint(0, _timelineStartY + i*_channelHeight), wxPoint(size.x, _timelineStartY + i*_channelHeight));
 
-        // TODO(JK#1#): draw arrows above and below channelName (to swap channels)
+        // draw arrows above and below channelName (to swap channels)
+        pen.SetWidth(2);
+        dc.SetPen(pen);
 
+        // upper arrows
+        dc.DrawLine(wxPoint(_channelOptionsWidth - 12, _timelineStartY + i*_channelHeight + 8), wxPoint(_channelOptionsWidth - 8, _timelineStartY + i*_channelHeight + 4));
+        dc.DrawLine(wxPoint(_channelOptionsWidth - 4, _timelineStartY + i*_channelHeight + 8), wxPoint(_channelOptionsWidth - 8, _timelineStartY + i*_channelHeight + 4));
+
+        // lower arrows
+        dc.DrawLine(wxPoint(_channelOptionsWidth - 12, _timelineStartY + (i+1)*_channelHeight - 8), wxPoint(_channelOptionsWidth - 8, _timelineStartY + (i+1)*_channelHeight - 4));
+        dc.DrawLine(wxPoint(_channelOptionsWidth - 4, _timelineStartY + (i+1)*_channelHeight - 8), wxPoint(_channelOptionsWidth - 8, _timelineStartY + (i+1)*_channelHeight - 4));
+
+        pen.SetWidth(1);
+        dc.SetPen(pen);
+
+        // draw the channel name (i.e. its number)
         wxString channelName;
         channelName << _channelOffset + i + 1;
         font.SetPointSize(14);
         dc.SetFont(font);
-        dc.DrawText(channelName, wxPoint(_channelOptionsWidth - dc.GetTextExtent(channelName).x - 2, _timelineStartY + i*_channelHeight + 6));
 
-        int channelNameExtent = dc.GetTextExtent(channelName).x;
+        wxSize textExtent = dc.GetTextExtent(channelName);
+
+        dc.DrawText(channelName, wxPoint(_channelOptionsWidth - textExtent.x - 2, _timelineStartY + i*_channelHeight + 6));
 
         font.SetPointSize(8);
         dc.SetFont(font);
 
+        // draw the associated bone name
         wxString boneName = theAnimationManager.getTimeline()->getChannelAffiliationName(_channelOffset + i);
         if (boneName.size() == 0)
         {
             boneName << _("Bone ") << theAnimationManager.getTimeline()->getChannelAffiliation(_channelOffset + i);
         }
         // trim the string to fit into
-        while (dc.GetTextExtent(boneName).x + 8 > _channelOptionsWidth - channelNameExtent)
+        while (dc.GetTextExtent(boneName).x + 8 > _channelOptionsWidth - textExtent.x)
         {
             boneName.RemoveLast();
         }
         dc.DrawText(boneName, wxPoint(4, _timelineStartY + i*_channelHeight + 5));
+
+        // draw a plus sign for inserting a new channel
+        font.SetPointSize(10);
+        dc.SetFont(font);
+
+        wxPoint channelButtonStart(0, _timelineStartY + (i+1)*_channelHeight - _channelButtonsSize.y);
+
+        pen.SetColour(0, 0, 0);
+        dc.SetPen(pen);
+
+        brush.SetColour(90, 150, 40);
+        dc.SetBrush(brush);
+        dc.DrawRectangle(channelButtonStart, _channelButtonsSize);
+        dc.DrawLine(wxPoint(channelButtonStart.x + _channelButtonsSize.x/2, channelButtonStart.y + 3),
+                    wxPoint(channelButtonStart.x + _channelButtonsSize.x/2, channelButtonStart.y + _channelButtonsSize.y - 3));
+        dc.DrawLine(wxPoint(channelButtonStart.x + 3, channelButtonStart.y + _channelButtonsSize.y/2),
+                    wxPoint(channelButtonStart.x + _channelButtonsSize.x - 3, channelButtonStart.y + _channelButtonsSize.y/2));
+
+        dc.SetBrush(*wxTRANSPARENT_BRUSH);
     }
     // draw line between channel options and timeline
     dc.DrawLine(wxPoint(_channelOptionsWidth, 0), wxPoint(_channelOptionsWidth, size.y));
@@ -633,12 +690,33 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
     {
         if (pos.y < _timelineStartY)
         {
-
         }
         else
         {
             _clickedChannel = getChannelFromPosition(pos);
-            showPopUp();
+            int clickedChannelOffset = (pos.y - _timelineStartY) % _channelHeight;
+            if (pos.x < _channelOptionsWidth - 15)
+            {
+                if (clickedChannelOffset < _channelHeight * 0.5f)
+                {
+                    showPopUpBones();
+                }
+                else if (clickedChannelOffset > _channelHeight - _channelButtonsSize.y)
+                {
+                    theAnimationManager.getTimeline()->insertChannelAfter(_clickedChannel);
+                }
+            }
+            else
+            {
+                if (clickedChannelOffset < _channelHeight * 0.33f)
+                {
+                    theAnimationManager.getTimeline()->swapChannels(_clickedChannel, _clickedChannel - 1);
+                }
+                else if (clickedChannelOffset > _channelHeight * 0.66f)
+                {
+                    theAnimationManager.getTimeline()->swapChannels(_clickedChannel, _clickedChannel + 1);
+                }
+            }
         }
     }
     else
@@ -696,20 +774,55 @@ void TimelinePanel::OnRightDown(wxMouseEvent& event)
         if (_interpolationPossible)
         {
             // TODO(JK#1#): do the interpolation stuff
-            unsigned int time = getTimeFromPosition(pos);
+            uint64_t time = getTimeFromPosition(pos);
             _interpolationStartTime = theAnimationManager.getTimeline()->getTrackBefore(_interpolationChannel, time)->getEndTime();
+            _interpolationEndTime = theAnimationManager.getTimeline()->getTrackAfter(_interpolationChannel, time)->getStartTime();
+            uint64_t length = _interpolationEndTime - _interpolationStartTime;
+            // we want a frame time of ~ 5 ms, so divide delta time given in ys by 5*1000 ys to get the num of frames fitting into the window
+            uint64_t numFrames = length / 5000;
+            if (numFrames == 0)
+            {
+                numFrames = 1;
+            }
+            // now find the exakt frame time, which must be given in a fraction of seconds
+            float frameTime = double(length) / double(numFrames * 1000 * 1000);
             Quaternion q = theAnimationManager.getTimeline()->getTrackBefore(_interpolationChannel, time)->getLastFrame().getOrientation();
             Quaternion p = theAnimationManager.getTimeline()->getTrackAfter(_interpolationChannel, time)->getFirstFrame().getOrientation();
-            //Quaternion r = q.slerp(p, 0.5f);
             TimelineTrack newTrack;
-            newTrack.setFrameTime(0.01);
-            for (int i = 1; i < 10; ++i)
+            newTrack.setFrameTime(frameTime);
+            float step = 1.0f / float(numFrames + 1);
+            wxSetCursor(wxCURSOR_ARROWWAIT);
+            for (unsigned int i = 1; i < numFrames + 1; ++i)
             {
-                newTrack.appendFrame(MotionSequenceFrame(q.slerp(p, i*0.1f)));
+                newTrack.appendFrame(MotionSequenceFrame(q.slerp(p, i*step)));
             }
             theAnimationManager.getTimeline()->insert(newTrack, _interpolationChannel, _interpolationStartTime);
-            _interpolationStartTime = theAnimationManager.getTimeline()->getTrackBefore(_interpolationChannel, time)->getEndTime();
+            wxSetCursor(wxCURSOR_ARROW);
+            _interpolationPossible = false;
             Refresh();
+        }
+        else
+        {
+            uint64_t time = getTimeFromPosition(pos);
+            int channel = getChannelFromPosition(pos);
+            TimelineTrack* track = theAnimationManager.getTimeline()->getTrack(channel, time);
+            if (track == nullptr)
+            {
+                return;
+            }
+            std::vector<TimelineTrack*> tracks = theAnimationManager.getTimeline()->getOverlapping(track);
+            wxString msg;
+            msg << _("num tracks: ") << tracks.size() << _("\n");
+            for (size_t i = 0; i < tracks.size(); ++i)
+            {
+                msg << _("track: ") << tracks[i]->getName() << _("\n");
+                msg << _("track id: ") << tracks[i]->getId() << _("\n");
+                msg << _("track start: ") << tracks[i]->getStartTime() << _("\n");
+                msg << _("track end: ") << tracks[i]->getEndTime() << _("\n");
+                msg << _("track channel: ") << tracks[i]->getChannel() << _("\n\n");
+            }
+            wxMessageBox(msg);
+
         }
     }
 }
@@ -757,10 +870,12 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
     {
         if (pos.x > _timelineStartX && pos.y > _timelineStartY)
         {
+            // TODO(JK#1#): rename _interpolationChannel to _currentChannel, also make create something like _currentMouseTime, _curreentMouseChannel etc
             _interpolationChannel = getChannelFromPosition(pos);
-            unsigned int time = getTimeFromPosition(pos);
+            uint64_t time = getTimeFromPosition(pos);
             if (theAnimationManager.getTimeline()->isBetweenTwoTracks(_interpolationChannel, time))
             {
+                SetToolTip(_("Right click for interpolation"));
                 _interpolationPossible = true;
                 _interpolationStartTime = theAnimationManager.getTimeline()->getTrackBefore(_interpolationChannel, time)->getEndTime();
                 _interpolationEndTime = theAnimationManager.getTimeline()->getTrackAfter(_interpolationChannel, time)->getStartTime();
@@ -769,8 +884,25 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
             // check if _interpolationPossible was set to avoid unnecessary refreshes
             else if (_interpolationPossible)
             {
+                SetToolTip(_(""));
                 _interpolationPossible = false;
                 Refresh();
+            }
+            TimelineTrack* track = theAnimationManager.getTimeline()->getTrack(_interpolationChannel, time);
+            if (track != nullptr)
+            {
+                if (std::abs(getPositionFromTime(track->getEndTime()) - pos.x) < 3)
+                {
+                    wxSetCursor(wxCURSOR_SIZEWE);
+                }
+                else
+                {
+                    wxSetCursor(wxCURSOR_ARROW);
+                }
+            }
+            else
+            {
+                wxSetCursor(wxCURSOR_ARROW);
             }
         }
         // check if _interpolationPossible was set to avoid unnecessary refreshes

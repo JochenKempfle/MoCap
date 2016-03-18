@@ -106,7 +106,6 @@ class Bone
     Bone(int id, const Bone &other);
 
     void setParent(Bone* parent);
-    // TODO(JK#9#): move functions alternating bones' parent/children to protected as this should only be done by Skeleton class.
     void appendChild(Bone* child);
     // Removes the child from the list of children, but does not delete the child. To delete a child, use the Skeleton class.
     void removeChild(int id);

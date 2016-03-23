@@ -134,6 +134,8 @@
 		<Unit filename="Timeline.h" />
 		<Unit filename="TimelineChannel.cpp" />
 		<Unit filename="TimelineChannel.h" />
+		<Unit filename="TimelineChannelGroup.cpp" />
+		<Unit filename="TimelineChannelGroup.h" />
 		<Unit filename="TimelineOverlay.cpp" />
 		<Unit filename="TimelineOverlay.h" />
 		<Unit filename="TimelinePanel.cpp" />

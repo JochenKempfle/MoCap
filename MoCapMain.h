@@ -57,6 +57,10 @@ class MoCapFrame: public wxFrame
         void ViewMode();
         void startTimer(int ms) { _timer->Start(ms); }
 
+        // TODO(JK#1#): time is just for test purposes! remove!
+        wxLongLong _time;
+        std::map<wxString, unsigned int> _receivedPackets;
+
     private:
 
         //(*Handlers(MoCapFrame)

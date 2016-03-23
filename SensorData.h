@@ -36,11 +36,14 @@ class SensorData
 {
   public:
     SensorData();
-    SensorData(int timestamp, const Quaternion &orientation);
+    SensorData(uint64_t receiveTime, int timestamp, const Quaternion &orientation);
     virtual ~SensorData();
 
     void setTimestamp(unsigned int timestamp) { _timestamp = timestamp; }
     unsigned int getTimestamp() { return _timestamp; }
+
+    void setReceiveTime(uint64_t receiveTime) { _receiveTime = receiveTime; }
+    uint64_t getReceiveTime() { return _receiveTime; }
 
     void setOrientation(Quaternion orientation) { _orientation = orientation; }
     Quaternion getOrientation() { return _orientation; }
@@ -48,6 +51,7 @@ class SensorData
   protected:
 
   private:
+    uint64_t _receiveTime;
     unsigned int _timestamp;
     Quaternion _orientation;
 };

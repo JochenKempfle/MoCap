@@ -30,6 +30,7 @@ OF SUCH DAMAGE.
 #include "wx_pch.h"
 #include "PostProcessPanel.h"
 #include "AnimationManager.h"
+#include "FileHandler.h"
 #include "MoCapManager.h"
 #include "MoCapMain.h"
 #include "CustomEvents.h"
@@ -337,8 +338,7 @@ void PostProcessPanel::OnTimelinePanelLeftUp(wxMouseEvent& event)
 void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
 {
     SetCursor(wxCURSOR_ARROWWAIT);
-    // TOODO(JK#1#): load file
-    MotionSequence* sequence = theAnimationManager.readBVH(GenericDirCtrl->GetPath());
+    MotionSequence* sequence = FileHandler::readBVH(GenericDirCtrl->GetPath());
 
     SetCursor(wxCURSOR_DEFAULT);
 

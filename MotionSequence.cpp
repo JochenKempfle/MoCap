@@ -50,6 +50,16 @@ MotionSequence::MotionSequence(const MotionSequence &other)
     }
 }
 
+MotionSequence::MotionSequence(MotionSequence &&other)
+{
+    _name = other._name;
+    _skeleton = other._skeleton;
+    _numFrames = other._numFrames;
+    _frameTime = other._frameTime;
+    _hasAbsOrientations = other._hasAbsOrientations;
+    std::swap(_channels, other._channels);
+}
+
 MotionSequence::~MotionSequence()
 {
     clear();
@@ -243,6 +253,15 @@ void MotionSequence::setToFrame(unsigned int frame)
     _skeleton.update();
 }
 
-
+MotionSequence& MotionSequence::operator=(MotionSequence other)
+{
+    _name = other._name;
+    _skeleton = other._skeleton;
+    _numFrames = other._numFrames;
+    _frameTime = other._frameTime;
+    _hasAbsOrientations = other._hasAbsOrientations;
+    std::swap(_channels, other._channels);
+    return *this;
+}
 
 

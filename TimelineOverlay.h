@@ -33,8 +33,9 @@ OF SUCH DAMAGE.
 enum class OverlayType : unsigned char
 {
     ADDITIVE = 1,
-    INTERPOLATION = 2,
-    OVERWRITE = 4
+    SUBTRACTIVE = 2,
+    INTERPOLATION = 4,
+    OVERWRITE = 8
 };
 
 class TimelineTrack;
@@ -48,8 +49,12 @@ class TimelineOverlay
     void setStartTime(uint64_t startTime) { _startTime = startTime; }
     uint64_t getStartTime() const { return _startTime; }
 
-    void setTrack(TimelineTrack* track) { _track = track; }
-    TimelineTrack* getTrack() const { return _track; }
+    void setLength(uint64_t length) { _length = length; }
+    uint64_t getLength() const { return _length; }
+
+    void setTracks(TimelineTrack* track1, TimelineTrack* track2) { _track1 = track1; _track2 = track2; }
+    TimelineTrack* getFirstTrack() const { return _track1; }
+    TimelineTrack* getSecondTrack() const { return _track2; }
 
     void setPriority(unsigned char priority) { _priority = priority; }
     unsigned char getPriority() const { return _priority; }
@@ -61,7 +66,9 @@ class TimelineOverlay
 
   private:
     uint64_t _startTime;
-    TimelineTrack* _track;
+    uint64_t _length;
+    TimelineTrack* _track1;
+    TimelineTrack* _track2;
     unsigned char _priority;
     OverlayType _type;
 };

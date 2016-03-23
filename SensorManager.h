@@ -70,9 +70,7 @@ class SensorManager
 
   private:
     int _nextId;
-    // TODO(JK#3#): check all occurences of getSensor() or related, as now a pointer to SensorNode is used
     std::map<std::string, SensorNode*> _sensorFromIP;
-    // std::map<std::string, int> _sensorIdFromName;
     std::map<int, SensorNode*> _sensors;
     std::vector<SensorNode> _previousSensorData;
 };

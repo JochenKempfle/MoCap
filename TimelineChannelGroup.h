@@ -27,21 +27,34 @@ OF SUCH DAMAGE.
 */
 
 
-#include "SensorData.h"
+#ifndef TIMELINECHANNELGROUP_H
+#define TIMELINECHANNELGROUP_H
 
-SensorData::SensorData()
-{
-    //ctor
-}
+#include <set>
+#include <vector>
+#include "TimelineChannel.h"
+#include "TimelineOverlay.h"
 
-SensorData::SensorData(uint64_t receiveTime, int timestamp, const Quaternion &orientation)
+class TimelineChannelGroup
 {
-    _receiveTime = receiveTime;
-    _timestamp = timestamp;
-    _orientation = orientation;
-}
+  public:
+    TimelineChannelGroup() = delete;
+    TimelineChannelGroup(int boneId);
+    virtual ~TimelineChannelGroup();
 
-SensorData::~SensorData()
-{
-    //dtor
-}
+    void setBoneId(int boneId) { _boneId = boneId; }
+    int getBoneId() const { return _boneId; }
+
+    void addChannel(TimelineChannel* channel) { _channels.insert(channel); }
+    void removeChannel(TimelineChannel* channel) { _channels.erase(channel); }
+    std::vector<int> getChannelIds() const;
+    std::set<TimelineChannel*> getChannels() const { return _channels; }
+    bool hasChannel(TimelineChannel* channel) const { return *_channels.find(channel) == channel; }
+  protected:
+
+  private:
+    int _boneId;
+    std::set<TimelineChannel*> _channels;
+};
+
+#endif // TIMELINECHANNELGROUP_H

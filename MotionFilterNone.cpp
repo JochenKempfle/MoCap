@@ -67,7 +67,7 @@ void MotionFilterNone::update()
         {
             continue;
         }
-        // TODO(JK#1#): updating the skeleton needs abs orientation(sensors measure abs values, but the MotionSequence needs rel values
+        // update the skeleton with the calibrated absolute orientation measured by the sensors
         _skeleton->setAbsBoneOrientation(boneId, sensor->getCalRotation());//buffer->back().getOrientation());
         if (!_recording)
         {

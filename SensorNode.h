@@ -104,8 +104,6 @@ class SensorNode
     void addBuffer(SensorBuffer* buffer);
     void removeBuffer(SensorBuffer* buffer);
 
-    std::list<SensorData>* getBuffer() { return &_buffer; }
-
   private:
     int _id;
     int _boneId;
@@ -119,7 +117,6 @@ class SensorNode
     Quaternion _boneMapping;
     Vector3 _position;
 
-    std::list<SensorData> _buffer;
     std::vector<SensorBuffer*> _buffers;
 };
 

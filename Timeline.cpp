@@ -41,17 +41,13 @@ Timeline::~Timeline()
 
 void Timeline::setSkeletonToTime(uint64_t time)
 {
-    for (auto it = _boneToChannel.begin(); it != _boneToChannel.end(); ++it)
+    for (auto it = _channelGroups.begin(); it != _channelGroups.end(); ++it)
     {
         Quaternion q; // = _channels.find(*it->second.begin())->second.getFrame(time).getOrientation();
-        for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+        std::set<TimelineChannel*> channels = it->second->getChannels();
+        for (auto it = channels.begin(); it != channels.end(); ++it)
         {
-            auto channelIt = _channels.find(*it2);
-            if (channelIt == _channels.end())
-            {
-                continue;
-            }
-            q = channelIt->second.getFrame(time).getOrientation() * q;
+            q = (*it)->getFrame(time).getOrientation() * q;
         }
         _skeleton.setRelBoneOrientation(it->first, q);
     }
@@ -79,19 +75,34 @@ void Timeline::setChannelAffiliation(int channel, int boneId)
     // if the channel did not exist yet, initialize it with the correct channel position
     if (it == _channels.end())
     {
-        _channels[channel] = TimelineChannel(channel);
+        _channels[channel] = new TimelineChannel(channel);
         it = _channels.find(channel);
     }
-    _boneToChannel[it->second.getBoneId()].erase(channel);
-    _boneToChannel[boneId].insert(channel);
-    it->second.setBoneId(boneId);
+
+    // erase old channel affiliation
+    auto channelGroupIt = _channelGroups.find(it->second->getBoneId());
+    if (channelGroupIt != _channelGroups.end())
+    {
+        channelGroupIt->second->removeChannel(it->second);
+    }
+
+    // set new channel affiliation
+    channelGroupIt = _channelGroups.find(boneId);
+    if (channelGroupIt == _channelGroups.end())
+    {
+        _channelGroups[boneId] = new TimelineChannelGroup(boneId);
+        channelGroupIt = _channelGroups.find(boneId);
+    }
+    channelGroupIt->second->addChannel(it->second);
+
+    it->second->setBoneId(boneId);
     if (boneId < 0 || _skeleton.getBone(boneId) == nullptr)
     {
-        it->second.setDefaultOrientation(Quaternion());
+        it->second->setDefaultOrientation(Quaternion());
     }
     else
     {
-        it->second.setDefaultOrientation(_skeleton.getBone(boneId)->getDefaultOrientation());
+        it->second->setDefaultOrientation(_skeleton.getBone(boneId)->getDefaultOrientation());
     }
 }
 
@@ -103,7 +114,7 @@ int Timeline::getChannelAffiliation(int channelId) const
     {
         return -1;
     }
-    return it->second.getBoneId();
+    return it->second->getBoneId();
 }
 
 std::string Timeline::getChannelAffiliationName(int channelId) const
@@ -114,15 +125,15 @@ std::string Timeline::getChannelAffiliationName(int channelId) const
     {
         return "None";
     }
-    else if (it->second.getBoneId() < 0)
+    else if (it->second->getBoneId() < 0)
     {
         return "None";
     }
-    else if (it->second.getBoneId() >= _skeleton.getNextFreeId())
+    else if (it->second->getBoneId() >= _skeleton.getNextFreeId())
     {
         return "Position";
     }
-    return _skeleton.getBoneName(it->second.getBoneId());
+    return _skeleton.getBoneName(it->second->getBoneId());
 }
 
 void Timeline::insert(MotionSequence* sequence, int toChannel, uint64_t time)
@@ -146,14 +157,18 @@ void Timeline::insert(MotionSequenceChannel* channel, int toChannel, uint64_t ti
 
     _tracks[_nextTrackId] = newTrack;
 
+    auto it = _channels.find(toChannel);
     // if the channel did not exist yet, initialize it with the correct channel position
-    if (_channels.find(toChannel) == _channels.end())
+    if (it == _channels.end())
     {
-        _channels[toChannel] = TimelineChannel(toChannel);
+        _channels[toChannel] = new TimelineChannel(toChannel);
+        it = _channels.find(toChannel);
     }
 
-    _channels[toChannel].insert(newTrack, time);
+    it->second->insert(newTrack, time);
     ++_nextTrackId;
+
+    updateOverlays(newTrack);
 }
 
 void Timeline::insert(const TimelineTrack &track, int toChannel, uint64_t time)
@@ -164,14 +179,18 @@ void Timeline::insert(const TimelineTrack &track, int toChannel, uint64_t time)
 
     _tracks[_nextTrackId] = newTrack;
 
+    auto it = _channels.find(toChannel);
     // if the channel does not exist yet, initialize it with the correct channel position
-    if (_channels.find(toChannel) == _channels.end())
+    if (it == _channels.end())
     {
-        _channels[toChannel] = TimelineChannel(toChannel);
+        _channels[toChannel] = new TimelineChannel(toChannel);
+        it = _channels.find(toChannel);
     }
 
-    _channels[toChannel].insert(newTrack, time);
+    it->second->insert(newTrack, time);
     ++_nextTrackId;
+
+    updateOverlays(newTrack);
 }
 
 void Timeline::insertChannelAfter(int channel)
@@ -193,7 +212,7 @@ void Timeline::moveChannelsDown(int startChannel, unsigned int num)
     // if start channel did not exist yet, create it first to have an object to compare against
     if (start == _channels.end())
     {
-        _channels[startChannel] = TimelineChannel(startChannel);
+        _channels[startChannel] = new TimelineChannel(startChannel);
         start = _channels.find(startChannel);
     }
     auto it = _channels.end();
@@ -218,15 +237,18 @@ void Timeline::moveTrack(int trackId, int toChannel, uint64_t toTime)
         // nothing to do
         return;
     }
+    auto channelIt = _channels.find(toChannel);
     // if the channel does not exist yet, initialize it with the correct channel position
-    if (_channels.find(toChannel) == _channels.end())
+    if (channelIt == _channels.end())
     {
-        _channels[toChannel] = TimelineChannel(toChannel);
+        _channels[toChannel] = new TimelineChannel(toChannel);
+        channelIt = _channels.find(toChannel);
     }
 
+    _channels[track->getChannel()]->remove(trackId, track->getStartTime());
+    channelIt->second->insert(track, toTime);
 
-    _channels[track->getChannel()].remove(trackId, track->getStartTime());
-    _channels[toChannel].insert(track, toTime);
+    updateOverlays(track);
 }
 
 bool Timeline::erase(int trackId)
@@ -238,7 +260,14 @@ bool Timeline::erase(int trackId)
     }
 
     TimelineTrack* track = it->second;
-    _channels[track->getChannel()].remove(trackId, track->getStartTime());
+
+    removeOverlays(track);
+
+    auto channelIt = _channels.find(track->getChannel());
+    if (channelIt != _channels.end())
+    {
+        channelIt->second->remove(trackId, track->getStartTime());
+    }
     _tracks.erase(it);
     delete track;
 
@@ -249,11 +278,30 @@ void Timeline::clear()
 {
     for (auto it = _tracks.begin(); it != _tracks.end(); ++it)
     {
+        removeOverlays(it->second);
         delete it->second;
+    }
+    for (auto it = _channelGroups.begin(); it != _channelGroups.end(); ++it)
+    {
+        delete it->second;
+    }
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        delete it->second;
+    }
+    // _overlays should now be empty, but to be sure check it
+    if (_overlays.size() > 0)
+    {
+        for (auto it = _overlays.begin(); it != _overlays.end(); ++it)
+        {
+            removeOverlay(it->second);
+        }
     }
     _tracks.clear();
     _channels.clear();
-    _boneToChannel.clear();
+    _channelGroups.clear();
+    // reset _nextTrackId
+    _nextTrackId = 0;
 }
 
 void Timeline::swapChannels(int channel1, int channel2)
@@ -262,28 +310,48 @@ void Timeline::swapChannels(int channel1, int channel2)
     {
         return;
     }
-    TimelineChannel &channel_1 = _channels[channel1];
-    TimelineChannel &channel_2 = _channels[channel2];
 
-    TimelineChannel swapChannel = channel_1;
-    channel_1 = channel_2;
-    channel_2 = swapChannel;
+    std::map<int, TimelineChannel*>::iterator channel1It = _channels.find(channel1);
+    std::map<int, TimelineChannel*>::iterator channel2It = _channels.find(channel2);
+    if (channel1It == _channels.end())
+    {
+        _channels[channel1] = new TimelineChannel(channel1);
+        channel1It = _channels.find(channel1);
+    }
+    if (channel2It == _channels.end())
+    {
+        _channels[channel2] = new TimelineChannel(channel2);
+        channel2It = _channels.find(channel2);
+    }
+    std::swap(channel1It->second, channel2It->second);
+    // TODO(JK#1#): swapping channels is buggy, also now it uses a channel pointer
+    //TimelineChannel* channel_1 = _channels[channel1];
+    //TimelineChannel* channel_2 = _channels[channel2];
+    //TimelineChannel* swapChannel = channel_1;
 
-    channel_1.setChannelPos(channel1);
-    channel_2.setChannelPos(channel2);
+    // setChannelAffiliation(channel1, channel_2->getBoneId());
+    // setChannelAffiliation(channel2, swapChannel->getBoneId());
 
-    setChannelAffiliation(channel1, channel_1.getBoneId());
-    setChannelAffiliation(channel2, channel_2.getBoneId());
+    //channel_1 = channel_2;
+    //channel_2 = swapChannel;
+
+    channel1It->second->setChannelPos(channel1);
+    channel2It->second->setChannelPos(channel2);
 }
 
 void Timeline::clearChannel(int channel)
 {
-    std::vector<TimelineTrack*> tracks = _channels[channel].getTracks();
+    auto it = _channels.find(channel);
+    if (it == _channels.end())
+    {
+        return;
+    }
+    std::vector<TimelineTrack*> tracks = it->second->getTracks();
     for (size_t i = 0; i < tracks.size(); ++i)
     {
         erase(tracks[i]->getId());
     }
-    _channels[channel].clear();
+    it->second->clear();
 }
 
 void Timeline::sortChannels()
@@ -306,6 +374,7 @@ void Timeline::cut(int trackId, uint64_t time)
     if (it->second->cut(time - it->second->getStartTime(), &newTrack))
     {
         insert(newTrack, it->second->getChannel(), newTrack.getStartTime());
+        updateOverlays(it->second);
     }
 }
 
@@ -313,7 +382,7 @@ void Timeline::cut(uint64_t time)
 {
     for (auto it = _channels.begin(); it != _channels.end(); ++it)
     {
-        TimelineTrack* track = getTrack(it->second.getChannelPos(), time);
+        TimelineTrack* track = getTrack(it->second->getChannelPos(), time);
         if (track != nullptr)
         {
             cut(track->getId(), time);
@@ -338,7 +407,7 @@ TimelineTrack* Timeline::getTrack(int channel, uint64_t time)
     {
         return nullptr;
     }
-    return it->second.getTrack(time);
+    return it->second->getTrack(time);
 }
 
 TimelineTrack* Timeline::getTrackBefore(int channel, uint64_t time)
@@ -348,7 +417,7 @@ TimelineTrack* Timeline::getTrackBefore(int channel, uint64_t time)
     {
         return nullptr;
     }
-    return it->second.getTrackBefore(time);
+    return it->second->getTrackBefore(time);
 }
 
 TimelineTrack* Timeline::getTrackAfter(int channel, uint64_t time)
@@ -358,7 +427,7 @@ TimelineTrack* Timeline::getTrackAfter(int channel, uint64_t time)
     {
         return nullptr;
     }
-    return it->second.getTrackAfter(time);
+    return it->second->getTrackAfter(time);
 }
 
 bool Timeline::isBetweenTwoTracks(int channel, uint64_t time) const
@@ -368,7 +437,7 @@ bool Timeline::isBetweenTwoTracks(int channel, uint64_t time) const
     {
         return false;
     }
-    return it->second.isBetweenTwoTracks(time);
+    return it->second->isBetweenTwoTracks(time);
 }
 
 bool Timeline::isInsideTrack(int channel, uint64_t time) const
@@ -378,7 +447,7 @@ bool Timeline::isInsideTrack(int channel, uint64_t time) const
     {
         return false;
     }
-    return it->second.isInsideTrack(time);
+    return it->second->isInsideTrack(time);
 }
 
 std::vector<TimelineTrack*> Timeline::getOverlapping(const TimelineTrack* track)
@@ -390,27 +459,28 @@ std::vector<TimelineTrack*> Timeline::getOverlapping(const TimelineTrack* track)
         return tracks;
     }
     auto it = _channels.find(track->getChannel());
-    if (it == _channels.end() || it->second.getBoneId() < 0)
+    if (it == _channels.end() || it->second->getBoneId() < 0)
     {
         return tracks;
     }
     // find channels affiliated with same bone
-    auto it2 = _boneToChannel.find(it->second.getBoneId());
-    if (it2 == _boneToChannel.end())
+    auto it2 = _channelGroups.find(it->second->getBoneId());
+    if (it2 == _channelGroups.end())
     {
         return tracks;
     }
-    for (auto channelIt = it2->second.begin(); channelIt != it2->second.end(); ++channelIt)
+    std::vector<int> channels = it2->second->getChannelIds();
+    for (size_t i = 0; i < channels.size(); ++i)
     {
-        std::vector<TimelineTrack*> tracksToAdd = getInRange(*channelIt, track->getStartTime(), track->getEndTime());
+        std::vector<TimelineTrack*> tracksToAdd = getInRange(channels[i], track->getStartTime(), track->getEndTime());
         // remove the track for which the overlapping tracks are seeked from the array
-        if (*channelIt == track->getChannel())
+        if (channels[i] == track->getChannel())
         {
-            for (size_t i = 0; i < tracksToAdd.size(); ++i)
+            for (size_t j = 0; j < tracksToAdd.size(); ++j)
             {
-                if (tracksToAdd[i] == track)
+                if (tracksToAdd[j] == track)
                 {
-                    tracksToAdd.erase(tracksToAdd.begin() + i);
+                    tracksToAdd.erase(tracksToAdd.begin() + j);
                 }
             }
         }
@@ -426,11 +496,115 @@ std::vector<TimelineTrack*> Timeline::getInRange(int channel, uint64_t startTime
     {
         return std::vector<TimelineTrack*>();
     }
-    return it->second.getInRange(startTime, endTime);
+    return it->second->getInRange(startTime, endTime);
+}
+
+unsigned int Timeline::getOverlayId(TimelineTrack* track1, TimelineTrack* track2) const
+{
+    return (track1->getId() << 16) + track2->getId();
+}
+
+TimelineOverlay* Timeline::getOverlay(TimelineTrack* track1, TimelineTrack* track2) const
+{
+    auto it = _overlays.find(getOverlayId(track1, track2));
+    if (it == _overlays.end())
+    {
+        return nullptr;
+    }
+    return it->second;
 }
 
 
+std::vector<TimelineOverlay*> Timeline::getOverlays(const TimelineTrack* track) const
+{
+    std::vector<TimelineOverlay*> overlays;
+    unsigned int id = track->getId() << 16;
+    unsigned int maxId = (track->getId() + 1) << 16;
+    auto it = _overlays.lower_bound(id);
+    if (it == _overlays.end())
+    {
+        return overlays;
+    }
+    while (it->first < maxId)
+    {
+        if (it->second->getLength() > 0)
+        {
+            overlays.push_back(it->second);
+        }
+        ++it;
+        if (it == _overlays.end())
+        {
+            break;
+        }
+    }
+    return overlays;
+}
 
 
+void Timeline::updateOverlays(TimelineTrack* track)
+{
+    std::vector<TimelineOverlay*> overlays = getOverlays(track);
+    for (size_t i = 0; i < overlays.size(); ++i)
+    {
+        overlays[i]->setLength(0);
+    }
+    std::vector<TimelineTrack*> overlapping = getOverlapping(track);
+    for (size_t i = 0; i < overlapping.size(); ++i)
+    {
+        TimelineOverlay* overlay = createOverlay(track, overlapping[i]);
+        if (track->getStartTime() > overlapping[i]->getStartTime())
+        {
+            overlay->setStartTime(track->getStartTime());
+            overlay->setLength(std::min(track->getLength(), overlapping[i]->getEndTime() - track->getStartTime()));
+        }
+        else
+        {
+            overlay->setStartTime(overlapping[i]->getStartTime());
+            overlay->setLength(std::min(overlapping[i]->getLength(), track->getEndTime() - overlapping[i]->getStartTime()));
+        }
+    }
+}
+
+TimelineOverlay* Timeline::createOverlay(TimelineTrack* track1, TimelineTrack* track2)
+{
+    unsigned int id1 = getOverlayId(track1, track2);
+    unsigned int id2 = getOverlayId(track2, track1);
+    auto it = _overlays.find(id1);
+    if (it != _overlays.end())
+    {
+        return it->second;
+    }
+    TimelineOverlay* overlay = new TimelineOverlay();
+    overlay->setTracks(track1, track2);
+    _overlays[id1] = overlay;
+    _overlays[id2] = overlay;
+    return overlay;
+}
+
+void Timeline::removeOverlay(TimelineTrack* track1, TimelineTrack* track2)
+{
+    auto it = _overlays.find(getOverlayId(track1, track2));
+    if (it != _overlays.end())
+    {
+        delete it->second;
+        _overlays.erase(it);
+        it = _overlays.find(getOverlayId(track2, track1));
+        _overlays.erase(it);
+    }
+}
+
+void Timeline::removeOverlays(TimelineTrack* track)
+{
+    std::vector<TimelineOverlay*> overlays = getOverlays(track);
+    for (size_t i = 0; i < overlays.size(); ++i)
+    {
+        removeOverlay(overlays[i]);
+    }
+}
+
+void Timeline::removeOverlay(TimelineOverlay* overlay)
+{
+    removeOverlay(overlay->getFirstTrack(), overlay->getSecondTrack());
+}
 
 

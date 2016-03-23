@@ -195,7 +195,7 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
 
     _socket = nullptr;
 
-    // _logger = new wxLogWindow(this, _("Log"));
+    _logger = new wxLogWindow(this, _("Log"));
 
     // TODO(JK#3#): maybe directly start the timer, allows GUI to react to whatever even when not connected
     _timer = new wxTimer(this, ID_TIMER);
@@ -336,7 +336,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 
     if (_socket->LastCount() == sizeof(SensorData))
     {
-        msg << _("Timestamp: ") << data.timeStamp << _("\nRotation: ");
+        msg << _("Timestamp: ") << data.timestamp << _("\nRotation: ");
         msg << data.rotation[0] << _(" ") << data.rotation[1] << _(" ") << data.rotation[2] << _(" ") << data.rotation[3];
         msg << _("\nPosition: ") << data.position[0] << _(" ") << data.position[1] << _(" ") << data.position[2] << _("\n");
 
@@ -357,8 +357,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 
     wxLogDebug(msg);
 */
-
-    // TODO(JK#2#): handle setting of id for sensor node (and data)
+    // TODO(JK#9#): handle setting of id for sensor node (and data) (solved by setting IP + id as name)
     wxString name = sensorAddress.IPAddress() + _("-");
     name << data.id;
 
@@ -369,6 +368,12 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 
     if (bytesReceived >= 24 && bytesReceived <= 36)//== sizeof(SensorData))
     {
+        ++_receivedPackets[name];
+
+    wxString msg;
+    msg << name << _("  Timestamp: ") << data.timestamp;
+    //wxLogDebug(msg);
+
         theSensorManager.updateSensor(name.ToStdString(), data);
         // theSensorManager.updateSensor(sensorAddress.IPAddress().ToStdString(), data);
     }
@@ -387,6 +392,15 @@ void MoCapFrame::OnTimerEvent(wxTimerEvent& event)
             wxLogDebug("ERROR: failed to send data");
             return;
         }
+        for (auto it = _receivedPackets.begin(); it != _receivedPackets.end(); ++it)
+        {
+            wxString msg;
+            msg << it->first << _("  packets per sec: ") << it->second;
+            //wxLogDebug(msg);
+            it->second = 0;
+        }
+        wxString msg = _("\n-----------------------------\n");
+        //wxLogDebug(msg);
     }
     // send an update event to update the GUI
     wxCommandEvent updateEvent(UpdateEvent);

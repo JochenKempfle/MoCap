@@ -40,6 +40,7 @@ class MotionSequence
   public:
     MotionSequence();
     MotionSequence(const MotionSequence &other);
+    MotionSequence(MotionSequence &&other);
     virtual ~MotionSequence();
 
     void setName(std::string name);
@@ -79,7 +80,8 @@ class MotionSequence
 
     bool readBVH(std::string path);
 
-    // TODO(JK#1#): add copy constructor and assignment operator to MotionSequence!
+    MotionSequence& operator=(MotionSequence other);
+
     std::map<int, MotionSequenceChannel*>::iterator beginChannels() { return _channels.begin(); }
     std::map<int, MotionSequenceChannel*>::iterator endChannels() { return _channels.end(); }
   protected:

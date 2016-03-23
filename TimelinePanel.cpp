@@ -345,6 +345,26 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
     }
 
     // draw overlapping
+    std::vector<TimelineOverlay*> overlays = theAnimationManager.getTimeline()->getOverlays(track);
+
+    for (size_t i = 0; i < overlays.size(); ++i)
+    {
+        wxPoint start(pos);
+        wxSize overlapLength(0, _channelHeight/5);
+
+        TimelineTrack* overlayTrack = overlays[i]->getFirstTrack() != track ? overlays[i]->getFirstTrack() : overlays[i]->getSecondTrack();
+        if (track->getChannel() < overlayTrack->getChannel())
+        {
+            start.y += _channelHeight - overlapLength.y + 1;
+        }
+
+        start.x = getPositionFromTime(overlays[i]->getStartTime());
+        overlapLength.x = getLengthFromTime(overlays[i]->getLength()) + 1;
+
+        dc->SetBrush(wxBrush(wxColour(150, 200, 150)));
+        dc->DrawRectangle(start, overlapLength);
+    }
+    /*
     std::vector<TimelineTrack*> overlapping = theAnimationManager.getTimeline()->getOverlapping(track);
     for (size_t i = 0; i < overlapping.size(); ++i)
     {
@@ -370,6 +390,7 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
         dc->SetBrush(wxBrush(wxColour(150, 200, 150)));
         dc->DrawRectangle(start, overlapLength);
     }
+    */
 
     // draw lines between single frames
     int startFrame = (_timeOffset - getTimeFromPosition(pos)) / (1000000.0f * track->getFrameTime());
@@ -773,7 +794,7 @@ void TimelinePanel::OnRightDown(wxMouseEvent& event)
     {
         if (_interpolationPossible)
         {
-            // TODO(JK#1#): do the interpolation stuff
+            // TODO(JK#5#): maybe move the interpolation stuff in own function
             uint64_t time = getTimeFromPosition(pos);
             _interpolationStartTime = theAnimationManager.getTimeline()->getTrackBefore(_interpolationChannel, time)->getEndTime();
             _interpolationEndTime = theAnimationManager.getTimeline()->getTrackAfter(_interpolationChannel, time)->getStartTime();
@@ -848,11 +869,11 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
             _dragIsValid = true;
             _draggedTrackPos = pos.x - _mouseToTrackOffset;
             // if the position would end up at a time point smaller than 0, set it to the start of the timeline
-            // TODO(JK#1#): check if track is beyond _maxTime
             if (getTimeFromPosition(wxPoint(_draggedTrackPos, 0)) <= 0)
             {
                 _draggedTrackPos = getPositionFromTime(0);
             }
+            // check if the track is beyond the maximum time and clamp it to the max time
             else if (int64_t(_draggedTrackLength) + getTimeFromPosition(wxPoint(_draggedTrackPos, 0)) > _maxTime)
             {
                 _draggedTrackPos = getPositionFromTime(_maxTime - _draggedTrackLength);
@@ -862,6 +883,7 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
                 // clamp dragged track to the time cursor if nearby
                 _draggedTrackPos = getPositionFromTime(_cursorPosition);
             }
+            // TODO(JK#1#): add a routine to clamp a track to other tracks and to don't allow them to overlap
             _draggedTrackChannel = getChannelFromPosition(pos);
         }
         Refresh();
@@ -908,6 +930,7 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
         // check if _interpolationPossible was set to avoid unnecessary refreshes
         else if (_interpolationPossible)
         {
+            SetToolTip(_(""));
             _interpolationPossible = false;
             Refresh();
         }

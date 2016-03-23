@@ -51,21 +51,21 @@ SensorNode::~SensorNode()
 
 void SensorNode::update(const SensorRawData &data)
 {
-    // TODO(JK#2#): implement some kind of filtering here!
+    // TODO(JK#9#): implement some kind of filtering here (do this in a Motion filter!)
     _rotation.u() = data.rotation[0];
     _rotation.x() = data.rotation[1];
     _rotation.y() = data.rotation[2];
     _rotation.z() = data.rotation[3];
-    // TODO(JK#1#): remove sensor mapping from SensorNode::update() as soon as there is a valid mapping routine
-    Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
-    Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
-    x = y*x;
+    // TODO(JK#1#): remove sensor coordinate mapping from SensorNode::update() as soon as there is a valid mapping routine
+    // Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    // Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
+    // x = y*x;
     _rotation = _coordinateMapping * _rotation * _coordinateMapping.inv();
 
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         // TODO(JK#1#): what sensor data to push_back in the buffer calRotation?
-        _buffers[i]->push_back(SensorData(data.timestamp, getCalRotation()));
+        _buffers[i]->push_back(SensorData(data.receiveTime, data.timestamp, getCalRotation()));
     }
 
     // TODO(JK#2#): update position of sensor node

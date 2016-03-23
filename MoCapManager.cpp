@@ -29,8 +29,6 @@ OF SUCH DAMAGE.
 
 #include "MoCapManager.h"
 
-#include <GL/gl.h>
-#include <GL/glu.h>
 #include "SensorManager.h"
 #include "MotionFilterNone.h"
 #include "AnimationManager.h"
@@ -138,7 +136,6 @@ std::string MoCapManager::getBoneName(int id)
 
 void MoCapManager::resetSkeleton()
 {
-    // TODO(JK#6#): provide some kind of skeleton.getDefault() routine
     _skeleton.setToDefault();
     // TODO(JK#9#): rewrite bone associations (i.e. sensor-bone ids and names) for now it works but with custom skeletons this will cause trouble!
 }
@@ -149,11 +146,8 @@ void MoCapManager::calibrate()
     for (size_t i = 0; i < sensors.size(); ++i)
     {
         Quaternion rotationOffset = sensors[i]->getRotation();//.inv();
-        // TODO(JK#1#): do not use the sensor manager to set the sensor offset, use sensors[i]->setOffset()
-        if (theSensorManager.setSensorOffset(sensors[i]->getId(), rotationOffset))
-        {
-            theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
-        }
+        sensors[i]->setRotationOffset(rotationOffset);
+        theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
 
         // TODO(JK#4#): calibration! If bone.dir does not match, rotate 180° around y
     }
@@ -211,7 +205,7 @@ void MoCapManager::update()
     for (size_t i = 0; i < sensors.size(); ++i)
     {
         int boneId = getBoneIdFromSensorId(sensors[i]->getId());
-        // TODO(JK#1#): update skeleton from sensor data abs or rel or allow both (set flag)?
+        // update skeleton from sensor data ( sensor data is always an absolute orientation)
         _skeleton.setAbsBoneOrientation(boneId, sensors[i]->getCalRotation());
     }
 

@@ -31,7 +31,12 @@ OF SUCH DAMAGE.
 
 TimelineOverlay::TimelineOverlay()
 {
-    //ctor
+    _startTime = 0;
+    _length = 0;
+    _track1 = nullptr;
+    _track2 = nullptr;
+    _priority = 0;
+    _type = OverlayType::ADDITIVE;
 }
 
 TimelineOverlay::~TimelineOverlay()

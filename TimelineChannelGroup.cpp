@@ -27,21 +27,29 @@ OF SUCH DAMAGE.
 */
 
 
-#include "SensorData.h"
+#include "TimelineChannelGroup.h"
+#include <algorithm>
 
-SensorData::SensorData()
+
+TimelineChannelGroup::TimelineChannelGroup(int boneId) : _boneId(boneId)
 {
-    //ctor
+
 }
 
-SensorData::SensorData(uint64_t receiveTime, int timestamp, const Quaternion &orientation)
-{
-    _receiveTime = receiveTime;
-    _timestamp = timestamp;
-    _orientation = orientation;
-}
-
-SensorData::~SensorData()
+TimelineChannelGroup::~TimelineChannelGroup()
 {
     //dtor
 }
+
+std::vector<int> TimelineChannelGroup::getChannelIds() const
+{
+    std::vector<int> channels;
+    channels.reserve(_channels.size());
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        channels.push_back((*it)->getChannelPos());
+    }
+    std::sort(channels.begin(), channels.end());
+    return channels;
+}
+

@@ -48,9 +48,9 @@ SensorBuffer::~SensorBuffer()
 
 void SensorBuffer::subscribe(SensorNode* sensor)
 {
+    unsubscribe();
     if (sensor == nullptr)
     {
-        unsubscribe();
         return;
     }
     _sensor = sensor;
@@ -65,4 +65,5 @@ void SensorBuffer::unsubscribe()
     }
     _sensor->removeBuffer(this);
     _sensor = nullptr;
+    clear();
 }

@@ -31,7 +31,9 @@ OF SUCH DAMAGE.
 #define TIMELINE_H
 
 #include "TimelineChannel.h"
+#include "TimelineChannelGroup.h"
 #include "TimelineTrack.h"
+#include "TimelineOverlay.h"
 #include "Skeleton.h"
 #include <vector>
 #include <map>
@@ -54,7 +56,7 @@ class Timeline
     int getChannelAffiliation(int channelId) const;
     std::string getChannelAffiliationName(int channelId) const;
 
-    // TODO(JK#1#): maybe make toChannel unsigned
+    // TODO(JK#5#): maybe make toChannel unsigned
     void insert(MotionSequence* sequence, int toChannel, uint64_t time);
     void insert(MotionSequenceChannel* channel, int toChannel, uint64_t time, std::string name = "");
     void insert(const TimelineTrack &track, int toChannel, uint64_t time);
@@ -91,17 +93,25 @@ class Timeline
 
     std::vector<TimelineTrack*> getInRange(int channel, uint64_t startTime, uint64_t endTime);
 
-    std::map<int, TimelineChannel>::iterator beginChannels() { return _channels.begin(); }
-    std::map<int, TimelineChannel>::iterator endChannels() { return _channels.end(); }
+    unsigned int getOverlayId(TimelineTrack* track1, TimelineTrack* track2) const;
+    TimelineOverlay* getOverlay(TimelineTrack* track1, TimelineTrack* track2) const;
+    std::vector<TimelineOverlay*> getOverlays(const TimelineTrack* track) const;
+    void updateOverlays(TimelineTrack* track);
 
   protected:
 
   private:
+    TimelineOverlay* createOverlay(TimelineTrack* track1, TimelineTrack* track2);
+    void removeOverlay(TimelineTrack* track1, TimelineTrack* track2);
+    void removeOverlays(TimelineTrack* track);
+    void removeOverlay(TimelineOverlay* overlay);
+
     int _nextTrackId;
     Skeleton _skeleton;
     std::map<int, TimelineTrack*> _tracks;
-    std::map<int, std::set<int> > _boneToChannel;
-    std::map<int, TimelineChannel> _channels;
+    std::map<int, TimelineChannel*> _channels;
+    std::map<int, TimelineChannelGroup*> _channelGroups;
+    std::map<unsigned int, TimelineOverlay*> _overlays;
 };
 
 #endif // TIMELINE_H

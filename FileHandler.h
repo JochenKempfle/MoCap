@@ -39,16 +39,16 @@ class FileHandler
     FileHandler();
     virtual ~FileHandler();
 
-    MotionSequence* read(wxString filename);
-    bool write(wxString filename, MotionSequence* sequence);
+    static MotionSequence* read(wxString filename);
+    static bool write(wxString filename, MotionSequence* sequence);
 
-    Skeleton* readBVHSkeleton(wxString filename);
-    MotionSequence* readBVH(wxString filename);
-    bool writeBVH(wxString filename, MotionSequence* sequence);
+    static Skeleton* readBVHSkeleton(wxString filename);
+    static MotionSequence* readBVH(wxString filename);
+    static bool writeBVH(wxString filename, MotionSequence* sequence);
 
-    Skeleton* readHTRSkeleton(wxString filename);
-    MotionSequence* readHTR(wxString filename);
-    bool writeHTR(wxString filename, MotionSequence* sequence);
+    static Skeleton* readHTRSkeleton(wxString filename);
+    static MotionSequence* readHTR(wxString filename);
+    static bool writeHTR(wxString filename, MotionSequence* sequence);
 
   protected:
 

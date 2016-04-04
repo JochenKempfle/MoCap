@@ -138,6 +138,8 @@
 		<Unit filename="TimelineChannelGroup.h" />
 		<Unit filename="TimelineOverlay.cpp" />
 		<Unit filename="TimelineOverlay.h" />
+		<Unit filename="TimelineOverlayDialog.cpp" />
+		<Unit filename="TimelineOverlayDialog.h" />
 		<Unit filename="TimelinePanel.cpp" />
 		<Unit filename="TimelinePanel.h" />
 		<Unit filename="TimelineTrack.cpp" />
@@ -174,6 +176,7 @@
 					<wxPanel wxs="wxsmith/SkeletonCreatorPanel.wxs" src="SkeletonCreatorPanel.cpp" hdr="SkeletonCreatorPanel.h" fwddecl="0" i18n="1" name="SkeletonCreatorPanel" language="CPP" />
 					<wxPanel wxs="wxsmith/PostProcessPanel.wxs" src="PostProcessPanel.cpp" hdr="PostProcessPanel.h" fwddecl="0" i18n="1" name="PostProcessPanel" language="CPP" />
 					<wxPanel wxs="wxsmith/TimelinePanel.wxs" src="TimelinePanel.cpp" hdr="TimelinePanel.h" fwddecl="0" i18n="1" name="TimelinePanel" language="CPP" />
+					<wxDialog wxs="wxsmith/TimelineOverlayDialog.wxs" src="TimelineOverlayDialog.cpp" hdr="TimelineOverlayDialog.h" fwddecl="0" i18n="1" name="TimelineOverlayDialog" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

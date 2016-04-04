@@ -30,7 +30,10 @@ OF SUCH DAMAGE.
 #include "wx_pch.h"
 #include "TimelinePanel.h"
 #include "AnimationManager.h"
+#include "TimelineOverlayDialog.h"
 #include <wx/dcbuffer.h>
+#include <wx/richtext/richtextbuffer.h>
+#include <algorithm>
 
 #ifndef WX_PRECOMP
 	//(*InternalHeadersPCH(TimelinePanel)
@@ -101,6 +104,8 @@ TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,c
 	_cursorPosition = 0;
 	_clickedTime = false;
 	_clickedChannel = -1;
+	_selectedTrack = -1;
+	_editSelectedTrack = false;
 	_dragging = false;
     _draggedTrackPos = 0;
     _draggedTrackChannel = 0;
@@ -174,6 +179,9 @@ void TimelinePanel::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
         ReleaseMouse();
     }
     SetCursor(wxCURSOR_ARROW);
+    _dragging = false;
+    _clickedTime = false;
+    endDragDrop();
 }
 
 void TimelinePanel::OnPopupBonesClick(wxCommandEvent &event)
@@ -316,16 +324,26 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
     {
         return;
     }
-    // draw track background and rect around it
+
+    dc->SetPen(wxPen(wxColour(0, 0, 0)));
+
+    wxFont font = dc->GetFont();
+    font.SetPointSize(8);
+    dc->SetFont(font);
+
+    // get background colour of track (depends on being selected)
+    wxColour bgColour;
     if (track->getId() == _selectedTrack)
     {
-        dc->SetBrush(wxBrush(wxColor(200, 200, 100)));
+        bgColour = wxColor(200, 200, 100);
     }
     else
     {
-        dc->SetBrush(wxBrush(wxColor(200, 200, 200)));
+        bgColour = wxColor(200, 200, 200);
     }
+    dc->SetBrush(wxBrush(bgColour));
     int length = getLengthFromTime(track->getLength());
+    // draw track background and rect around it
     dc->DrawRectangle(pos, wxSize(length + 1, _channelHeight + 1));
 
     // draw track info
@@ -344,53 +362,106 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
         dc->DrawText(track->getName(), textPosition);
     }
 
-    // draw overlapping
-    std::vector<TimelineOverlay*> overlays = theAnimationManager.getTimeline()->getOverlays(track);
-
-    for (size_t i = 0; i < overlays.size(); ++i)
+    // draw overlapping and weighting only when not dragging
+    // TODO(JK#9#): track content of selected track disappears while adding new sequence or track (_dragging and _selectedTrack are set in this case!)
+    if (!(_dragging && _selectedTrack == track->getId()))
     {
-        wxPoint start(pos);
-        wxSize overlapLength(0, _channelHeight/5);
+        // draw overlapping
+        std::vector<TimelineOverlay*> overlays = theAnimationManager.getTimeline()->getOverlays(track);
+        std::sort(overlays.begin(), overlays.end(), TimelineOverlay::compChannelDistHigh);
 
-        TimelineTrack* overlayTrack = overlays[i]->getFirstTrack() != track ? overlays[i]->getFirstTrack() : overlays[i]->getSecondTrack();
-        if (track->getChannel() < overlayTrack->getChannel())
+        for (size_t i = 0; i < overlays.size(); ++i)
         {
-            start.y += _channelHeight - overlapLength.y + 1;
+            wxPoint start(pos);
+            wxSize overlapLength(0, _channelHeight/3);
+            wxDirection gradientDirection = wxDOWN;
+
+            TimelineTrack* overlayTrack = overlays[i]->getFirstTrack() != track ? overlays[i]->getFirstTrack() : overlays[i]->getSecondTrack();
+            if (track->getChannel() < overlayTrack->getChannel())
+            {
+                start.y += _channelHeight - overlapLength.y + 1;
+                gradientDirection = wxUP;
+            }
+
+            start.x = getPositionFromTime(overlays[i]->getStartTime());
+            overlapLength.x = getLengthFromTime(overlays[i]->getLength()) + 1;
+
+            wxColour overlapColour;
+
+            if (overlays[i]->getType() == OverlayType::ADDITIVE)
+            {
+                overlapColour = wxColour(100, 200, 100);
+            }
+            else if (overlays[i]->getType() == OverlayType::SUBTRACTIVE)
+            {
+                overlapColour = wxColour(200, 100, 100);
+            }
+            else if (overlays[i]->getType() == OverlayType::INTERPOLATION)
+            {
+                overlapColour = wxColour(100, 100, 200);
+            }
+            else if (overlays[i]->getType() == OverlayType::IGNORING)
+            {
+                overlapColour = wxColour(50, 50, 50);
+            }
+            else if (overlays[i]->getType() == OverlayType::OVERWRITE)
+            {
+                overlapColour = wxColour(200, 100, 200);
+            }
+
+            dc->GradientFillLinear(wxRect(start, overlapLength), overlapColour, bgColour, gradientDirection);
+
+            // draw priority of overlay
+            wxString roman = wxRichTextDecimalToRoman(overlays[i]->getPriority());
+            wxSize prioritySize = dc->GetTextExtent(roman);
+            if (prioritySize.x + 3 < overlapLength.x)
+            {
+                dc->DrawText(roman, start.x + 2, start.y);
+            }
         }
 
-        start.x = getPositionFromTime(overlays[i]->getStartTime());
-        overlapLength.x = getLengthFromTime(overlays[i]->getLength()) + 1;
+        // draw weighting
+        std::vector<std::pair<unsigned int, float> > weightPoints = track->getWeightPoints();
 
-        dc->SetBrush(wxBrush(wxColour(150, 200, 150)));
-        dc->DrawRectangle(start, overlapLength);
-    }
-    /*
-    std::vector<TimelineTrack*> overlapping = theAnimationManager.getTimeline()->getOverlapping(track);
-    for (size_t i = 0; i < overlapping.size(); ++i)
-    {
-        wxPoint start(pos);
-        wxSize overlapLength(0, _channelHeight/5);
+        dc->SetPen(wxPen(wxColour(255, 120, 0)));
 
-        if (track->getChannel() < overlapping[i]->getChannel())
+        if (weightPoints.size() == 0)
         {
-            start.y += _channelHeight - overlapLength.y + 1;
-        }
-
-        if (track->getStartTime() > overlapping[i]->getStartTime())
-        {
-            start.x = getPositionFromTime(track->getStartTime());
-            overlapLength.x = getLengthFromTime(std::min(track->getLength(), overlapping[i]->getEndTime() - track->getStartTime()));
+            dc->DrawLine(wxPoint(getPositionFromTime(track->getStartTime()), pos.y + 1), wxPoint(getPositionFromTime(track->getEndTime()), pos.y + 1));
         }
         else
         {
-            start.x = getPositionFromTime(overlapping[i]->getStartTime());
-            overlapLength.x = getLengthFromTime(std::min(overlapping[i]->getLength(), track->getEndTime() - overlapping[i]->getStartTime()));
+            int bottomY = pos.y + _channelHeight - 1;
+            int height = _channelHeight - 2;
+            // in order to draw the weight points in the middle of the frames instead of at the beginning, add an offset
+            uint64_t frameTimeOffset = track->getFrameTime() * 1000000 / 2;
+
+            wxPoint startWeightPoint = wxPoint(pos.x + getLengthFromTime(frameTimeOffset), bottomY - track->getWeight(0) * height);
+            wxPoint endWeightPoint = wxPoint(getPositionFromTime(track->getAbsTimeFromFrame(weightPoints[0].first) + frameTimeOffset), bottomY - weightPoints[0].second * height);
+
+            // draw horizontal line from beginning of the track to the center of first frame
+            dc->DrawLine(wxPoint(pos.x, startWeightPoint.y), startWeightPoint);
+            // draw line from center of first frame to center of frame where the first weight point occurs
+            dc->DrawLine(startWeightPoint, endWeightPoint);
+
+            for (size_t i = 1; i < weightPoints.size(); ++i)
+            {
+                startWeightPoint = wxPoint(getPositionFromTime(track->getAbsTimeFromFrame(weightPoints[i-1].first) + frameTimeOffset), bottomY - weightPoints[i-1].second * height);
+                endWeightPoint = wxPoint(getPositionFromTime(track->getAbsTimeFromFrame(weightPoints[i].first) + frameTimeOffset), bottomY - weightPoints[i].second * height);
+
+                dc->DrawLine(startWeightPoint, endWeightPoint);
+            }
+            startWeightPoint = wxPoint(getPositionFromTime(track->getAbsTimeFromFrame(weightPoints.back().first) + frameTimeOffset), bottomY - weightPoints.back().second * height);
+            endWeightPoint = wxPoint(getPositionFromTime(track->getEndTime() - frameTimeOffset), bottomY - track->getWeight(track->getNumFrames() - 1) * height);
+
+            // draw line from center of last frame where a weight point occurs to the center of the very last frame
+            dc->DrawLine(startWeightPoint, endWeightPoint);
+            // draw horizontal line from center of last frame to the end of the track
+            dc->DrawLine(wxPoint(getPositionFromTime(track->getEndTime()), endWeightPoint.y), endWeightPoint);
         }
-        ++overlapLength.x;
-        dc->SetBrush(wxBrush(wxColour(150, 200, 150)));
-        dc->DrawRectangle(start, overlapLength);
     }
-    */
+
+    dc->SetPen(wxPen(wxColour(0, 0, 0)));
 
     // draw lines between single frames
     int startFrame = (_timeOffset - getTimeFromPosition(pos)) / (1000000.0f * track->getFrameTime());
@@ -436,6 +507,126 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
             dc->DrawLine(wxPoint(framePos, pos.y + _channelHeight), wxPoint(framePos, pos.y + _channelHeight - 3));
         }
     }
+
+    // finally draw again a transparent rect around track (e.g. overlays are drawn above the outer rect)
+    dc->SetBrush(*wxTRANSPARENT_BRUSH);
+    dc->DrawRectangle(pos, wxSize(length + 1, _channelHeight + 1));
+}
+
+void TimelinePanel::drawEditSelectedTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
+{
+    wxSize size(getLengthFromTime(track->getLength()) + 1, _channelHeight*2 + 1);
+    dc->SetBrush(wxBrush(wxColour(200, 200, 200)));
+    dc->DrawRectangle(pos, size);
+
+    std::vector<std::pair<unsigned int, float> > weightPoints = track->getWeightPoints();
+
+    wxPen blackPen = wxPen(wxColour(0, 0, 0));
+    wxPen orangePen = wxPen(wxColour(255, 120, 0));
+
+    if (weightPoints.size() == 0)
+    {
+        dc->SetPen(orangePen);
+        dc->DrawLine(wxPoint(getPositionFromTime(track->getStartTime()), pos.y + 1), wxPoint(getPositionFromTime(track->getEndTime()), pos.y + 1));
+    }
+    else
+    {
+        int bottomY = pos.y + size.y - 2;
+        int height = _channelHeight * 2 - 2;
+        // in order to draw the weight points in the middle of the frames instead of at the beginning, add an offset
+        uint64_t frameTimeOffset = track->getFrameTime() * 1000000 / 2;
+
+        wxPoint startWeightPoint = wxPoint(pos.x + getLengthFromTime(frameTimeOffset), bottomY - track->getWeight(0) * height);
+        wxPoint endWeightPoint = wxPoint(getPositionFromTime(track->getAbsTimeFromFrame(weightPoints[0].first) + frameTimeOffset), bottomY - weightPoints[0].second * height);
+
+        dc->SetPen(orangePen);
+        // draw horizontal line from beginning of the track to the center of first frame
+        dc->DrawLine(wxPoint(pos.x, startWeightPoint.y), startWeightPoint);
+        // draw line from center of first frame to center of frame where the first weight point occurs
+        dc->DrawLine(startWeightPoint, endWeightPoint);
+
+        for (size_t i = 1; i < weightPoints.size(); ++i)
+        {
+            startWeightPoint = wxPoint(getPositionFromTime(track->getAbsTimeFromFrame(weightPoints[i-1].first) + frameTimeOffset), bottomY - weightPoints[i-1].second * height);
+            endWeightPoint = wxPoint(getPositionFromTime(track->getAbsTimeFromFrame(weightPoints[i].first) + frameTimeOffset), bottomY - weightPoints[i].second * height);
+
+            dc->SetPen(orangePen);
+            dc->DrawLine(startWeightPoint, endWeightPoint);
+            // draw circles to visualize weight points currently set
+            dc->SetPen(blackPen);
+            dc->DrawCircle(startWeightPoint, 2);
+        }
+        startWeightPoint = wxPoint(getPositionFromTime(track->getAbsTimeFromFrame(weightPoints.back().first) + frameTimeOffset), bottomY - weightPoints.back().second * height);
+        endWeightPoint = wxPoint(getPositionFromTime(track->getEndTime() - frameTimeOffset), bottomY - track->getWeight(track->getNumFrames() - 1) * height);
+
+        dc->SetPen(orangePen);
+        // draw line from center of last frame where a weight point occurs to the center of the very last frame
+        dc->DrawLine(startWeightPoint, endWeightPoint);
+        // draw horizontal line from center of last frame to the end of the track
+        dc->DrawLine(wxPoint(getPositionFromTime(track->getEndTime()), endWeightPoint.y), endWeightPoint);
+
+        dc->SetPen(blackPen);
+        dc->DrawCircle(startWeightPoint, 2);
+    }
+
+    // get and draw all interpolated weight points (only for debugging)
+    /*
+    int bottomY = pos.y + size.y;
+    int height = _channelHeight * 2;
+    int frameTimeOffset = track->getFrameTime() * 1000000 / 2;
+    for (size_t i = 0; i < track->getNumFrames(); ++i)
+    {
+        dc->SetPen(blackPen);
+        dc->DrawCircle(wxPoint(getPositionFromTime(track->getStartTime() + frameTimeOffset + track->getFrameTime() * 1000000 * i), bottomY - track->getWeight(i) * height), 2);
+    }
+    */
+
+    dc->SetPen(blackPen);
+
+    // draw lines between single frames
+    int startFrame = (_timeOffset - getTimeFromPosition(pos)) / (1000000.0f * track->getFrameTime());
+    unsigned int endFrame = (getTimeFromPosition(wxPoint(GetSize().x, GetSize().y)) - getTimeFromPosition(pos)) / (1000000.0f * track->getFrameTime()) + 1;
+    if (startFrame < 0)
+    {
+        startFrame = 0;
+    }
+    if (endFrame > track->getNumFrames())
+    {
+        endFrame = track->getNumFrames();
+    }
+
+    // TODO(JK#3#): how to draw 10* 100* ... frames? bold or large or other color?
+    int frameLength = getLengthFromTime(1000000 * track->getFrameTime());
+    if (getLengthFromTime(100 * 1000000 * track->getFrameTime()) > 10)
+    {
+        //for (int i = pos.x + frameLength; k < pos.x + length; k += frameLength)
+        for (unsigned int i = 100*(startFrame/100); i <= endFrame; i += 100)
+        {
+            int framePos = pos.x + getLengthFromTime(i * 1000000.0f * track->getFrameTime());
+            dc->DrawLine(wxPoint(framePos, pos.y), wxPoint(framePos, pos.y + 4));
+            dc->DrawLine(wxPoint(framePos, pos.y + _channelHeight * 2), wxPoint(framePos, pos.y + _channelHeight * 2 - 9));
+        }
+    }
+    if (getLengthFromTime(10 * 1000000 * track->getFrameTime()) > 10)
+    {
+        //for (int k = pos.x + frameLength; i < pos.x + length; i += frameLength)
+        for (unsigned int i = 10*(startFrame/10); i <= endFrame; i += 10)
+        {
+            int framePos = pos.x + getLengthFromTime(i * 1000000.0f * track->getFrameTime());
+            dc->DrawLine(wxPoint(framePos, pos.y), wxPoint(framePos, pos.y + 4));
+            dc->DrawLine(wxPoint(framePos, pos.y + _channelHeight * 2), wxPoint(framePos, pos.y + _channelHeight * 2 - 6));
+        }
+    }
+    if (frameLength > 10)
+    {
+        //for (int i = pos.x + frameLength; i < pos.x + length; i += frameLength)
+        for (unsigned int i = startFrame; i <= endFrame; ++i)
+        {
+            int framePos = pos.x + getLengthFromTime(i * 1000000.0f * track->getFrameTime());
+            dc->DrawLine(wxPoint(framePos, pos.y), wxPoint(framePos, pos.y + 4));
+            dc->DrawLine(wxPoint(framePos, pos.y + _channelHeight * 2), wxPoint(framePos, pos.y + _channelHeight * 2 - 3));
+        }
+    }
 }
 
 void TimelinePanel::OnPaint(wxPaintEvent& event)
@@ -472,7 +663,7 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
     // TODO(JK#1#): draw content of timeline
 
 
-    // first of all draw the content of the timeline. This way there is no special routine needed which
+    // first of all draw the content (the tracks) of the timeline. This way there is no special routine needed which
     // draws only the visible parts of the content, as everything else is simply drawn above.
     brush.SetColour(200, 200, 200);
     dc.SetBrush(brush);
@@ -547,13 +738,31 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
     }
 
 
+    // draw horizontal lines separating the channels
+    for (unsigned int i = 0; i < numChannels; ++i)
+    {
+        dc.DrawLine(wxPoint(0, _timelineStartY + i*_channelHeight), wxPoint(size.x, _timelineStartY + i*_channelHeight));
+    }
+
+    // draw edit selected track
+    if (_editSelectedTrack)
+    {
+        TimelineTrack* track = theAnimationManager.getTimeline()->getTrack(_selectedTrack);
+        if (track != nullptr)
+        {
+            wxPoint pos(getPositionFromTime(track->getStartTime()), getPositionFromChannel(track->getChannel()));
+            drawEditSelectedTrack(&dc, track, pos);
+        }
+    }
+
+
     // draw sorting area
     brush.SetColour(200, 200, 200);
     dc.SetBrush(brush);
     dc.DrawRectangle(wxPoint(0, 0), wxSize(_channelOptionsWidth + 1, _timelineStartY + 1));
     dc.DrawText(_("Sort by"), wxPoint(5, 5));
 
-    // draw option panel above the timeline
+    // draw option panel on top of the timeline
     dc.DrawRectangle(wxPoint(_channelOptionsWidth, 0), wxSize(size.x, _optionsHeight + 1));
 
     font.SetPointSize(8);
@@ -594,7 +803,7 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
     for (unsigned int i = 0; i < numChannels; ++i)
     {
         dc.GradientFillLinear(wxRect(0, _timelineStartY + i*_channelHeight, _channelOptionsWidth, _channelHeight), wxColour(50, 50, 50), wxColour(200, 200, 200), wxUP);
-        dc.DrawLine(wxPoint(0, _timelineStartY + i*_channelHeight), wxPoint(size.x, _timelineStartY + i*_channelHeight));
+        dc.DrawLine(wxPoint(0, _timelineStartY + i*_channelHeight), wxPoint(_timelineStartX, _timelineStartY + i*_channelHeight));
 
         // draw arrows above and below channelName (to swap channels)
         pen.SetWidth(2);
@@ -660,7 +869,6 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
     dc.DrawLine(wxPoint(_channelOptionsWidth, 0), wxPoint(_channelOptionsWidth, size.y));
 
 
-
     // draw the time bar cursor
     int cursorPosition = getPositionFromTime(_cursorPosition);
     if (cursorPosition >= _timelineStartX)
@@ -695,12 +903,12 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
 
 void TimelinePanel::OnLeftDown(wxMouseEvent& event)
 {
-    if (!HasCapture())
+    wxPoint pos = event.GetPosition();
+
+    if (pos.x > _timelineStartX && pos.y > _optionsHeight && !HasCapture())
     {
         CaptureMouse();
     }
-
-    wxPoint pos = event.GetPosition();
 
     // reset all variables
     _clickedChannel = -1;
@@ -709,6 +917,7 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
 
     if (pos.x < _timelineStartX)
     {
+        _editSelectedTrack = false;
         if (pos.y < _timelineStartY)
         {
         }
@@ -716,13 +925,13 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
         {
             _clickedChannel = getChannelFromPosition(pos);
             int clickedChannelOffset = (pos.y - _timelineStartY) % _channelHeight;
-            if (pos.x < _channelOptionsWidth - 15)
+            if (pos.x < _channelOptionsWidth - 18)
             {
                 if (clickedChannelOffset < _channelHeight * 0.5f)
                 {
                     showPopUpBones();
                 }
-                else if (clickedChannelOffset > _channelHeight - _channelButtonsSize.y)
+                else if (clickedChannelOffset > _channelHeight - _channelButtonsSize.y && pos.x < _channelButtonsSize.x)
                 {
                     theAnimationManager.getTimeline()->insertChannelAfter(_clickedChannel);
                 }
@@ -752,15 +961,33 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
         }
         else
         {
-            _selectedTrack = -1;
             _clickedChannel = getChannelFromPosition(pos);
-            if (theAnimationManager.getTimeline()->isBetweenTwoTracks(_clickedChannel, getTimeFromPosition(pos)))
+
+            // edit selected track, set weights etc
+            if (_editSelectedTrack && _selectedTrack >= 0)
             {
-                // wxMessageBox(_("A"));
+                TimelineTrack* track = theAnimationManager.getTimeline()->getTrack(_selectedTrack);
+                if (track == nullptr)
+                {
+                    _editSelectedTrack = false;
+                    _selectedTrack = -1;
+                }
+                else if ((track->getChannel() == _clickedChannel || track->getChannel() == _clickedChannel - 1) && track->isInside(getTimeFromPosition(pos)))
+                {
+                    int clickedChannelOffset = (pos.y - _timelineStartY + track->getChannel()%2 * _channelHeight) % (2 * _channelHeight);
+                    float weight = float(2 * _channelHeight - clickedChannelOffset) / (2 * _channelHeight);
+                    track->setWeightPoint(track->getFrameNumFromAbsTime(getTimeFromPosition(pos)), weight);
+                    _oldWeightPointFrame = track->getFrameNumFromAbsTime(getTimeFromPosition(pos));
+                }
+                else
+                {
+                    _editSelectedTrack = false;
+                    _selectedTrack = -1;
+                }
             }
             // get the track at click position
             TimelineTrack* track = theAnimationManager.getTimeline()->getTrack(_clickedChannel, getTimeFromPosition(pos));
-            if (track != nullptr)
+            if (!_editSelectedTrack && track != nullptr)
             {
                 _selectedTrack = track->getId();
                 _mouseToTrackOffset = pos.x - getPositionFromTime(track->getStartTime());
@@ -769,9 +996,13 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
                 _draggedTrackChannel = getChannelFromPosition(pos);
                 _dragging = true;
             }
+            else if (!_editSelectedTrack)
+            {
+                _selectedTrack = -1;
+            }
         }
     }
-    Refresh();
+    update();
 }
 
 void TimelinePanel::OnLeftUp(wxMouseEvent& event)
@@ -784,6 +1015,7 @@ void TimelinePanel::OnLeftUp(wxMouseEvent& event)
     _clickedChannel = -1;
 
     endDragDrop();
+    update();
 }
 
 void TimelinePanel::OnRightDown(wxMouseEvent& event)
@@ -819,8 +1051,8 @@ void TimelinePanel::OnRightDown(wxMouseEvent& event)
             }
             theAnimationManager.getTimeline()->insert(newTrack, _interpolationChannel, _interpolationStartTime);
             wxSetCursor(wxCURSOR_ARROW);
+            SetToolTip(_(""));
             _interpolationPossible = false;
-            Refresh();
         }
         else
         {
@@ -829,28 +1061,70 @@ void TimelinePanel::OnRightDown(wxMouseEvent& event)
             TimelineTrack* track = theAnimationManager.getTimeline()->getTrack(channel, time);
             if (track == nullptr)
             {
-                return;
+                _selectedTrack = -1;
+                _editSelectedTrack = false;
             }
-            std::vector<TimelineTrack*> tracks = theAnimationManager.getTimeline()->getOverlapping(track);
-            wxString msg;
-            msg << _("num tracks: ") << tracks.size() << _("\n");
-            for (size_t i = 0; i < tracks.size(); ++i)
+            else
             {
-                msg << _("track: ") << tracks[i]->getName() << _("\n");
-                msg << _("track id: ") << tracks[i]->getId() << _("\n");
-                msg << _("track start: ") << tracks[i]->getStartTime() << _("\n");
-                msg << _("track end: ") << tracks[i]->getEndTime() << _("\n");
-                msg << _("track channel: ") << tracks[i]->getChannel() << _("\n\n");
-            }
-            wxMessageBox(msg);
+                std::vector<TimelineOverlay*> overlays = theAnimationManager.getTimeline()->getOverlays(track, time);
+                TimelineOverlay* clickedOverlay = nullptr;
 
+                if (overlays.size() > 0)
+                {
+                    std::sort(overlays.begin(), overlays.end(), TimelineOverlay::compChannelDistSmall);
+                    int channelClickOffset = (pos.y - _timelineStartY) % _channelHeight;
+
+                    if (channelClickOffset < _channelHeight/3)
+                    {
+                        // find the first overlay with smaller channel on the first track
+                        for (size_t i = 0; i < overlays.size(); ++i)
+                        {
+                            if (overlays[i]->getFirstTrack()->getChannel() < track->getChannel())
+                            {
+                                clickedOverlay = overlays[i];
+                                break;
+                            }
+                        }
+                    }
+                    else if (channelClickOffset > (_channelHeight * 2)/3)
+                    {
+                        // find the first overlay with greater channel on the second track
+                        for (size_t i = 0; i < overlays.size(); ++i)
+                        {
+                            if (overlays[i]->getSecondTrack()->getChannel() > track->getChannel())
+                            {
+                                clickedOverlay = overlays[i];
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (clickedOverlay != nullptr)
+                {
+                    TimelineOverlayDialog* dialog = new TimelineOverlayDialog(this);
+                    dialog->setOverlay(clickedOverlay);
+                    if (dialog->ShowModal() == wxID_OK)
+                    {
+                        clickedOverlay->setPriority(dialog->getPriority());
+                        clickedOverlay->setType(dialog->getType());
+                    }
+                    dialog->Destroy();
+                }
+                else
+                {
+                    _selectedTrack = track->getId();
+                    _editSelectedTrack = true;
+                }
+            }
         }
     }
+    update();
 }
 
 void TimelinePanel::OnRightUp(wxMouseEvent& event)
 {
-    Refresh();
+    update();
 }
 
 void TimelinePanel::OnMouseMove(wxMouseEvent& event)
@@ -888,7 +1162,40 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
         }
         Refresh();
     }
-    else
+    else if (event.LeftIsDown() && _editSelectedTrack && _selectedTrack >= 0 && _clickedChannel >= 0)
+    {
+        TimelineTrack* track = theAnimationManager.getTimeline()->getTrack(_selectedTrack);
+        if (track != nullptr)
+        {
+            unsigned int frame = track->getFrameNumFromAbsTime(getTimeFromPosition(pos));
+            if (pos.x < _timelineStartX)
+            {
+                frame = 0;
+            }
+            if (frame >= track->getNumFrames())
+            {
+                frame = track->getNumFrames() - 1;
+            }
+            float weight;
+            if (getChannelFromPosition(pos) < track->getChannel() || pos.y <= _timelineStartY)
+            {
+                weight = 1.0f;
+            }
+            else if (getChannelFromPosition(pos) > track->getChannel() + 1)
+            {
+                weight = 0.0f;
+            }
+            else
+            {
+                int channelOffset = (pos.y - _timelineStartY + track->getChannel()%2 * _channelHeight) % (2 * _channelHeight);
+                weight = float(2 * _channelHeight - channelOffset) / (2 * _channelHeight);
+            }
+            track->moveWeightPoint(_oldWeightPointFrame, frame, weight);
+            _oldWeightPointFrame = frame;
+            Refresh();
+        }
+    }
+    else if (!_editSelectedTrack)
     {
         if (pos.x > _timelineStartX && pos.y > _timelineStartY)
         {

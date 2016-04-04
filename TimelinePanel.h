@@ -116,6 +116,7 @@ class TimelinePanel: public wxPanel
         int getPositionFromChannel(int channel) const;
 
 		void drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const;
+        void drawEditSelectedTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const;
 
 		int64_t _ysPerTimeUnit;
 		int64_t _timeOffset;
@@ -130,6 +131,9 @@ class TimelinePanel: public wxPanel
         int _clickedChannel;
 
         int _selectedTrack;
+        bool _editSelectedTrack;
+
+        unsigned int _oldWeightPointFrame;
 
         bool _dragging;
         bool _dragIsValid;

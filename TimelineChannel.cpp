@@ -237,22 +237,22 @@ std::vector<TimelineTrack*> TimelineChannel::getTracks()
     return tracks;
 }
 
-MotionSequenceFrame TimelineChannel::getFrame(uint64_t time)
-{
-    // TODO(JK#1#): get frame can get tricky when there is no track. Solve this by adding a default frame (equal to bone default)
-    if (_tracks.size() == 0)
-    {
-        return MotionSequenceFrame();
-    }
-
-    TimelineTrack* track = getTrack(time);
-    // if there is no track at specified time point, return default orientation
-    if (track == nullptr)
-    {
-        return MotionSequenceFrame();
-    }
-    return track->getFrameFromAbsTime(time);
-}
+//MotionSequenceFrame TimelineChannel::getFrame(uint64_t time)
+//{
+//    // TODO(JK#1#): get frame can get tricky when there is no track. Solve this by adding a default frame (equal to bone default)
+//    if (_tracks.size() == 0)
+//    {
+//        return MotionSequenceFrame();
+//    }
+//
+//    TimelineTrack* track = getTrack(time);
+//    // if there is no track at specified time point, return default orientation
+//    if (track == nullptr)
+//    {
+//        return MotionSequenceFrame();
+//    }
+//    return track->getFrameFromAbsTime(time);
+//}
 
 
 

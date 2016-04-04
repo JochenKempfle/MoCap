@@ -315,6 +315,8 @@ class Vector3
 
     Vector3& rotate_IP (double roll, double pitch, double yaw);
 
+    Vector3 lerp(const Vector3 &other, float t) const;
+
     // void read (unsigned char * src, unsigned int size);
     std::istream& read(std::istream &s);
     std::ostream& write(std::ostream &s) const;

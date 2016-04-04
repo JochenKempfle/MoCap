@@ -28,6 +28,8 @@ OF SUCH DAMAGE.
 
 
 #include "TimelineOverlay.h"
+#include "TimelineTrack.h"
+#include <cmath>
 
 TimelineOverlay::TimelineOverlay()
 {
@@ -35,7 +37,7 @@ TimelineOverlay::TimelineOverlay()
     _length = 0;
     _track1 = nullptr;
     _track2 = nullptr;
-    _priority = 0;
+    _priority = 1;
     _type = OverlayType::ADDITIVE;
 }
 
@@ -43,3 +45,34 @@ TimelineOverlay::~TimelineOverlay()
 {
     //dtor
 }
+
+void TimelineOverlay::setTracks(TimelineTrack* track1, TimelineTrack* track2)
+{
+    _track1 = track1;
+    _track2 = track2;
+}
+
+TimelineTrack* TimelineOverlay::getFirstTrack() const
+{
+    return _track1->getChannel() < _track2->getChannel() ? _track1 : _track2;
+}
+
+TimelineTrack* TimelineOverlay::getSecondTrack() const
+{
+    return _track1->getChannel() < _track2->getChannel() ? _track2 : _track1;
+}
+
+int TimelineOverlay::getChannelDifference() const
+{
+    return std::abs(_track1->getChannel() - _track2->getChannel());
+}
+
+bool TimelineOverlay::compPriority(TimelineOverlay* overlay1, TimelineOverlay* overlay2)
+{
+    if (overlay1->_priority != overlay2->_priority)
+    {
+        return overlay1->_priority < overlay2->_priority;
+    }
+    return overlay1->getFirstTrack()->getChannel() < overlay2->getFirstTrack()->getChannel();
+}
+

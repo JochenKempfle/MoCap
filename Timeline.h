@@ -56,7 +56,6 @@ class Timeline
     int getChannelAffiliation(int channelId) const;
     std::string getChannelAffiliationName(int channelId) const;
 
-    // TODO(JK#5#): maybe make toChannel unsigned
     void insert(MotionSequence* sequence, int toChannel, uint64_t time);
     void insert(MotionSequenceChannel* channel, int toChannel, uint64_t time, std::string name = "");
     void insert(const TimelineTrack &track, int toChannel, uint64_t time);
@@ -82,6 +81,8 @@ class Timeline
 
     TimelineTrack* getTrack(int id);
     TimelineTrack* getTrack(int channel, uint64_t time);
+    // get all tracks associated with given bone id at given time. Tracks are sorted by channel
+    std::vector<TimelineTrack*> getTracks(int boneId, uint64_t time);
 
     TimelineTrack* getTrackBefore(int channel, uint64_t time);
     TimelineTrack* getTrackAfter(int channel, uint64_t time);
@@ -96,6 +97,10 @@ class Timeline
     unsigned int getOverlayId(TimelineTrack* track1, TimelineTrack* track2) const;
     TimelineOverlay* getOverlay(TimelineTrack* track1, TimelineTrack* track2) const;
     std::vector<TimelineOverlay*> getOverlays(const TimelineTrack* track) const;
+    // get tracks' overlays covering the given time point (timePoint is not just a reference to the beginning of the overlay)
+    std::vector<TimelineOverlay*> getOverlays(TimelineTrack* track, uint64_t time) const;
+    std::vector<TimelineOverlay*> getOverlaysByBoneId(int boneId, uint64_t time) const;
+
     void updateOverlays(TimelineTrack* track);
 
   protected:

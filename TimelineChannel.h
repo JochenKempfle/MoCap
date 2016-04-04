@@ -71,7 +71,7 @@ class TimelineChannel
 
     TimelineTrack* getTrack(uint64_t time);
     std::vector<TimelineTrack*> getTracks();
-    MotionSequenceFrame getFrame(uint64_t time);
+    //MotionSequenceFrame getFrame(uint64_t time);
 
     bool operator<(const TimelineChannel &other) { return _channelPos < other._channelPos; }
 

@@ -65,6 +65,12 @@ Vector3& Vector3::rotate_IP (double roll, double pitch, double yaw)
 //     memcpy(&data[2],src, sizeof(double));
 //   }
 
+Vector3 Vector3::lerp(const Vector3& other, float t) const
+{
+    return (1.0f - t) * (*this) + t * other;
+}
+
+
 
 std::istream& Vector3::read(std::istream &s)
 {

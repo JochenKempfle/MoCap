@@ -195,7 +195,7 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
 
     _socket = nullptr;
 
-    _logger = new wxLogWindow(this, _("Log"));
+    // _logger = new wxLogWindow(this, _("Log"));
 
     // TODO(JK#3#): maybe directly start the timer, allows GUI to react to whatever even when not connected
     _timer = new wxTimer(this, ID_TIMER);
@@ -281,7 +281,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 
     SensorRawData data;
     // 36 bytes is the maximum expected packet size
-    unsigned char buffer[36];
+    alignas(float) unsigned char buffer[36];
     wxIPV4address sensorAddress = _addressPeer;
 
     _socket->RecvFrom(sensorAddress, buffer, sizeof(buffer));
@@ -363,6 +363,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 
     if (theSensorManager.getSensorIdFromIP(name.ToStdString()) == -1)
     {
+        _receiveStartTime[name] = receiveTime;
         Refresh();
     }
 
@@ -370,9 +371,9 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
     {
         ++_receivedPackets[name];
 
-    wxString msg;
-    msg << name << _("  Timestamp: ") << data.timestamp;
-    //wxLogDebug(msg);
+    // wxString msg;
+    // msg << name << _("   Timestamp: ") << data.timestamp << _("   receive Time: ") << receiveTime - _receiveStartTime[name];
+    // wxLogDebug(msg);
 
         theSensorManager.updateSensor(name.ToStdString(), data);
         // theSensorManager.updateSensor(sensorAddress.IPAddress().ToStdString(), data);

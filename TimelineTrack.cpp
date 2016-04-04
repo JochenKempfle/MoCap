@@ -129,11 +129,6 @@ uint64_t TimelineTrack::getLength() const
     return 1000000 * uint64_t(_frames.size()) * _frameTime;
 }
 
-uint64_t TimelineTrack::getMaxLength() const
-{
-    return 1000000 * uint64_t(_frames.size()) * _frameTime;
-}
-
 void TimelineTrack::setFrameTime(float frameTime)
 {
     _frameTime = frameTime;
@@ -182,52 +177,165 @@ bool TimelineTrack::cut(uint64_t time, TimelineTrack* newTrack)
         newTrack->_name = _name;
         newTrack->_startTime = _startTime + pos * _frameTime * 1000000.0;
         newTrack->_frameTime = _frameTime;
+        if (getWeight(pos) != 1.0f)
+        {
+            newTrack->_weightPoints[0] = getWeight(pos);
+            setWeightPoint(pos -1, getWeight(pos - 1));
+        }
+        for (auto it = _weightPoints.lower_bound(pos); it != _weightPoints.end(); ++it)
+        {
+            newTrack->_weightPoints[it->first - pos] = it->second;
+        }
     }
     _frames.resize(pos);
+    _weightPoints.erase(_weightPoints.lower_bound(pos), _weightPoints.end());
     return true;
 }
 
-MotionSequenceFrame TimelineTrack::getFrameFromAbsTime(uint64_t time) const
+uint64_t TimelineTrack::getAbsTimeFromFrame(unsigned int frame) const
+{
+    return _startTime + frame * _frameTime * 1000000.0f;
+}
+
+uint64_t TimelineTrack::getRelTimeFromFrame(unsigned int frame) const
+{
+    return frame * _frameTime * 1000000.0f;
+}
+
+
+unsigned int TimelineTrack::getFrameNumFromAbsTime(uint64_t time) const
 {
     if (time < _startTime)
     {
+        return 0;
+    }
+    return ((time - _startTime)/_frameTime)/1000000;
+}
+
+unsigned int TimelineTrack::getFrameNumFromRelTime(uint64_t time) const
+{
+    return (time/_frameTime)/1000000;
+}
+
+
+MotionSequenceFrame TimelineTrack::getFrameFromAbsTime(uint64_t time, bool weighted) const
+{
+    if (time < _startTime)
+    {
+        // TODO(JK#9#): what to return if the time in getFrame - functions is outside the boundary?
         return MotionSequenceFrame();
     }
     unsigned int pos = ((time - _startTime)/_frameTime)/1000000;
-    if (pos >= _frames.size())
-    {
-        // TODO(JK#1#): do not return the last frame in getFrameFromAbs/RelTime, also consider returning a pointer or a reference
-        return _frames.back();
-    }
-    return _frames[pos];
+    return getFrame(pos, weighted);
 }
 
-MotionSequenceFrame TimelineTrack::getFrameFromRelTime(uint64_t time) const
+MotionSequenceFrame TimelineTrack::getFrameFromRelTime(uint64_t time, bool weighted) const
 {
     unsigned int pos = (time/_frameTime)/1000000;
-    if (pos >= _frames.size())
-    {
-        return _frames.back();
-    }
-    return _frames[pos];
+    return getFrame(pos, weighted);
 }
 
-MotionSequenceFrame TimelineTrack::getFrame(unsigned int pos) const
+MotionSequenceFrame TimelineTrack::getFrame(unsigned int pos, bool weighted) const
 {
     if (pos >= _frames.size())
     {
-        return _frames.back();
+        return MotionSequenceFrame();
     }
-    return _frames[pos];
+    MotionSequenceFrame frame = _frames[pos];
+    if (weighted)
+    {
+        frame.setOrientation(frame.getOrientation().pow(getWeight(pos)));
+        // TODO(JK#9#): should the frame position data be weighted?
+        /*
+        if frame.hasPositionData()
+        {
+            frame.setPosition(frame.getPosition() * getWeight(pos));
+        }
+        */
+    }
+    return frame;
 }
 
-MotionSequenceFrame TimelineTrack::getFirstFrame() const
+MotionSequenceFrame TimelineTrack::getFirstFrame(bool weighted) const
 {
-    return _frames.front();
+    return getFrame(0, weighted);
 }
 
-MotionSequenceFrame TimelineTrack::getLastFrame() const
+MotionSequenceFrame TimelineTrack::getLastFrame(bool weighted) const
 {
-    return _frames.back();
+    return getFrame(_frames.size() - 1, weighted);
+}
+
+bool TimelineTrack::isInside(uint64_t time) const
+{
+    return time >= _startTime && time <= getEndTime();
+}
+
+void TimelineTrack::setWeightPoint(unsigned int frame, float weight)
+{
+    if (frame < _frames.size())
+    {
+        _weightPoints[frame] = weight;
+    }
+}
+
+void TimelineTrack::moveWeightPoint(unsigned int oldFrame, unsigned int newFrame, float weight)
+{
+    removeWeightPoint(oldFrame);
+    setWeightPoint(newFrame, weight);
+}
+
+void TimelineTrack::removeWeightPoint(unsigned int frame)
+{
+    auto it = _weightPoints.find(frame);
+    if (it != _weightPoints.end())
+    {
+        _weightPoints.erase(it);
+    }
+}
+
+std::vector<std::pair<unsigned int, float> > TimelineTrack::getWeightPoints() const
+{
+    std::vector<std::pair<unsigned int, float> > weightPoints;
+    weightPoints.reserve(_weightPoints.size());
+    for (auto it = _weightPoints.begin(); it != _weightPoints.end(); ++it)
+    {
+        weightPoints.push_back(*it);
+    }
+    return weightPoints;
+}
+
+float TimelineTrack::getWeight(unsigned int frame) const
+{
+    if (_weightPoints.empty())
+    {
+        return 1.0f;
+    }
+    if (frame >= _frames.size())
+    {
+        return 0.0f;
+    }
+    auto it = _weightPoints.lower_bound(frame);
+    if (it != _weightPoints.end())
+    {
+        if (it->first == frame)
+        {
+            return it->second;
+        }
+    }
+    if (it == _weightPoints.begin())
+    {
+        double t = double(frame) / it->first;
+        return (1.0 - t) + t * it->second;
+    }
+    auto it2 = it;
+    --it;
+    if (it2 == _weightPoints.end())
+    {
+        double t = double(frame - it->first) / (_frames.size() - 1 - it->first);
+        return (1.0 - t) * it->second + t;
+    }
+    double t = double(frame - it->first) / (it2->first - it->first);
+    return (1.0 - t) * it->second + t * it2->second;
 }
 

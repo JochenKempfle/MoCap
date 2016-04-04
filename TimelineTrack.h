@@ -33,6 +33,8 @@ OF SUCH DAMAGE.
 #include "MotionSequence.h"
 #include "MotionSequenceChannel.h"
 #include "TimelineOverlay.h"
+#include <vector>
+#include <map>
 
 class TimelineTrack
 {
@@ -56,7 +58,6 @@ class TimelineTrack
     uint64_t getEndTime() const;
 
     uint64_t getLength() const;
-    uint64_t getMaxLength() const;
 
     void setFrameTime(float frameTime);
     float getFrameTime() const;
@@ -72,12 +73,27 @@ class TimelineTrack
 
     bool cut(uint64_t time, TimelineTrack* newTrack = nullptr);
 
-    MotionSequenceFrame getFrameFromAbsTime(uint64_t time) const;
-    MotionSequenceFrame getFrameFromRelTime(uint64_t time) const;
-    MotionSequenceFrame getFrame(unsigned int pos) const;
+    uint64_t getAbsTimeFromFrame(unsigned int frame) const;
+    uint64_t getRelTimeFromFrame(unsigned int frame) const;
 
-    MotionSequenceFrame getFirstFrame() const;
-    MotionSequenceFrame getLastFrame() const;
+    unsigned int getFrameNumFromAbsTime(uint64_t time) const;
+    unsigned int getFrameNumFromRelTime(uint64_t time) const;
+
+    MotionSequenceFrame getFrameFromAbsTime(uint64_t time, bool weighted = false) const;
+    MotionSequenceFrame getFrameFromRelTime(uint64_t time, bool weighted = false) const;
+    MotionSequenceFrame getFrame(unsigned int pos, bool weighted = false) const;
+
+    MotionSequenceFrame getFirstFrame(bool weighted = false) const;
+    MotionSequenceFrame getLastFrame(bool weighted = false) const;
+
+    bool isInside(uint64_t time) const;
+
+    void setWeightPoint(unsigned int frame, float weight);
+    void moveWeightPoint(unsigned int oldFrame, unsigned int newFrame, float weight);
+    void removeWeightPoint(unsigned int frame);
+
+    std::vector<std::pair<unsigned int, float> > getWeightPoints() const;
+    float getWeight(unsigned int frame) const;
 
   protected:
   private:
@@ -87,6 +103,7 @@ class TimelineTrack
     uint64_t _startTime;
     float _frameTime;
     std::vector<MotionSequenceFrame> _frames;
+    std::map<unsigned int, float> _weightPoints;
 };
 
 #endif // TIMELINETRACK_H

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxDialog" name="TimelineOverlayDialog">
+		<title>Overlay Properties</title>
+		<centered>1</centered>
+		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
+			<orient>wxVERTICAL</orient>
+			<object class="spacer">
+				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<border>5</border>
+				<size>10,10</size>
+			</object>
+			<object class="sizeritem">
+				<object class="wxBoxSizer" variable="BoxSizer2" member="no">
+					<object class="sizeritem">
+						<object class="wxStaticBoxSizer" variable="StaticBoxSizer2" member="no">
+							<label>Priority</label>
+							<orient>wxVERTICAL</orient>
+							<object class="sizeritem">
+								<object class="wxSpinCtrl" name="ID_SPINCTRLPRIORITY" variable="SpinCtrlPriority" member="yes">
+									<value>1</value>
+									<min>1</min>
+									<max>20</max>
+									<style>wxSP_ARROW_KEYS</style>
+								</object>
+								<flag>wxALL</flag>
+								<border>5</border>
+							</object>
+							<object class="sizeritem">
+								<object class="wxTextCtrl" name="ID_TEXTCTRLPRIORITY" variable="TextCtrlPriority" member="yes">
+									<value>Set the priority of the overlay. A smaller value indicates a higher priority.</value>
+									<style>wxTE_NO_VSCROLL|wxTE_MULTILINE|wxTE_READONLY</style>
+								</object>
+								<flag>wxALL|wxEXPAND</flag>
+								<border>5</border>
+							</object>
+						</object>
+						<flag>wxALL|wxEXPAND</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+					<object class="sizeritem">
+						<object class="wxStaticBoxSizer" variable="StaticBoxSizer1" member="no">
+							<label>Overlay Type</label>
+							<object class="sizeritem">
+								<object class="wxListBox" name="ID_LISTBOXTYPE" variable="ListBoxType" member="yes">
+									<content>
+										<item>Additive</item>
+										<item>Subtractive</item>
+										<item>Interpolation</item>
+										<item>Ignore</item>
+										<item>Overwrite</item>
+									</content>
+									<handler function="OnListBoxTypeSelect" entry="EVT_LISTBOX" />
+								</object>
+								<flag>wxALL|wxEXPAND</flag>
+								<border>5</border>
+								<option>2</option>
+							</object>
+							<object class="sizeritem">
+								<object class="wxTextCtrl" name="ID_TEXTCTRLOVERLAYTYPE" variable="TextCtrlOverlayType" member="yes">
+									<value>Add the rotation of the lower tracks&apos; frame to the respective frame of the track above.</value>
+									<style>wxTE_NO_VSCROLL|wxTE_MULTILINE|wxTE_READONLY</style>
+								</object>
+								<flag>wxALL|wxEXPAND</flag>
+								<border>5</border>
+								<option>3</option>
+							</object>
+						</object>
+						<flag>wxALL|wxEXPAND</flag>
+						<border>5</border>
+						<option>2</option>
+					</object>
+				</object>
+				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<border>5</border>
+			</object>
+			<object class="spacer">
+				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<border>5</border>
+				<size>10,10</size>
+			</object>
+			<object class="sizeritem">
+				<object class="wxBoxSizer" variable="BoxSizer3" member="no">
+					<object class="sizeritem">
+						<object class="wxButton" name="ID_BUTTONOK" variable="ButtonOk" member="yes">
+							<label>Ok</label>
+							<default>1</default>
+							<handler function="OnButtonOkClick" entry="EVT_BUTTON" />
+						</object>
+						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<border>5</border>
+					</object>
+					<object class="sizeritem">
+						<object class="wxButton" name="ID_BUTTONABORT" variable="ButtonAbort" member="yes">
+							<label>Abort</label>
+							<handler function="OnButtonAbortClick" entry="EVT_BUTTON" />
+						</object>
+						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<border>5</border>
+					</object>
+				</object>
+				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<border>5</border>
+			</object>
+		</object>
+	</object>
+</wxsmith>

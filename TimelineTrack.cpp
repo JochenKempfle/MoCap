@@ -180,7 +180,7 @@ bool TimelineTrack::cut(uint64_t time, TimelineTrack* newTrack)
         if (getWeight(pos) != 1.0f)
         {
             newTrack->_weightPoints[0] = getWeight(pos);
-            setWeightPoint(pos -1, getWeight(pos - 1));
+            setWeightPoint(pos - 1, getWeight(pos - 1));
         }
         for (auto it = _weightPoints.lower_bound(pos); it != _weightPoints.end(); ++it)
         {

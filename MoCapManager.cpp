@@ -31,15 +31,18 @@ OF SUCH DAMAGE.
 
 #include "SensorManager.h"
 #include "MotionFilterNone.h"
+#include "MotionFilterSlerp.h"
 #include "AnimationManager.h"
 
 MoCapManager::MoCapManager()
 {
     _state = RECORD;
     // create a skeleton
-    createSkeleton();
+    createDefaultSkeleton();
     _filters.push_back(new MotionFilterNone(&_skeleton));
+    _filters.push_back(new MotionFilterSlerp(&_skeleton));
     _recording = false;
+    _currentFilter = 1;
 }
 
 MoCapManager::~MoCapManager()
@@ -67,20 +70,20 @@ void MoCapManager::assignSensorToBone(int sensorId, int boneId)
     }
     else if (boneId < 0)
     {
-        theMoCapManager.removeSensorFromBones(sensorId);
+        removeSensorFromBones(sensorId);
         return;
     }
     // get the sensor which was assigned to chosen bone before and remove it from the bone
-    theMoCapManager.removeSensorFromBones(sensorId);
-    int prevSensorId = theMoCapManager.getSensorIdFromBoneId(boneId);
-    theMoCapManager.removeSensorFromBones(prevSensorId);
+    removeSensorFromBones(sensorId);
+    int prevSensorId = getSensorIdFromBoneId(boneId);
+    removeSensorFromBones(prevSensorId);
 
     _boneIdFromSensorId[sensorId] = boneId;
     _sensorIdFromBoneId[boneId] = sensorId;
     theSensorManager.setSensorStateHasBone(sensorId, true);
     theSensorManager.getSensor(sensorId)->setBoneId(boneId);
-    // TODO(JK#1#): set sensors to filter only when recording
-    _filters[0]->setSensors(theSensorManager.getSensors());
+    // TODO(JK#1#): set sensors to filter only when recording, also only set sensors with bone id
+    _filters[_currentFilter]->setSensors(theSensorManager.getSensors());
 }
 
 void MoCapManager::removeSensorFromBones(int sensorId)
@@ -90,12 +93,14 @@ void MoCapManager::removeSensorFromBones(int sensorId)
     {
         _sensorIdFromBoneId.erase(it->second);
         _boneIdFromSensorId.erase(sensorId);
+        theSensorManager.getSensor(sensorId)->setBoneId(-1);
         theSensorManager.setSensorStateHasBone(sensorId, false);
     }
 }
 
 int MoCapManager::getSensorIdFromBoneId(int boneId)
 {
+    // TODO(JK#1#): remove _sensorIdFromBoneId, as there is no use for this, this may fix the buggy assign sensor behaviour
     auto it = _sensorIdFromBoneId.find(boneId);
     if (it != _sensorIdFromBoneId.end())
     {
@@ -145,9 +150,9 @@ void MoCapManager::calibrate()
     std::vector<SensorNode*> sensors = theSensorManager.getSensors();
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        Quaternion rotationOffset = sensors[i]->getRotation();//.inv();
-        sensors[i]->setRotationOffset(rotationOffset);
-        theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
+        Quaternion rotationOffset = sensors[i]->getRotation().inv();
+        sensors[i]->setRotationOffset(rotationOffset.normalize());
+        // theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
 
         // TODO(JK#4#): calibration! If bone.dir does not match, rotate 180° around y
     }
@@ -163,20 +168,45 @@ void MoCapManager::setSensorBoneMapping()
         {
             continue;
         }
-        Quaternion mapped = sensors[i]->getRotation();
-        mapped = sensors[i]->getRotationOffset().inv() * mapped;// * sensors[i]->getRotationOffset();
-        mapped = bone->getDefaultOrientation() * mapped.inv();
-        sensors[i]->setBoneMapping(mapped);
-        {
-            theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
-        }
+        Quaternion mapped = sensors[i]->getRotation().normalized();
+        mapped = sensors[i]->getRotationOffset() * mapped;// * sensors[i]->getRotationOffset();
+        mapped.normalize();
+        mapped = bone->getDefaultOrientation().inv() * mapped;
+        mapped.normalize();
+        sensors[i]->setBoneMapping(mapped.inv());
+
+        theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
     }
 }
 
-
-void MoCapManager::startRecording()
+void MoCapManager::startSimulation()
 {
-    _filters[0]->setRecording(true);
+    _filters[_currentFilter]->setSensors(theSensorManager.getSensors());
+    _filters[_currentFilter]->start();
+}
+
+void MoCapManager::stopSimulation()
+{
+    _filters[_currentFilter]->stop();
+}
+
+void MoCapManager::selectFilter(int filter)
+{
+    if (filter < 0 || filter >= _filters.size())
+    {
+        return;
+    }
+    _currentFilter = filter;
+}
+
+void MoCapManager::startRecording(uint64_t startTime, float frameTime)
+{
+    // disable synchronizing in order to have a consistent recording
+    // _filters[_currentFilter]->setSensors(theSensorManager.getSensors());
+    theSensorManager.setSynchronizing(false);
+    _filters[_currentFilter]->setFrameTime(frameTime);
+    _filters[_currentFilter]->setStartTime(startTime);
+    _filters[_currentFilter]->setRecording(true);
     _recording = true;
 }
 
@@ -186,12 +216,14 @@ MotionSequence* MoCapManager::stopRecording()
     {
         return nullptr;
     }
+    // enable synchronizing again
+    theSensorManager.setSynchronizing(true);
     _recording = false;
-    _filters[0]->setRecording(false);
-    MotionSequence* sequence = new MotionSequence(_filters[0]->getSequence());
+    _filters[_currentFilter]->setRecording(false);
+    MotionSequence* sequence = new MotionSequence(_filters[_currentFilter]->getSequence());
     // TODO(JK#1#): set recorded MotionSequence details (name, frameTime, numFrames etc in appropriate function eg in the filter)
     sequence->setName("recording");
-    sequence->setFrameTime(0.01f);
+    //sequence->setFrameTime(0.01f);
     theAnimationManager.addProjectSequence(sequence);
     return sequence;
 }
@@ -199,7 +231,7 @@ MotionSequence* MoCapManager::stopRecording()
 void MoCapManager::update()
 {
     // TODO(JK#1#): don't use a recording filter for update, maybe use special filter
-    _filters[0]->update();
+    //_filters[_currentFilter]->update();
     return;
     std::vector<SensorNode*> sensors = theSensorManager.getSensors();
     for (size_t i = 0; i < sensors.size(); ++i)
@@ -213,7 +245,7 @@ void MoCapManager::update()
     _skeleton.update();
 }
 
-void MoCapManager::createSkeleton()
+void MoCapManager::createDefaultSkeleton()
 {
     _skeleton.clear();
 

@@ -750,6 +750,7 @@ void GLCanvas::InitGL()
 {
     SetCurrent(*_GLRC);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
+    //glClearColor(1.0, 1.0, 1.0, 1.0);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_BLEND);

@@ -74,7 +74,7 @@ class SensorNode
     void setCalibrated(bool value = true) { _state = (value ? _state | SensorState::CALIBRATED : _state & ~SensorState::CALIBRATED); }
 
     // TODO(JK#4#): handle SensorState somehow else, depending on member variables (i.e. buffer size, _boneId > 0 etc.)
-    bool isUpdated() const { return _state & SensorState::UPDATED ? true : false; }
+    //bool isUpdated() const { return _state & SensorState::UPDATED ? true : false; }
     bool hasBone() const { return _state & SensorState::HAS_BONE ? true : false; }
     bool isCalibrated() const { return _state & SensorState::CALIBRATED ? true : false; }
 
@@ -98,6 +98,22 @@ class SensorNode
     Quaternion getRotationOffset() const { return _rotationOffset; }
     void setRotationOffset(const Quaternion &offset) { _rotationOffset = offset; }
 
+    uint64_t getStartTime() const { return _startTime; }
+    uint64_t getLastReceiveTime() const { return _lastReceiveTime; }
+
+    float getFrameTime() const { return _frameTime; } // float(_buffer.back().getTimestamp() - _buffer.front().getTimestamp()) / (_buffer.size() * 1000); }
+    float getCurrentFrameTime() const { return _currentFrameTime; }
+
+    // TODO(JK#1#): delay!
+    int getDelay() const { return _delay; } // (_lastReceiveTime - _startTime - _currentTimeStamp)/10; }
+
+    unsigned int getNumReceivedPackets() const { return _numReceivedPackets; }
+    int getNumLostPackets() const;
+    unsigned int getCurrentTimeStamp() const { return _currentTimeStamp; }
+
+    void setSynchronizing(bool sync = true) { _synchronizing = sync; }
+    bool isSynchronizing() const { return _synchronizing; }
+
     // returns the rotation in euler angles, using the 1-2-3 convention
     Vector3 toEuler() const;
 
@@ -116,7 +132,20 @@ class SensorNode
     Quaternion _coordinateMapping;
     Quaternion _boneMapping;
     Vector3 _position;
+    // the global start time in ms
+    uint64_t _startTime;
+    uint64_t _lastReceiveTime;
+    float _frameTime;
+    float _currentFrameTime;
+    int _delay;
 
+    unsigned int _numReceivedPackets;
+    int _numLostPackets;
+    unsigned int _currentTimeStamp;
+
+    bool _synchronizing;
+
+    std::list<SensorData> _buffer;
     std::vector<SensorBuffer*> _buffers;
 };
 

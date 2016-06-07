@@ -40,13 +40,13 @@ class SensorData
     virtual ~SensorData();
 
     void setTimestamp(unsigned int timestamp) { _timestamp = timestamp; }
-    unsigned int getTimestamp() { return _timestamp; }
+    unsigned int getTimestamp() const { return _timestamp; }
 
     void setReceiveTime(uint64_t receiveTime) { _receiveTime = receiveTime; }
-    uint64_t getReceiveTime() { return _receiveTime; }
+    uint64_t getReceiveTime() const { return _receiveTime; }
 
     void setOrientation(Quaternion orientation) { _orientation = orientation; }
-    Quaternion getOrientation() { return _orientation; }
+    Quaternion getOrientation() const { return _orientation; }
 
   protected:
 

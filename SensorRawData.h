@@ -40,7 +40,7 @@ struct SensorRawData
     unsigned int id;
     unsigned int timestamp;
     float rotation[4];
-    // float position[3];
+    float position[3];
     uint64_t receiveTime;
 };
 

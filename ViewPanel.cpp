@@ -35,6 +35,7 @@ OF SUCH DAMAGE.
 #include "MoCapManager.h"
 #include "FileHandler.h"
 #include "CustomEvents.h"
+#include "FilterDialog.h"
 #include <vector>
 
 #ifndef WX_PRECOMP
@@ -83,6 +84,7 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	ButtonAutoAssign = new wxButton(this, ID_BUTTONAUTOASSIGN, _("Auto Assign"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONAUTOASSIGN"));
 	BoxSizerControl->Add(ButtonAutoAssign, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonCalibrate = new wxButton(this, ID_BUTTONCALIBRATE, _("Calibrate"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONCALIBRATE"));
+	ButtonCalibrate->Hide();
 	BoxSizerControl->Add(ButtonCalibrate, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonMapCoordinates = new wxButton(this, ID_BUTTONMAPCOORDINATES, _("Map\nCoordinates"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONMAPCOORDINATES"));
 	BoxSizerControl->Add(ButtonMapCoordinates, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -129,6 +131,7 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
     _simulationStarted = false;
     _autoAssignStarted = false;
     _autoAssignBoneId = -1;
+    _timer = new Timer(this);
     // TODO(JK#3#): restore previous state when switching to this panel again (maybe don't destroy panels in MoCapMain)
 }
 
@@ -140,6 +143,8 @@ ViewPanel::~ViewPanel()
 
 void ViewPanel::OnUpdateEvent(wxEvent& event)
 {
+    //wxMessageBox(_("a"));
+    //return;
     if (_counter >= 4)
     {
         _counter = 0;
@@ -196,7 +201,6 @@ SensorDataPanel* ViewPanel::addSensor(int id)
 
 void ViewPanel::OnButtonSimulateClick(wxCommandEvent& event)
 {
-    _simulationStarted = true;
     Freeze();
     ButtonSimulate->Hide();
     ButtonCalibrate->Hide();
@@ -205,10 +209,23 @@ void ViewPanel::OnButtonSimulateClick(wxCommandEvent& event)
     Thaw();
     Refresh();
     // TODO(JK#3#): check if connection is not lost while started
+    _simulationStarted = true;
+    theMoCapManager.startSimulation();
 }
 
 void ViewPanel::OnButtonRecordClick(wxCommandEvent& event)
 {
+    // TODO(JK#2#): check if connected before starting recording!
+    FilterDialog* dialog = new FilterDialog(this);
+    dialog->setFilter(theMoCapManager.getFilters(), theMoCapManager.getSelectedFilter());
+    if (dialog->ShowModal() != wxID_OK)
+    {
+        dialog->Destroy();
+        return;
+    }
+    theMoCapManager.selectFilter(dialog->getSelectedFilter());
+    float frameTime = float(dialog->getFrameTime()) / 1000.0f;
+    dialog->Destroy();
     _simulationStarted = true;
     Freeze();
     ButtonSimulate->Hide();
@@ -218,7 +235,9 @@ void ViewPanel::OnButtonRecordClick(wxCommandEvent& event)
     BoxSizerControl->Layout();
     Thaw();
     Refresh();
-    theMoCapManager.startRecording();
+    wxLongLong time = wxGetUTCTimeMillis();
+    uint64_t startTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
+    theMoCapManager.startRecording(startTime, frameTime);
 }
 
 void ViewPanel::OnButtonStopClick(wxCommandEvent& event)
@@ -236,6 +255,7 @@ void ViewPanel::OnButtonStopClick(wxCommandEvent& event)
     if (theMoCapManager.isRecording())
     {
         MotionSequence* sequence = theMoCapManager.stopRecording();
+        theMoCapManager.stopSimulation();
         if (sequence == nullptr)
         {
             return;
@@ -255,6 +275,7 @@ void ViewPanel::OnButtonStopClick(wxCommandEvent& event)
         FileHandler fileHandler;
         fileHandler.writeBVH(path, sequence);
     }
+    theMoCapManager.stopSimulation();
 }
 
 void ViewPanel::OnButtonAutoAssignClick(wxCommandEvent& event)
@@ -286,14 +307,61 @@ void ViewPanel::OnButtonCalibrateClick(wxCommandEvent& event)
 
 void ViewPanel::OnButtonMapCoordinatesClick(wxCommandEvent& event)
 {
+    theMoCapManager.calibrate();
+/*    _timer = new Timer(this);
+    //_timer->start(1000);
+    wxString msg;
+    // wxLongLong time = wxGetUTCTimeMillis();
+    int num = 0;
+    int min = 10000000;
+    int max = 0;
+    std::vector<SensorNode*> sensors = theSensorManager.getSensors();
+    for (size_t i = 0; i < sensors.size(); ++i)
+    {
+        int recv = sensors[i]->getDelay();
+        msg.Clear();
+        msg << _("ID: ") << sensors[i]->getId() << _("  ") << recv;
+        wxLogDebug(msg);
+        num += recv;
+        if (recv < min)
+        {
+            min = recv;
+        }
+        if (recv > max)
+        {
+            max = recv;
+        }
+    }
+
+    msg.Clear();
+    msg << _("\ntotal: ") << num;
+    wxLogDebug(msg);
+
+    msg.Clear();
+    msg << _("avg: ") << float(num)/sensors.size();
+    wxLogDebug(msg);
+
+    msg.Clear();
+    msg << _("min: ") << min;
+    wxLogDebug(msg);
+
+    msg.Clear();
+    msg << _("max: ") << max << _("\n__________________________\n\n");
+    wxLogDebug(msg);
+
+    //wxMilliSleep(1112);
+
+    //wxMessageBox(msg);
 //    MotionSequence m;
 //    m.setFrameTime(0.1f);
 //    m.createFromSkeleton(*theMoCapManager.getSkeleton());
 //    FileHandler h;
 //    h.writeBVH(_("C:\\Users\\Jochen\\Desktop\\bla.bvh"), &m);
+*/
 }
 
 void ViewPanel::OnButtonMapBonesClick(wxCommandEvent& event)
 {
+    //_timer->stop();
     theMoCapManager.setSensorBoneMapping();
 }

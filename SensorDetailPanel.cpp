@@ -65,6 +65,17 @@ SensorDetailPanel::SensorDetailPanel(wxWindow* parent,wxWindowID id,const wxPoin
 	//*)
 	Connect(UpdateEvent, (wxObjectEventFunction)&SensorDetailPanel::OnUpdateEvent);
 	// addSensor(0);
+    std::vector<SensorNode*> sensors = theSensorManager.getSensors();
+    std::vector<wxPanel*> sensorPanels;
+
+    for (size_t i = 0; i < sensors.size(); ++i)
+    {
+        SensorDataExtPanel* sensorPanel = new SensorDataExtPanel(sensorContainerPanel->ScrolledWindow);
+        _dataPanelFromId[sensors[i]->getId()] = sensorPanel;
+        sensorPanel->setSensor(sensors[i]);
+        sensorPanels.push_back(sensorPanel);
+    }
+    sensorContainerPanel->add(sensorPanels);
 }
 
 SensorDetailPanel::~SensorDetailPanel()

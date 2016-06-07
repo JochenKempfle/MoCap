@@ -303,6 +303,14 @@ Quaternion Quaternion::lerp(const Quaternion &other, float t) const
 
 Quaternion Quaternion::slerp(const Quaternion &other, double t) const
 {
+    if (t > 0.999)
+    {
+        return other;
+    }
+    else if (t < 0.001)
+    {
+        return *this;
+    }
     // double theta = acos(dot(other));
     double d = dot(other);
     double absD = std::abs(d);

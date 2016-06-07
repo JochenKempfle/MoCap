@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include "GLCanvas.h"
 #include "SensorDataPanel.h"
+#include "Timer.h"
 #include <map>
 
 #ifndef WX_PRECOMP
@@ -103,6 +104,8 @@ class ViewPanel: public wxPanel
         bool _simulationStarted;
         bool _autoAssignStarted;
         int _autoAssignBoneId;
+
+        Timer* _timer;
 
 		DECLARE_EVENT_TABLE()
 };

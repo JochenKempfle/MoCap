@@ -56,6 +56,7 @@ class MotionSequenceChannel
     void appendFrame(const MotionSequenceFrame &frame);
 
     MotionSequenceFrame getFrame(size_t frameNumber) const;
+    MotionSequenceFrame getLastFrame() const;
     const std::vector<MotionSequenceFrame>& getFrames() const { return _frames; }
     size_t getNumFrames() const;
 

@@ -80,8 +80,8 @@ void SensorManager::updateSensor(std::string IPAddress, const SensorRawData &dat
     // Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
     // Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
     // x = y*x;
-    it->second->setRotation(/*x*/it->second->getRotation()/*x.inv()*/);
-    it->second->setUpdated(true);
+    // it->second->setRotation(/*x*/it->second->getRotation()/*x.inv()*/);
+    // it->second->setUpdated(true);
 }
 
 bool SensorManager::updateSensor(int id, const SensorRawData &data)
@@ -92,8 +92,8 @@ bool SensorManager::updateSensor(int id, const SensorRawData &data)
     if (it != _sensors.end())
     {
         it->second->update(data);
-        it->second->setRotation(/*x*/it->second->getRotation()/*x.inv()*/);
-        it->second->setUpdated(true);
+        // it->second->setRotation(/*x*/it->second->getRotation()/*x.inv()*/);
+        // it->second->setUpdated(true);
         return true;
     }
     return false;
@@ -174,6 +174,14 @@ void SensorManager::setSensorStateHasBone(int id, bool hasBone)
     if (it != _sensors.end())
     {
         it->second->setHasBone(hasBone);
+    }
+}
+
+void SensorManager::setSynchronizing(bool sync)
+{
+    for (auto it = _sensors.begin(); it != _sensors.end(); ++it)
+    {
+        it->second->setSynchronizing(sync);
     }
 }
 

@@ -61,11 +61,20 @@ class SensorDataExtPanel: public wxPanel
 
 		//(*Declarations(SensorDataExtPanel)
 		wxPanel* PanelPlot;
+		wxStaticText* StaticText2;
 		wxStaticText* StaticTextState;
+		wxStaticText* StaticTextFPS;
+		wxStaticText* StaticTextDelay;
+		wxStaticText* StaticText1;
+		wxStaticText* StaticText3;
 		wxStaticText* StaticTextName;
 		wxStaticBoxSizer* StaticBoxSizerInfo;
+		wxStaticText* StaticTextReceived;
+		wxStaticText* StaticTextLost;
 		wxToggleButton* ToggleButtonOffset;
 		wxStaticText* StaticTextIP;
+		wxStaticText* StaticTextTimeStamp;
+		wxStaticText* StaticText4;
 		GLCanvas* glCanvas;
 		//*)
 
@@ -74,7 +83,16 @@ class SensorDataExtPanel: public wxPanel
 		//(*Identifiers(SensorDataExtPanel)
 		static const long ID_STATICTEXTNAME;
 		static const long ID_STATICTEXTIP;
+		static const long ID_STATICTEXTFPS;
 		static const long ID_STATICTEXTSTATE;
+		static const long ID_STATICTEXT1;
+		static const long ID_STATICTEXT2;
+		static const long ID_STATICTEXT3;
+		static const long ID_STATICTEXT4;
+		static const long ID_STATICTEXTRUNTIME;
+		static const long ID_STATICTEXTTIMESTAMP;
+		static const long ID_STATICTEXTRECEIVED;
+		static const long ID_STATICTEXTLOST;
 		static const long ID_GLCANVAS;
 		static const long ID_TOGGLEBUTTONOFFSET;
 		static const long ID_PANELPLOT;
@@ -87,7 +105,6 @@ class SensorDataExtPanel: public wxPanel
 		void OnPanelPlotPaint(wxPaintEvent& event);
 		//*)
 
-		unsigned char _updateCounter;
 		SensorNode* _sensor;
 		Quaternion _offset;
 

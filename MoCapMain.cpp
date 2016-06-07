@@ -35,6 +35,7 @@ OF SUCH DAMAGE.
 #include "ViewPanel.h"
 #include "SensorDetailPanel.h"
 #include "SkeletonCreatorPanel.h"
+#include "MotionPlayerPanel.h"
 #include "PostProcessPanel.h"
 #include "SensorManager.h"
 #include "MoCapManager.h"
@@ -80,11 +81,13 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 const long MoCapFrame::ID_BUTTONSKELETON = wxNewId();
 const long MoCapFrame::ID_BUTTONSENSORDETAIL = wxNewId();
 const long MoCapFrame::ID_BUTTONVISUAL = wxNewId();
+const long MoCapFrame::ID_BUTTONMOTIONPLAYER = wxNewId();
 const long MoCapFrame::ID_BUTTONPOSTPROCESS = wxNewId();
 const long MoCapFrame::ID_BUTTONFULLSCREEN = wxNewId();
 const long MoCapFrame::ID_PANEL1 = wxNewId();
 const long MoCapFrame::ID_DATAPANEL = wxNewId();
 const long MoCapFrame::ID_BUTTONCONNECTION = wxNewId();
+const long MoCapFrame::ID_BUTTONDISCONNECT = wxNewId();
 const long MoCapFrame::ID_PANEL2 = wxNewId();
 const long MoCapFrame::ID_MAINPANEL = wxNewId();
 const long MoCapFrame::idMenuQuit = wxNewId();
@@ -94,6 +97,8 @@ const long MoCapFrame::idMenuAbout = wxNewId();
 const long MoCapFrame::ID_VIEWPANEL = wxNewId();
 const long MoCapFrame::ID_SENSORDETAILPANEL = wxNewId();
 const long MoCapFrame::ID_SKELETONCREATORPANEL = wxNewId();
+const long MoCapFrame::ID_MOTIONPLAYERPANEL = wxNewId();
+const long MoCapFrame::ID_POSTPROCESSPANEL = wxNewId();
 
 const long MoCapFrame::ID_SOCKET = wxNewId();
 const long MoCapFrame::ID_TIMER = wxNewId();
@@ -116,22 +121,23 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     wxBoxSizer* BoxSizer3;
     wxMenu* Menu2;
 
-    Create(parent, wxID_ANY, _("Motion Capturing"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
-    SetMinSize(wxSize(-1,-1));
+    Create(parent, wxID_ANY, _("Motion Capturing Toolkit"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
     FrameSizer = new wxBoxSizer(wxHORIZONTAL);
     MainPanel = new wxPanel(this, ID_MAINPANEL, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("ID_MAINPANEL"));
     MainSizer = new wxBoxSizer(wxVERTICAL);
     BoxSizer2 = new wxBoxSizer(wxVERTICAL);
     Panel1 = new wxPanel(MainPanel, ID_PANEL1, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER|wxTAB_TRAVERSAL, _T("ID_PANEL1"));
     BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
-    ButtonSkeleton = new wxButton(Panel1, ID_BUTTONSKELETON, _("Skeleton"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSKELETON"));
+    ButtonSkeleton = new wxButton(Panel1, ID_BUTTONSKELETON, _("Skeleton Editor"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSKELETON"));
     BoxSizer1->Add(ButtonSkeleton, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonSensorDetail = new wxButton(Panel1, ID_BUTTONSENSORDETAIL, _("Sensor Info"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSENSORDETAIL"));
     BoxSizer1->Add(ButtonSensorDetail, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ButtonVisual = new wxButton(Panel1, ID_BUTTONVISUAL, _("Visual"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONVISUAL"));
+    ButtonVisual = new wxButton(Panel1, ID_BUTTONVISUAL, _("Motion Capture"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONVISUAL"));
     ButtonVisual->SetFocus();
     BoxSizer1->Add(ButtonVisual, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-    ButtonPostProcess = new wxButton(Panel1, ID_BUTTONPOSTPROCESS, _("Post Process"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONPOSTPROCESS"));
+    ButtonMotionPlayer = new wxButton(Panel1, ID_BUTTONMOTIONPLAYER, _("Motion Player"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONMOTIONPLAYER"));
+    BoxSizer1->Add(ButtonMotionPlayer, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonPostProcess = new wxButton(Panel1, ID_BUTTONPOSTPROCESS, _("Motion Editor"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONPOSTPROCESS"));
     BoxSizer1->Add(ButtonPostProcess, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     BoxSizer1->Add(300,-1,1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxFIXED_MINSIZE, 5);
     ButtonFullScreen = new wxButton(Panel1, ID_BUTTONFULLSCREEN, _("Full Screen"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONFULLSCREEN"));
@@ -150,6 +156,10 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     BoxSizer4 = new wxBoxSizer(wxHORIZONTAL);
     ButtonConnection = new wxButton(Panel2, ID_BUTTONCONNECTION, _("Connection"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONCONNECTION"));
     BoxSizer4->Add(ButtonConnection, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonDisconnect = new wxButton(Panel2, ID_BUTTONDISCONNECT, _("Disconnect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONDISCONNECT"));
+    ButtonDisconnect->Disable();
+    BoxSizer4->Add(ButtonDisconnect, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    BoxSizer4->Add(-1,-1,1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     Panel2->SetSizer(BoxSizer4);
     BoxSizer4->Fit(Panel2);
     BoxSizer4->SetSizeHints(Panel2);
@@ -177,11 +187,15 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTONSKELETON,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonSkeletonClick);
     Connect(ID_BUTTONSENSORDETAIL,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonSensorDetailClick);
     Connect(ID_BUTTONVISUAL,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonVisualClick);
+    Connect(ID_BUTTONMOTIONPLAYER,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonMotionPlayerClick);
     Connect(ID_BUTTONPOSTPROCESS,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonPostProcessClick);
     Connect(ID_BUTTONFULLSCREEN,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonFullScreenClick);
     Connect(ID_BUTTONCONNECTION,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonConnectionClick);
+    Connect(ID_BUTTONDISCONNECT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonDisconnectClick);
+    MainPanel->Connect(wxEVT_KEY_DOWN,(wxObjectEventFunction)&MoCapFrame::OnMainPanelKeyDown,0,this);
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&MoCapFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&MoCapFrame::OnAbout);
+    Connect(wxEVT_KEY_DOWN,(wxObjectEventFunction)&MoCapFrame::OnKeyDown);
     //*)
     Connect(ID_SOCKET, wxEVT_SOCKET, wxSocketEventHandler(MoCapFrame::OnSocketEvent));
     Connect(ID_TIMER, wxEVT_TIMER, wxTimerEventHandler(MoCapFrame::OnTimerEvent));
@@ -450,11 +464,24 @@ void MoCapFrame::OnButtonSkeletonClick(wxCommandEvent& event)
     //theMoCapManager.setRenderStyle(DRAW_SPIN_ARROWS | HIGHLIGHT_SELECTED_BONE);
 }
 
+void MoCapFrame::OnButtonMotionPlayerClick(wxCommandEvent& event)
+{
+    Freeze();
+    DataPanel->Destroy();
+    DataPanel = new MotionPlayerPanel(MainPanel, ID_MOTIONPLAYERPANEL);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DataPanelSizer->Layout();
+    MainSizer->Layout();
+    Thaw();
+    Refresh();
+    theMoCapManager.setState(MOTION_PLAYER);
+}
+
 void MoCapFrame::OnButtonPostProcessClick(wxCommandEvent& event)
 {
     Freeze();
     DataPanel->Destroy();
-    DataPanel = new PostProcessPanel(MainPanel, ID_SKELETONCREATORPANEL);
+    DataPanel = new PostProcessPanel(MainPanel, ID_POSTPROCESSPANEL);
     DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     DataPanelSizer->Layout();
     MainSizer->Layout();
@@ -497,7 +524,7 @@ void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
             _socket = nullptr;
         }
         // Create the socket
-        _socket = new wxDatagramSocket(_addressLocal, wxSOCKET_BROADCAST | wxSOCKET_NOWAIT);
+        _socket = new wxDatagramSocket(_addressLocal, wxSOCKET_BROADCAST | wxSOCKET_NOWAIT | wxSOCKET_REUSEADDR);
         if (!_socket->IsOk())
         {
             wxMessageBox(_("Failed to create UDP socket at ") + _addressLocal.IPAddress(), _("Error"), wxICON_ERROR);
@@ -517,21 +544,19 @@ void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
 
     dialog->Destroy();
 
-    Freeze();
 /*    ButtonConnect->Hide();
     ButtonAutoAssign->Show();
     ButtonStart->Show();
-    ButtonDisconnect->Show();
     ButtonCalibrate->Show();*/
-    MainSizer->Layout();
-    Thaw();
+    ButtonDisconnect->Enable();
     Refresh();
-    _timer->Start(25);
+    _timer->Start(15);
 }
 
-/*
+
 void MoCapFrame::OnButtonDisconnectClick(wxCommandEvent& event)
 {
+    // TODO(JK#1#): check onButtonDisconnectClick, also check if currently recording!
     _timer->Stop();
 
     if (_socket != nullptr)
@@ -540,17 +565,14 @@ void MoCapFrame::OnButtonDisconnectClick(wxCommandEvent& event)
         _socket = nullptr;
     }
 
-    Freeze();
-    ButtonDisconnect->Hide();
-    ButtonCalibrate->Hide();
-    ButtonStart->Hide();
-    ButtonStop->Hide();
-    ButtonAutoAssign->Hide();
-    ButtonConnect->Show();
-    MainSizer->Layout();
-    Thaw();
-    Refresh();
+    ButtonDisconnect->Disable();
+    //ButtonCalibrate->Hide();
+    //ButtonStart->Hide();
+    //ButtonStop->Hide();
+    //ButtonAutoAssign->Hide();
+
     theMoCapManager.resetSkeleton();
+    Refresh();
     // update panels
     theSensorManager.resetAllSensorStatesUpdated();
     wxCommandEvent updateEvent(UpdateEvent);
@@ -558,7 +580,27 @@ void MoCapFrame::OnButtonDisconnectClick(wxCommandEvent& event)
 }
 
 
-*/
+
+void MoCapFrame::OnKeyDown(wxKeyEvent& event)
+{
+    switch (event.GetKeyCode())
+    {
+        case WXK_ESCAPE:
+            if (IsFullScreen())
+            {
+                ButtonFullScreen->SetLabel("Full Screen");
+                ShowFullScreen(false, wxFULLSCREEN_ALL);
+            }
+            break;
+        default:
+            return;
+    }
+}
+
+void MoCapFrame::OnMainPanelKeyDown(wxKeyEvent& event)
+{
+    event.Skip();
+}
 
 
 

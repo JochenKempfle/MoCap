@@ -30,6 +30,8 @@ OF SUCH DAMAGE.
 #ifndef SCROLLEDCONTAINERPANEL_H
 #define SCROLLEDCONTAINERPANEL_H
 
+#include <vector>
+
 #ifndef WX_PRECOMP
 	//(*HeadersPCH(ScrolledContainerPanel)
 	#include <wx/scrolwin.h>
@@ -48,6 +50,7 @@ class ScrolledContainerPanel: public wxPanel
 		virtual ~ScrolledContainerPanel();
 
 		void add(wxPanel* panel);
+		void add(std::vector<wxPanel*> panels);
 
 		//(*Declarations(ScrolledContainerPanel)
 		wxScrolledWindow* ScrolledWindow;

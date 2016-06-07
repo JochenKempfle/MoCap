@@ -47,6 +47,7 @@
 					<object class="sizeritem">
 						<object class="wxButton" name="ID_BUTTONCALIBRATE" variable="ButtonCalibrate" member="yes">
 							<label>Calibrate</label>
+							<hidden>1</hidden>
 							<handler function="OnButtonCalibrateClick" entry="EVT_BUTTON" />
 						</object>
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>

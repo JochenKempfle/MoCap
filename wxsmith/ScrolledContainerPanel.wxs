@@ -8,11 +8,12 @@
 			<orient>wxVERTICAL</orient>
 			<object class="sizeritem">
 				<object class="wxScrolledWindow" name="ID_SCROLLEDWINDOW" variable="ScrolledWindow" member="yes">
+					<style>wxVSCROLL</style>
 					<object class="wxBoxSizer" variable="BoxSizer2" member="yes">
 						<orient>wxVERTICAL</orient>
 					</object>
 				</object>
-				<flag>wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<flag>wxALL|wxEXPAND</flag>
 				<border>5</border>
 				<option>1</option>
 			</object>

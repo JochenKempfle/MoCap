@@ -90,6 +90,8 @@ class Timeline
     bool isBetweenTwoTracks(int channel, uint64_t time) const;
     bool isInsideTrack(int channel, uint64_t time) const;
 
+    void addInterpolation(int channel, uint64_t time, float frameTime);
+
     std::vector<TimelineTrack*> getOverlapping(const TimelineTrack* track);
 
     std::vector<TimelineTrack*> getInRange(int channel, uint64_t startTime, uint64_t endTime);

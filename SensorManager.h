@@ -63,6 +63,8 @@ class SensorManager
     void setSensorStateCalibrated(int id, bool calibrated = true);
     void setSensorStateHasBone(int id, bool hasBone = true);
 
+    void setSynchronizing(bool sync = true);
+
     std::vector<SensorNode*> getSensors();
 
   protected:

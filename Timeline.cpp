@@ -53,6 +53,10 @@ void Timeline::setSkeletonToTime(uint64_t time)
             {
                 _skeleton.setRelBoneOrientation(it->first, tracks[0]->getFrameFromAbsTime(time, true).getOrientation());
             }
+            else
+            {
+                _skeleton.setRelBoneOrientation(it->first, Quaternion());
+            }
             continue;
         }
         std::sort(overlays.begin(), overlays.end(), TimelineOverlay::compPriority);
@@ -92,14 +96,21 @@ void Timeline::setSkeletonToTime(uint64_t time)
                 case OverlayType::SUBTRACTIVE:
                     q = q1 * q2.inv();
                     break;
-                case OverlayType::INTERPOLATION:
-                    q = q1.slerp(q2, double(time - overlays[i]->getStartTime()) / overlays[i]->getLength());
-                    break;
                 case OverlayType::IGNORING:
                     q = q1;
                     break;
                 case OverlayType::OVERWRITE:
                     q = q2;
+                    break;
+                case OverlayType::LINEAR_INTERPOLATION:
+                    q = q1.slerp(q2, double(time - overlays[i]->getStartTime()) / overlays[i]->getLength());
+                    break;
+                case OverlayType::STATIC_INTERPOLATION:
+                    q = q1.slerp(q2, 0.5);
+                    break;
+                // TODO(JK#2#): add weighted interpolation with t = 1.0f - track1->getWeight() and q1 unweighted
+                case OverlayType::WEIGHTED_INTERPOLATION:
+                    q = track1->getFrameFromAbsTime(time, false).getOrientation().slerp(q2, 1.0 - track1->getWeight(track1->getFrameNumFromAbsTime(time)));
                     break;
                 default:
                     q = q1 * q2;
@@ -551,6 +562,36 @@ bool Timeline::isInsideTrack(int channel, uint64_t time) const
         return false;
     }
     return it->second->isInsideTrack(time);
+}
+
+void Timeline::addInterpolation(int channel, uint64_t time, float frameTime)
+{
+    if (!isBetweenTwoTracks(channel, time))
+    {
+        return;
+    }
+    uint64_t interpolationStartTime = getTrackBefore(channel, time)->getEndTime();
+    uint64_t interpolationEndTime = getTrackAfter(channel, time)->getStartTime();
+    uint64_t length = interpolationEndTime - interpolationStartTime;
+    // we want a frame time of ~ 5 ms, so divide delta time given in us by 5*1000 us to get the num of frames fitting into the window
+    uint64_t numFrames = length / (frameTime * 1000 * 1000);
+    if (numFrames == 0)
+    {
+        numFrames = 1;
+    }
+    // now find the exact frame time, which must be given in a fraction of seconds
+    frameTime = double(length) / double(numFrames * 1000 * 1000);
+    Quaternion q = getTrackBefore(channel, time)->getLastFrame().getOrientation();
+    Quaternion p = getTrackAfter(channel, time)->getFirstFrame().getOrientation();
+    TimelineTrack newTrack;
+    newTrack.setFrameTime(frameTime);
+    float step = 1.0f / float(numFrames + 1);
+
+    for (unsigned int i = 1; i < numFrames + 1; ++i)
+    {
+        newTrack.appendFrame(MotionSequenceFrame(q.slerp(p, i*step)));
+    }
+    insert(newTrack, channel, interpolationStartTime);
 }
 
 std::vector<TimelineTrack*> Timeline::getOverlapping(const TimelineTrack* track)

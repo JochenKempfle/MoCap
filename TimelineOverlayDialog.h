@@ -32,7 +32,7 @@ class TimelineOverlayDialog: public wxDialog
 		wxTextCtrl* TextCtrlPriority;
 		wxTextCtrl* TextCtrlOverlayType;
 		wxListBox* ListBoxType;
-		wxButton* ButtonAbort;
+		wxButton* ButtonCancel;
 		wxButton* ButtonOk;
 		wxSpinCtrl* SpinCtrlPriority;
 		//*)
@@ -45,15 +45,15 @@ class TimelineOverlayDialog: public wxDialog
 		static const long ID_LISTBOXTYPE;
 		static const long ID_TEXTCTRLOVERLAYTYPE;
 		static const long ID_BUTTONOK;
-		static const long ID_BUTTONABORT;
+		static const long ID_BUTTONCANCEL;
 		//*)
 
 	private:
 
 		//(*Handlers(TimelineOverlayDialog)
 		void OnButtonOkClick(wxCommandEvent& event);
-		void OnButtonAbortClick(wxCommandEvent& event);
 		void OnListBoxTypeSelect(wxCommandEvent& event);
+		void OnButtonCancelClick(wxCommandEvent& event);
 		//*)
 
 		DECLARE_EVENT_TABLE()

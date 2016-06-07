@@ -188,6 +188,7 @@ void MotionSequence::clear()
         delete it->second;
     }
     _channels.clear();
+    _numFrames = 0;
 }
 
 void MotionSequence::clearFrames()
@@ -196,6 +197,7 @@ void MotionSequence::clearFrames()
     {
         it->second->clear();
     }
+    _numFrames = 0;
 }
 
 std::vector<int> MotionSequence::getChannelIds() const

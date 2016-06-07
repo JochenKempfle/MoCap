@@ -99,8 +99,10 @@ class TimelinePanel: public wxPanel
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
         void OnPopupBonesClick(wxCommandEvent& event);
+        void OnPopupSkeletonsClick(wxCommandEvent& event);
 
         void showPopUpBones();
+        void showPopUpSkeletons();
 
 		void endDragDrop();
 
@@ -134,6 +136,8 @@ class TimelinePanel: public wxPanel
         bool _editSelectedTrack;
 
         unsigned int _oldWeightPointFrame;
+
+        bool _resizeTrack;
 
         bool _dragging;
         bool _dragIsValid;

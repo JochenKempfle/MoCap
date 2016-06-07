@@ -31,11 +31,13 @@ OF SUCH DAMAGE.
 #define SENSORBUFFER_H
 
 #include "SensorData.h"
+#include <mutex>
+#include <atomic>
 #include <list>
 
 class SensorNode;
 
-class SensorBuffer : public std::list<SensorData>
+class SensorBuffer// : public std::list<SensorData>
 {
   public:
     SensorBuffer();
@@ -45,19 +47,27 @@ class SensorBuffer : public std::list<SensorData>
     void subscribe(SensorNode* sensor);
     void unsubscribe();
 
+    void lock() { _mtx.lock(); }
+    void unlock() { _mtx.unlock(); }
+
     SensorNode* getSensor() const { return _sensor; }
 
-//    void push_back(const SensorData &data);
-//    void push_front(const SensorData &data);
-//
-//    void pop_back() { }
-//    void pop_front();
-//
-//    SensorData back() const { return _buffer.back(); }
-//    SensorData front() const { return _buffer.front(); }
-//
-//    size_t size();
-//
+    void push_back(const SensorData &data);
+    void push_front(const SensorData &data);
+
+    void pop_back();
+    void pop_front();
+
+    SensorData& back();
+    const SensorData& back() const;
+    SensorData& front() { return _bufferFront.front(); }
+    const SensorData& front() const { return _bufferFront.front(); }
+
+    size_t sizeFront() const { return _bufferFront.size(); }
+    size_t sizeBack();
+    size_t sizeTotal() { return _bufferFront.size() + sizeBack(); }
+    void clear();
+
 //    std::list<SensorData>::iterator begin() { return _buffer.begin(); }
 //    std::list<SensorData>::iterator end() { return _buffer.end(); }
 //
@@ -68,7 +78,10 @@ class SensorBuffer : public std::list<SensorData>
 
   private:
     SensorNode* _sensor;
-    // std::list<SensorData> _buffer;
+    std::mutex _mtx;
+    std::atomic_bool _clearFlag;
+    std::list<SensorData> _bufferFront;
+    std::list<SensorData> _bufferBack;
 };
 
 #endif // SENSORBUFFER_H

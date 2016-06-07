@@ -47,7 +47,7 @@ MotionFilterNone::~MotionFilterNone()
 
 std::string MotionFilterNone::getName() const
 {
-    return "MotionFilterNone";
+    return "No Filter";
 }
 
 void MotionFilterNone::update()
@@ -62,14 +62,14 @@ void MotionFilterNone::update()
         SensorNode* sensor = buffer->getSensor();
         int boneId = sensor->getBoneId();
 
-        size_t bufferSize = buffer->size();
+        size_t bufferSize = buffer->sizeFront();
         if (boneId < 0 || bufferSize == 0)
         {
             continue;
         }
         // update the skeleton with the calibrated absolute orientation measured by the sensors
         _skeleton->setAbsBoneOrientation(boneId, sensor->getCalRotation());//buffer->back().getOrientation());
-        if (!_recording)
+        if (!_recording && bufferSize > 5)
         {
             buffer->clear();
             continue;
@@ -92,7 +92,7 @@ void MotionFilterNone::update()
 void MotionFilterNone::onStartRecording()
 {
     _sequence.clearFrames();
-    _sequence.setFrameTime(0.01f);
+    _sequence.setFrameTime(_frameTime);
     _sequence.setHasAbsOrientations(true);
     for (size_t i = 0; i < _buffers.size(); ++i)
     {

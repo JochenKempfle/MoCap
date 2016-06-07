@@ -59,12 +59,19 @@ class SkeletonCreatorPanel: public wxPanel
 		virtual ~SkeletonCreatorPanel();
 
 		//(*Declarations(SkeletonCreatorPanel)
+		wxStaticText* StaticText10;
 		wxStaticText* StaticText9;
 		wxTextCtrl* TextCtrl4;
+		wxButton* ButtonExport;
 		wxTextCtrl* TextCtrlLength;
+		wxTextCtrl* TextCtrlZ;
+		wxStaticText* StaticText13;
 		wxStaticText* StaticText2;
 		wxStaticText* StaticText6;
+		wxButton* ButtonLoadDefault;
 		wxStaticText* StaticText8;
+		wxStaticText* StaticText11;
+		wxButton* ButtonImport;
 		wxStaticText* StaticText1;
 		wxTextCtrl* TextCtrlYaw;
 		wxStaticText* StaticText3;
@@ -72,21 +79,21 @@ class SkeletonCreatorPanel: public wxPanel
 		wxTextCtrl* TextCtrlRoll;
 		wxStaticText* StaticText5;
 		wxStaticText* StaticText7;
-		wxButton* ButtonSave;
 		wxChoice* ChoiceParent;
 		wxTextCtrl* TextCtrl8;
 		wxButton* ButtonRemoveBone;
 		wxTextCtrl* TextCtrl7;
 		wxTextCtrl* TextCtrlName;
 		wxTextCtrl* TextCtrlPitch;
-		wxButton* ButtonReset;
+		wxStaticText* StaticText12;
 		wxTextCtrl* TextCtrl5;
-		wxButton* ButtonLoad;
+		wxTextCtrl* TextCtrlY;
 		wxButton* ButtonAddBone;
 		wxStaticText* StaticText4;
 		wxTextCtrl* TextCtrl10;
 		GLCanvas* glCanvas;
 		wxTextCtrl* TextCtrl11;
+		wxTextCtrl* TextCtrlX;
 		//*)
 
 		void updateTreeCtrlSkeleton();
@@ -96,9 +103,9 @@ class SkeletonCreatorPanel: public wxPanel
 	protected:
 
 		//(*Identifiers(SkeletonCreatorPanel)
-		static const long ID_BUTTONLOAD;
-		static const long ID_BUTTONSAVE;
-		static const long ID_BUTTONRESET;
+		static const long ID_BUTTONIMPORT;
+		static const long ID_BUTTONEXPORT;
+		static const long ID_BUTTONLOADDEFAULT;
 		static const long ID_GLCANVAS;
 		static const long ID_TREECTRLSKELETON;
 		static const long ID_STATICTEXT1;
@@ -124,6 +131,13 @@ class SkeletonCreatorPanel: public wxPanel
 		static const long ID_TEXTCTRL11;
 		static const long ID_BUTTONADDBONE;
 		static const long ID_BUTTONREMOVEBONE;
+		static const long ID_STATICTEXT10;
+		static const long ID_STATICTEXT11;
+		static const long ID_STATICTEXT12;
+		static const long ID_STATICTEXT13;
+		static const long ID_TEXTCTRLX;
+		static const long ID_TEXTCTRLY;
+		static const long ID_TEXTCTRLZ;
 		//*)
 
 	private:
@@ -137,11 +151,22 @@ class SkeletonCreatorPanel: public wxPanel
 		void OnChoiceParentSelect(wxCommandEvent& event);
 		void OnTextCtrlNameTextEnter(wxCommandEvent& event);
 		void OnTextCtrlLengthTextEnter(wxCommandEvent& event);
+		void OnButtonImportClick(wxCommandEvent& event);
+		void OnButtonExportClick(wxCommandEvent& event);
+		void OnButtonLoadDefaultClick(wxCommandEvent& event);
+		void OnButtonAddBoneClick(wxCommandEvent& event);
+		void OnButtonRemoveBoneClick(wxCommandEvent& event);
+		void OnTextCtrlOrientationTextEnter(wxCommandEvent& event);
+		void OnTextCtrlPositionTextEnter(wxCommandEvent& event);
+		void OnglCanvasMouseMove(wxMouseEvent& event);
+		void OnglCanvasLeftUp(wxMouseEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
 
 		DECLARE_EVENT_TABLE()
 
+		int _clickedArrow;
+		wxPoint _mousePos;
 		// Skeleton* _skeleton;
 		std::map<int, wxTreeItemId> _treeItemIdFromBoneId;
 };

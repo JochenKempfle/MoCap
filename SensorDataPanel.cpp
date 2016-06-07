@@ -73,7 +73,17 @@ SensorDataPanel::~SensorDataPanel()
 
 void SensorDataPanel::update(const SensorNode* sensor)
 {
-    _isUpdated = sensor->isUpdated();
+    wxLongLong time = wxGetUTCTimeMillis();
+    uint64_t currentTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
+
+    if (sensor->getLastReceiveTime() < currentTime - 1000)
+    {
+        _isUpdated = false;
+    }
+    else
+    {
+        _isUpdated = true;
+    }
     _hasBone = sensor->hasBone();
     _isCalibrated = sensor->isCalibrated();
 }

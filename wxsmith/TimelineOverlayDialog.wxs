@@ -5,11 +5,6 @@
 		<centered>1</centered>
 		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
 			<orient>wxVERTICAL</orient>
-			<object class="spacer">
-				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-				<border>5</border>
-				<size>10,10</size>
-			</object>
 			<object class="sizeritem">
 				<object class="wxBoxSizer" variable="BoxSizer2" member="no">
 					<object class="sizeritem">
@@ -29,10 +24,15 @@
 							<object class="sizeritem">
 								<object class="wxTextCtrl" name="ID_TEXTCTRLPRIORITY" variable="TextCtrlPriority" member="yes">
 									<value>Set the priority of the overlay. A smaller value indicates a higher priority.</value>
-									<style>wxTE_NO_VSCROLL|wxTE_MULTILINE|wxTE_READONLY</style>
+									<style>wxTE_NO_VSCROLL|wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE</style>
 								</object>
 								<flag>wxALL|wxEXPAND</flag>
 								<border>5</border>
+							</object>
+							<object class="spacer">
+								<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+								<border>5</border>
+								<option>1</option>
 							</object>
 						</object>
 						<flag>wxALL|wxEXPAND</flag>
@@ -47,24 +47,27 @@
 									<content>
 										<item>Additive</item>
 										<item>Subtractive</item>
-										<item>Interpolation</item>
 										<item>Ignore</item>
 										<item>Overwrite</item>
+										<item>Linear Interpolation</item>
+										<item>Static Interpolation</item>
+										<item>Weighted Interpolation</item>
 									</content>
+									<style>wxLB_SINGLE</style>
 									<handler function="OnListBoxTypeSelect" entry="EVT_LISTBOX" />
 								</object>
 								<flag>wxALL|wxEXPAND</flag>
 								<border>5</border>
-								<option>2</option>
+								<option>1</option>
 							</object>
 							<object class="sizeritem">
 								<object class="wxTextCtrl" name="ID_TEXTCTRLOVERLAYTYPE" variable="TextCtrlOverlayType" member="yes">
-									<value>Add the rotation of the lower tracks&apos; frame to the respective frame of the track above.</value>
-									<style>wxTE_NO_VSCROLL|wxTE_MULTILINE|wxTE_READONLY</style>
+									<value>Add the rotation of the lower track&apos;s frame to the respective frame of the track above.</value>
+									<style>wxTE_NO_VSCROLL|wxTE_MULTILINE|wxTE_READONLY|wxTE_CENTRE</style>
 								</object>
 								<flag>wxALL|wxEXPAND</flag>
 								<border>5</border>
-								<option>3</option>
+								<option>1</option>
 							</object>
 						</object>
 						<flag>wxALL|wxEXPAND</flag>
@@ -74,11 +77,7 @@
 				</object>
 				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 				<border>5</border>
-			</object>
-			<object class="spacer">
-				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-				<border>5</border>
-				<size>10,10</size>
+				<option>1</option>
 			</object>
 			<object class="sizeritem">
 				<object class="wxBoxSizer" variable="BoxSizer3" member="no">
@@ -92,9 +91,9 @@
 						<border>5</border>
 					</object>
 					<object class="sizeritem">
-						<object class="wxButton" name="ID_BUTTONABORT" variable="ButtonAbort" member="yes">
-							<label>Abort</label>
-							<handler function="OnButtonAbortClick" entry="EVT_BUTTON" />
+						<object class="wxButton" name="ID_BUTTONCANCEL" variable="ButtonCancel" member="yes">
+							<label>Cancel</label>
+							<handler function="OnButtonCancelClick" entry="EVT_BUTTON" />
 						</object>
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 						<border>5</border>

@@ -103,6 +103,15 @@ MotionSequenceFrame MotionSequenceChannel::getFrame(size_t frameNumber) const
     return _frames[_frames.size() - 1];
 }
 
+MotionSequenceFrame MotionSequenceChannel::getLastFrame() const
+{
+    if (_frames.size() == 0)
+    {
+        return MotionSequenceFrame();
+    }
+    return _frames[_frames.size() - 1];
+}
+
 size_t MotionSequenceChannel::getNumFrames() const
 {
     return _frames.size();

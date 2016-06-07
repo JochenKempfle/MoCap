@@ -46,8 +46,7 @@ OF SUCH DAMAGE.
 
 //(*IdInit(PostProcessPanel)
 const long PostProcessPanel::ID_GLCANVAS = wxNewId();
-const long PostProcessPanel::ID_SLIDER2 = wxNewId();
-const long PostProcessPanel::ID_BUTTONSETSKELETON = wxNewId();
+const long PostProcessPanel::ID_SLIDERFRAMES = wxNewId();
 const long PostProcessPanel::ID_BUTTONPLAY = wxNewId();
 const long PostProcessPanel::ID_TOGGLEBUTTONTIMELINE = wxNewId();
 const long PostProcessPanel::ID_TOGGLEBUTTONPREVIEW = wxNewId();
@@ -114,11 +113,9 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	glCanvas = new GLCanvas(this, ID_GLCANVAS, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE, _T("ID_GLCANVAS"), GLCanvasAttributes_1);
 	glCanvas->SetBackgroundColour(wxColour(0,0,0));
 	BoxSizer4->Add(glCanvas, 1, wxALL|wxEXPAND, 5);
-	Slider2 = new wxSlider(this, ID_SLIDER2, 0, 0, 100, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_SLIDER2"));
-	BoxSizer4->Add(Slider2, 0, wxEXPAND, 5);
+	SliderFrames = new wxSlider(this, ID_SLIDERFRAMES, 0, 0, 100, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_SLIDERFRAMES"));
+	BoxSizer4->Add(SliderFrames, 0, wxEXPAND, 5);
 	BoxSizer9 = new wxBoxSizer(wxHORIZONTAL);
-	ButtonSetSkeleton = new wxButton(this, ID_BUTTONSETSKELETON, _("Set Skeleton"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSETSKELETON"));
-	BoxSizer9->Add(ButtonSetSkeleton, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer9->Add(-1,-1,1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonPlay = new wxButton(this, ID_BUTTONPLAY, _("Play"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONPLAY"));
 	ButtonPlay->SetDefault();
@@ -224,6 +221,9 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	PanelDragDropFrame->Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&PostProcessPanel::OnPanelDragDropFrameLeftDown,0,this);
 	timelinePanel->Connect(wxEVT_LEFT_UP,(wxObjectEventFunction)&PostProcessPanel::OnTimelinePanelLeftUp,0,this);
 	//*)
+
+    _timer = new wxTimer(this, ID_TIMER);
+
 	Connect(wxEVT_MOUSE_CAPTURE_LOST, (wxObjectEventFunction)&PostProcessPanel::OnMouseCaptureLost);
 	Connect(UpdateEvent, (wxObjectEventFunction)&PostProcessPanel::OnUpdateEvent);
 	GenericDirCtrl->Connect(wxEVT_DIRCTRL_FILEACTIVATED,(wxObjectEventFunction)&PostProcessPanel::OnGenericDirCtrlActivated,0,this);
@@ -231,7 +231,6 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 //	Treebook1->AddPage(new TimelinePanel(Treebook1,wxNewId(),wxDefaultPosition,wxDefaultSize), _("text"));
 //	Treebook1->AddPage(new TimelinePanel(this,wxNewId(),wxDefaultPosition,wxDefaultSize), _("text2"));
 
-    _timer = new wxTimer(this, ID_TIMER);
 
     theAnimationManager.setTimelineSkeleton(theMoCapManager.getSkeleton());
 
@@ -278,14 +277,20 @@ void PostProcessPanel::OnTimerEvent(wxTimerEvent& event)
             _currentFrame = 0;
         }
         sequence->setToFrame(_currentFrame);
+        //SliderFrames->SetValue(_currentFrame);
         glCanvas->Refresh();
+        ++_currentFrame;
     }
     else
     {
         // TODO(JK#1#): play timeline, use getCurrentCursorPosition as start
-        timelinePanel->getCursorPosition();
+        // timelinePanel->getCursorPosition();
+        timelinePanel->setCursorPosition(_currentTimelineTime);
+        // SliderFrames->SetValue(_currentTimelineTime / 25000);
+        //theAnimationManager.getTimeline()->setSkeletonToTime(_currentTimelineTime);
+        //glCanvas->Refresh();
+        _currentTimelineTime += 40 * 1000;
     }
-    ++_currentFrame;
 }
 
 void PostProcessPanel::OnPanelDragDropSequenceLeftDown(wxMouseEvent& event)
@@ -338,6 +343,7 @@ void PostProcessPanel::OnTimelinePanelLeftUp(wxMouseEvent& event)
 void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
 {
     SetCursor(wxCURSOR_ARROWWAIT);
+
     MotionSequence* sequence = FileHandler::readBVH(GenericDirCtrl->GetPath());
 
     SetCursor(wxCURSOR_DEFAULT);
@@ -365,26 +371,29 @@ void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
 
 void PostProcessPanel::OnToggleButtonTimelineToggle(wxCommandEvent& event)
 {
-    if (_previewMode)
-    {
-        stop();
-    }
-    _previewMode = false;
     ToggleButtonPreview->SetValue(false);
     ToggleButtonTimeline->SetValue(true);
+    if (!_previewMode)
+    {
+        return;
+    }
+    stop();
+    _previewMode = false;
+    _currentTimelineTime = timelinePanel->getCursorPosition();
     glCanvas->setSkeleton(theAnimationManager.getTimelineSkeleton());
     glCanvas->Refresh();
 }
 
 void PostProcessPanel::OnToggleButtonPreviewToggle(wxCommandEvent& event)
 {
-    if (!_previewMode)
-    {
-        stop();
-    }
-    _previewMode = true;
     ToggleButtonPreview->SetValue(true);
     ToggleButtonTimeline->SetValue(false);
+    if (_previewMode)
+    {
+        return;
+    }
+    stop();
+    _previewMode = true;
     _currentFrame = 0;
     glCanvas->setSkeleton(theAnimationManager.getSequenceSkeleton(_currentProjectSequence));
     glCanvas->Refresh();
@@ -421,7 +430,7 @@ void PostProcessPanel::OnButtonPlayClick(wxCommandEvent& event)
     }
     else
     {
-        ButtonPlay->SetLabel(_("Stop"));
+        ButtonPlay->SetLabel(_("Pause"));
         play();
     }
 }
@@ -440,7 +449,8 @@ void PostProcessPanel::play()
     }
     else if (ToggleButtonTimeline->GetValue())
     {
-
+        _currentTimelineTime = timelinePanel->getCursorPosition();
+        _timer->Start(40);
     }
 }
 
@@ -449,7 +459,7 @@ void PostProcessPanel::stop()
     _timer->Stop();
     if (_previewMode)
     {
-        _currentFrame = 0;
+        // _currentFrame = 0;
         MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
         if (sequence != nullptr)
         {

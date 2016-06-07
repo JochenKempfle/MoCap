@@ -35,9 +35,12 @@ enum class OverlayType : unsigned char
 {
     ADDITIVE = 0,
     SUBTRACTIVE,
-    INTERPOLATION,
     IGNORING,
-    OVERWRITE
+    OVERWRITE,
+    LINEAR_INTERPOLATION,
+    STATIC_INTERPOLATION,
+    WEIGHTED_INTERPOLATION
+    // TODO(JK#9#): overlay type with q1.slerp(q2, w1/(w1+w2)) may be useful
 };
 
 class TimelineTrack;

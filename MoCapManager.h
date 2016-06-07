@@ -44,6 +44,7 @@ enum ProgramState
     EDITOR,
     SENSOR_INFO,
     RECORD,
+    MOTION_PLAYER,
     POST_PROCESS
     // TODO(JK#5#): add something like RECORDING, IDLE, CONNECTED to program state or own enum
 };
@@ -79,6 +80,7 @@ class MoCapManager
     Bone* getSelectedBone() { return _skeleton.getSelectedBone(); }
     int getSelectedBoneId() const { return _skeleton.getSelectedBoneId(); }
 
+    void setSkeleton(const Skeleton &skeleton) { _skeleton = skeleton; }
     Skeleton* getSkeleton() { return &_skeleton; }
 
     // TODO(JK#9#): program state in MoCapManager necessary?
@@ -97,16 +99,24 @@ class MoCapManager
     void calibrate();
     void setSensorBoneMapping();
 
-    void startRecording();
+    void startSimulation();
+    void stopSimulation();
+
+    std::vector<MotionFilterBase*> getFilters() const { return _filters; }
+    void selectFilter(int filter);
+    int getSelectedFilter() const { return _currentFilter; }
+
+    void startRecording(uint64_t startTime, float frameTime);
     MotionSequence* stopRecording();
     bool isRecording() const { return _recording; }
 
     void update();
 
+    void createDefaultSkeleton();
+
   protected:
     static MoCapManager* _moCapManager;
 
-    void createSkeleton();
 
   private:
     std::map<int, int> _boneIdFromSensorId;
@@ -117,6 +127,7 @@ class MoCapManager
 
     std::vector<MotionFilterBase*> _filters;
 
+    unsigned int _currentFilter;
     unsigned char _state;
 };
 

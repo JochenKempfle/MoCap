@@ -33,12 +33,15 @@ MotionFilterBase::MotionFilterBase()
 {
     _skeleton = nullptr;
     _frameTime = 0.01f;
+    _startTime = 0;
+    _running = false;
     _recording = false;
 }
 
 MotionFilterBase::~MotionFilterBase()
 {
-    //dtor
+    _running = false;
+    _recording = false;
 }
 
 void MotionFilterBase::setSensors(std::vector<SensorNode*> sensors)
@@ -71,17 +74,81 @@ float MotionFilterBase::getFrameTime() const
     return _frameTime;
 }
 
+void MotionFilterBase::start()
+{
+    if (GetThread() && GetThread()->IsRunning())
+    {
+        return;
+    }
+    if (!GetThread())
+    {
+        if (CreateThread(wxTHREAD_DETACHED) != wxTHREAD_NO_ERROR)
+        {
+            wxMessageBox(_("Could not create the filtering thread!"), _("Error"), wxICON_ERROR);
+            return;
+        }
+    }
+    _running = true;
+    if (GetThread()->Run() != wxTHREAD_NO_ERROR)
+    {
+        wxMessageBox(_("Could not run the filtering thread!"), _("Error"), wxICON_ERROR);
+        _running = false;
+        _recording = false;
+        return;
+    }
+}
+
+void MotionFilterBase::stop()
+{
+    setRecording(false);
+    _running = false;
+}
+
+
 void MotionFilterBase::setRecording(bool recording)
 {
     if (!_recording && recording)
     {
         onStartRecording();
+        if (!GetThread())
+        {
+            if (CreateThread(wxTHREAD_DETACHED) != wxTHREAD_NO_ERROR)
+            {
+                wxMessageBox(_("Could not create the filtering thread!"), _("Error"), wxICON_ERROR);
+                return;
+            }
+        }
+        _running = true;
+        _recording = true;
+        if (!GetThread()->IsRunning() && GetThread()->Run() != wxTHREAD_NO_ERROR)
+        {
+            wxMessageBox(_("Could not run the filtering thread!"), _("Error"), wxICON_ERROR);
+            _running = false;
+            _recording = false;
+            return;
+        }
     }
     if (_recording && !recording)
     {
+        _recording = false;
+        // give the thread some time to finish recording
+        wxMilliSleep(10);
         onStopRecording();
     }
-    _recording = recording;
+}
+
+wxThread::ExitCode MotionFilterBase::Entry()
+{
+    // here we do our long task, periodically calling TestDestroy():
+    while (_running && !GetThread()->TestDestroy())
+    {
+        update();
+        // give other tasks some time
+        wxMilliSleep(1);
+    }
+    // TestDestroy() returned true (which means the main thread asked us
+    // to terminate as soon as possible) or we ended the long task...
+    return (wxThread::ExitCode)0;
 }
 
 bool MotionFilterBase::isRecording() const

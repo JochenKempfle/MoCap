@@ -31,18 +31,23 @@ OF SUCH DAMAGE.
 #define MOTIONFILTERSLERP_H
 
 #include "MotionFilterBase.h"
+#include <vector>
 
 
 class MotionFilterSlerp : public MotionFilterBase
 {
   public:
     MotionFilterSlerp();
+    MotionFilterSlerp(Skeleton* skeleton);
     virtual ~MotionFilterSlerp();
 
     virtual std::string getName() const;
     virtual void update();
 
   protected:
+    virtual void onStartRecording();
+    virtual void onStopRecording();
+    std::vector<SensorData> _prevData;
 
   private:
 };

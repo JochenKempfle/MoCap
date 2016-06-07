@@ -14,7 +14,7 @@
 								<object class="wxStaticText" name="ID_STATICTEXTNAME" variable="StaticTextName" member="yes">
 									<label>Sensor Name</label>
 								</object>
-								<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+								<flag>wxALL|wxALIGN_LEFT</flag>
 								<border>5</border>
 								<option>1</option>
 							</object>
@@ -22,7 +22,15 @@
 								<object class="wxStaticText" name="ID_STATICTEXTIP" variable="StaticTextIP" member="yes">
 									<label>IP</label>
 								</object>
-								<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXTFPS" variable="StaticTextFPS" member="yes">
+									<label>FPS: 0</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
 								<border>5</border>
 								<option>1</option>
 							</object>
@@ -30,7 +38,86 @@
 								<object class="wxStaticText" name="ID_STATICTEXTSTATE" variable="StaticTextState" member="yes">
 									<label>State</label>
 								</object>
-								<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+						</object>
+						<flag>wxALL|wxEXPAND</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+					<object class="sizeritem">
+						<object class="wxBoxSizer" variable="BoxSizer5" member="no">
+							<orient>wxVERTICAL</orient>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXT1" variable="StaticText1" member="yes">
+									<label>Est. Delay (ms):</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXT2" variable="StaticText2" member="yes">
+									<label>Time Stamp:</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXT3" variable="StaticText3" member="yes">
+									<label>Received:</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXT4" variable="StaticText4" member="yes">
+									<label>Lost:</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+						</object>
+						<flag>wxALL|wxEXPAND</flag>
+						<border>5</border>
+					</object>
+					<object class="sizeritem">
+						<object class="wxBoxSizer" variable="BoxSizer4" member="no">
+							<orient>wxVERTICAL</orient>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXTRUNTIME" variable="StaticTextDelay" member="yes">
+									<label>0</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXTTIMESTAMP" variable="StaticTextTimeStamp" member="yes">
+									<label>0</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXTRECEIVED" variable="StaticTextReceived" member="yes">
+									<label>0</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
+								<border>5</border>
+								<option>1</option>
+							</object>
+							<object class="sizeritem">
+								<object class="wxStaticText" name="ID_STATICTEXTLOST" variable="StaticTextLost" member="yes">
+									<label>0</label>
+								</object>
+								<flag>wxALL|wxALIGN_LEFT</flag>
 								<border>5</border>
 								<option>1</option>
 							</object>

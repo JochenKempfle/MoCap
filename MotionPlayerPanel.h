@@ -27,128 +27,84 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef POSTPROCESSPANEL_H
-#define POSTPROCESSPANEL_H
+#ifndef MOTIONPLAYERPANEL_H
+#define MOTIONPLAYERPANEL_H
 
 #include "GLCanvas.h"
-#include "TimelinePanel.h"
 #include "TreeItemBoneData.h"
 
+
 #ifndef WX_PRECOMP
-	//(*HeadersPCH(PostProcessPanel)
+	//(*HeadersPCH(MotionPlayerPanel)
 	#include <wx/sizer.h>
 	#include <wx/stattext.h>
-	#include <wx/checkbox.h>
 	#include <wx/listbox.h>
 	#include <wx/slider.h>
 	#include <wx/panel.h>
 	#include <wx/button.h>
 	//*)
 #endif
-//(*Headers(PostProcessPanel)
+//(*Headers(MotionPlayerPanel)
 #include <wx/treectrl.h>
 #include <wx/glcanvas.h>
-#include <wx/spinctrl.h>
-#include <wx/tglbtn.h>
-#include <wx/dirctrl.h>
 //*)
 
-class PostProcessPanel: public wxPanel
+class MotionPlayerPanel: public wxPanel
 {
 	public:
 
-		PostProcessPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
-		virtual ~PostProcessPanel();
+		MotionPlayerPanel(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
+		virtual ~MotionPlayerPanel();
 
-		//(*Declarations(PostProcessPanel)
-		wxStaticText* StaticText10;
-		wxGenericDirCtrl* GenericDirCtrl;
-		wxButton* ButtonExport;
-		wxSpinCtrl* SpinCtrlRoll;
-		wxPanel* PanelDragDropSequence;
-		wxStaticText* StaticText2;
+		//(*Declarations(MotionPlayerPanel)
 		wxSlider* SliderFrames;
 		wxGridSizer* GridSizerSequenceInfo;
-		wxSpinCtrl* SpinCtrlYaw;
 		wxStaticText* StaticTextFPS;
-		wxPanel* PanelDragDropFrame;
-		wxStaticText* StaticText11;
 		wxStaticText* StaticTextFrames;
-		wxButton* ButtonFromSelection;
 		wxStaticText* StaticTextLength;
 		wxStaticText* StaticText1;
-		wxCheckBox* CheckBoxSelectAll;
 		wxStaticText* StaticText3;
 		wxTreeCtrl* TreeCtrlSkeleton;
-		wxSpinCtrl* SpinCtrlPitch;
 		wxStaticText* StaticText5;
 		wxButton* ButtonSave;
-		TimelinePanel* timelinePanel;
 		wxListBox* ListBoxSequences;
-		wxToggleButton* ToggleButtonTimeline;
 		wxButton* ButtonLoad;
 		wxButton* ButtonPlay;
-		wxStaticText* StaticText4;
-		wxToggleButton* ToggleButtonPreview;
 		GLCanvas* glCanvas;
-		wxSpinCtrl* SpinCtrlFrameTime;
 		//*)
 
 	protected:
 
-		//(*Identifiers(PostProcessPanel)
+		//(*Identifiers(MotionPlayerPanel)
 		static const long ID_GLCANVAS;
 		static const long ID_SLIDERFRAMES;
 		static const long ID_BUTTONPLAY;
-		static const long ID_TOGGLEBUTTONTIMELINE;
-		static const long ID_TOGGLEBUTTONPREVIEW;
-		static const long ID_LISTBOXSEQUENCES;
-		static const long ID_GENERICDIRCTRL;
 		static const long ID_TREECTRLSKELETON;
-		static const long ID_STATICTEXT3;
+		static const long ID_STATICTEXT1;
 		static const long ID_STATICTEXTFRAMES;
-		static const long ID_STATICTEXT4;
+		static const long ID_STATICTEXT3;
 		static const long ID_STATICTEXTFPS;
 		static const long ID_STATICTEXT5;
 		static const long ID_STATICTEXTLENGTH;
-		static const long ID_CHECKBOXSELECTALL;
-		static const long ID_PANELDRAGDROPSEQUENCE;
-		static const long ID_BUTTONEXPORT;
-		static const long ID_BUTTONSAVE;
+		static const long ID_LISTBOXSEQUENCES;
 		static const long ID_BUTTONLOAD;
-		static const long ID_STATICTEXT11;
-		static const long ID_SPINCTRLROLL;
-		static const long ID_STATICTEXT10;
-		static const long ID_SPINCTRLPITCH;
-		static const long ID_STATICTEXT1;
-		static const long ID_SPINCTRLYAW;
-		static const long ID_STATICTEXT2;
-		static const long ID_SPINCTRLFRAMETIME;
-		static const long ID_BUTTONFROMSELECTION;
-		static const long ID_PANELDRAGDROPFRAME;
-		static const long ID_TIMELINE;
+		static const long ID_BUTTONSAVE;
 		//*)
+
         static const long ID_TIMER;
 
 	private:
 
-		//(*Handlers(PostProcessPanel)
-		void OnPanelDragDropPaint(wxPaintEvent& event);
-		void OnToggleButtonTimelineToggle(wxCommandEvent& event);
-		void OnToggleButtonPreviewToggle(wxCommandEvent& event);
-		void OnPanelDragDropSequencePaint(wxPaintEvent& event);
-		void OnPanelDragDropFramePaint(wxPaintEvent& event);
+		//(*Handlers(MotionPlayerPanel)
 		void OnButtonPlayClick(wxCommandEvent& event);
+		void OnButtonLoadClick(wxCommandEvent& event);
+		void OnButtonSaveClick(wxCommandEvent& event);
 		void OnListBoxSequencesSelect(wxCommandEvent& event);
-		void OnPanelDragDropSequenceLeftDown(wxMouseEvent& event);
-		void OnPanelDragDropFrameLeftDown(wxMouseEvent& event);
-		void OnTimelinePanelLeftUp(wxMouseEvent& event);
+		void OnSliderFramesCmdSliderUpdated(wxScrollEvent& event);
 		//*)
-        void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
-        void OnTimerEvent(wxTimerEvent& event);
 
+        void OnTimerEvent(wxTimerEvent& event);
 		void OnUpdateEvent(wxEvent& event);
-		void OnGenericDirCtrlActivated(wxTreeEvent& event);
 
 		void play();
 		void stop();
@@ -158,8 +114,6 @@ class PostProcessPanel: public wxPanel
 		int _currentProjectSequence;
 
 		unsigned int _currentFrame;
-		uint64_t _currentTimelineTime;
-		bool _previewMode;
 
 		wxTimer* _timer;
 

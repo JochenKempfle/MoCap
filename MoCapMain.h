@@ -72,6 +72,9 @@ class MoCapFrame: public wxFrame
         void OnButtonConnectionClick(wxCommandEvent& event);
         void OnButtonSkeletonClick(wxCommandEvent& event);
         void OnButtonPostProcessClick(wxCommandEvent& event);
+        void OnKeyDown(wxKeyEvent& event);
+        void OnMainPanelKeyDown(wxKeyEvent& event);
+        void OnButtonMotionPlayerClick(wxCommandEvent& event);
         //*)
 
         // socket event handler
@@ -83,11 +86,13 @@ class MoCapFrame: public wxFrame
         static const long ID_BUTTONSKELETON;
         static const long ID_BUTTONSENSORDETAIL;
         static const long ID_BUTTONVISUAL;
+        static const long ID_BUTTONMOTIONPLAYER;
         static const long ID_BUTTONPOSTPROCESS;
         static const long ID_BUTTONFULLSCREEN;
         static const long ID_PANEL1;
         static const long ID_DATAPANEL;
         static const long ID_BUTTONCONNECTION;
+        static const long ID_BUTTONDISCONNECT;
         static const long ID_PANEL2;
         static const long ID_MAINPANEL;
         static const long idMenuQuit;
@@ -97,6 +102,8 @@ class MoCapFrame: public wxFrame
         static const long ID_VIEWPANEL;
         static const long ID_SENSORDETAILPANEL;
         static const long ID_SKELETONCREATORPANEL;
+        static const long ID_MOTIONPLAYERPANEL;
+        static const long ID_POSTPROCESSPANEL;
         static const long ID_SOCKET;
         static const long ID_TIMER;
 
@@ -109,11 +116,13 @@ class MoCapFrame: public wxFrame
         wxPanel* Panel1;
         wxPanel* DataPanel;
         wxBoxSizer* DataPanelSizer;
+        wxButton* ButtonDisconnect;
         wxPanel* MainPanel;
         wxButton* ButtonSensorDetail;
         wxPanel* Panel2;
         wxButton* ButtonFullScreen;
         wxButton* ButtonVisual;
+        wxButton* ButtonMotionPlayer;
         //*)
 
         wxIPV4address _addressLocal;

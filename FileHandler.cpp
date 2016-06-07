@@ -93,6 +93,7 @@ Skeleton* FileHandler::readBVHSkeleton(wxString filename)
     }
 
     Skeleton* skeleton = new Skeleton();
+    skeleton->setName(wxFileName(filename).GetName().ToStdString());
 
     int numOpenBraces = 0;
     bool rootSeen = false;
@@ -262,6 +263,7 @@ MotionSequence* FileHandler::readBVH(wxString filename)
 
     MotionSequence* sequence = new MotionSequence();
     sequence->setName(wxFileName(filename).GetName().ToStdString());
+    sequence->getSkeleton()->setName(wxFileName(filename).GetName().ToStdString());
 
     // int numFrames = 0;
 

@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <wxsmith>
 	<object class="wxFrame" name="MoCapFrame">
-		<title>Motion Capturing</title>
+		<title>Motion Capturing Toolkit</title>
 		<centered>1</centered>
-		<minsize>-1,-1</minsize>
 		<id_arg>0</id_arg>
+		<handler function="OnKeyDown" entry="EVT_KEY_DOWN" />
 		<object class="wxBoxSizer" variable="FrameSizer" member="yes">
 			<object class="sizeritem">
 				<object class="wxPanel" name="ID_MAINPANEL" variable="MainPanel" member="yes">
+					<handler function="OnMainPanelKeyDown" entry="EVT_KEY_DOWN" />
 					<object class="wxBoxSizer" variable="MainSizer" member="yes">
 						<orient>wxVERTICAL</orient>
 						<object class="sizeritem">
@@ -19,7 +20,7 @@
 										<object class="wxBoxSizer" variable="BoxSizer1" member="no">
 											<object class="sizeritem">
 												<object class="wxButton" name="ID_BUTTONSKELETON" variable="ButtonSkeleton" member="yes">
-													<label>Skeleton</label>
+													<label>Skeleton Editor</label>
 													<handler function="OnButtonSkeletonClick" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -35,7 +36,7 @@
 											</object>
 											<object class="sizeritem">
 												<object class="wxButton" name="ID_BUTTONVISUAL" variable="ButtonVisual" member="yes">
-													<label>Visual</label>
+													<label>Motion Capture</label>
 													<focused>1</focused>
 													<handler function="OnButtonVisualClick" entry="EVT_BUTTON" />
 												</object>
@@ -43,8 +44,16 @@
 												<border>5</border>
 											</object>
 											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONMOTIONPLAYER" variable="ButtonMotionPlayer" member="yes">
+													<label>Motion Player</label>
+													<handler function="OnButtonMotionPlayerClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+											</object>
+											<object class="sizeritem">
 												<object class="wxButton" name="ID_BUTTONPOSTPROCESS" variable="ButtonPostProcess" member="yes">
-													<label>Post Process</label>
+													<label>Motion Editor</label>
 													<handler function="OnButtonPostProcessClick" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
@@ -99,6 +108,20 @@
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
+											</object>
+											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONDISCONNECT" variable="ButtonDisconnect" member="yes">
+													<label>Disconnect</label>
+													<enabled>0</enabled>
+													<handler function="OnButtonDisconnectClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+											</object>
+											<object class="spacer">
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+												<option>1</option>
 											</object>
 										</object>
 									</object>

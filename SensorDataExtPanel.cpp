@@ -30,6 +30,7 @@ OF SUCH DAMAGE.
 #include "wx_pch.h"
 #include "SensorDataExtPanel.h"
 #include "SensorManager.h"
+#include <wx/datetime.h>
 #include <math.h>
 
 #ifndef WX_PRECOMP
@@ -44,7 +45,16 @@ OF SUCH DAMAGE.
 //(*IdInit(SensorDataExtPanel)
 const long SensorDataExtPanel::ID_STATICTEXTNAME = wxNewId();
 const long SensorDataExtPanel::ID_STATICTEXTIP = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTFPS = wxNewId();
 const long SensorDataExtPanel::ID_STATICTEXTSTATE = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXT1 = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXT2 = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXT3 = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXT4 = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTRUNTIME = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTTIMESTAMP = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTRECEIVED = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTLOST = wxNewId();
 const long SensorDataExtPanel::ID_GLCANVAS = wxNewId();
 const long SensorDataExtPanel::ID_TOGGLEBUTTONOFFSET = wxNewId();
 const long SensorDataExtPanel::ID_PANELPLOT = wxNewId();
@@ -58,6 +68,8 @@ END_EVENT_TABLE()
 SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
 	//(*Initialize(SensorDataExtPanel)
+	wxBoxSizer* BoxSizer4;
+	wxBoxSizer* BoxSizer5;
 	wxBoxSizer* BoxSizer2;
 	wxBoxSizer* BoxSizer1;
 	wxBoxSizer* BoxSizer3;
@@ -68,12 +80,34 @@ SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPo
 	StaticBoxSizerInfo = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Sensor Info"));
 	BoxSizer2 = new wxBoxSizer(wxVERTICAL);
 	StaticTextName = new wxStaticText(this, ID_STATICTEXTNAME, _("Sensor Name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTNAME"));
-	BoxSizer2->Add(StaticTextName, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer2->Add(StaticTextName, 1, wxALL|wxALIGN_LEFT, 5);
 	StaticTextIP = new wxStaticText(this, ID_STATICTEXTIP, _("IP"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTIP"));
-	BoxSizer2->Add(StaticTextIP, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer2->Add(StaticTextIP, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticTextFPS = new wxStaticText(this, ID_STATICTEXTFPS, _("FPS: 0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTFPS"));
+	BoxSizer2->Add(StaticTextFPS, 1, wxALL|wxALIGN_LEFT, 5);
 	StaticTextState = new wxStaticText(this, ID_STATICTEXTSTATE, _("State"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTSTATE"));
-	BoxSizer2->Add(StaticTextState, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer2->Add(StaticTextState, 1, wxALL|wxALIGN_LEFT, 5);
 	StaticBoxSizerInfo->Add(BoxSizer2, 1, wxALL|wxEXPAND, 5);
+	BoxSizer5 = new wxBoxSizer(wxVERTICAL);
+	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Est. Delay (ms):"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
+	BoxSizer5->Add(StaticText1, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticText2 = new wxStaticText(this, ID_STATICTEXT2, _("Time Stamp:"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
+	BoxSizer5->Add(StaticText2, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticText3 = new wxStaticText(this, ID_STATICTEXT3, _("Received:"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT3"));
+	BoxSizer5->Add(StaticText3, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticText4 = new wxStaticText(this, ID_STATICTEXT4, _("Lost:"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT4"));
+	BoxSizer5->Add(StaticText4, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticBoxSizerInfo->Add(BoxSizer5, 0, wxALL|wxEXPAND, 5);
+	BoxSizer4 = new wxBoxSizer(wxVERTICAL);
+	StaticTextDelay = new wxStaticText(this, ID_STATICTEXTRUNTIME, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTRUNTIME"));
+	BoxSizer4->Add(StaticTextDelay, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticTextTimeStamp = new wxStaticText(this, ID_STATICTEXTTIMESTAMP, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTTIMESTAMP"));
+	BoxSizer4->Add(StaticTextTimeStamp, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticTextReceived = new wxStaticText(this, ID_STATICTEXTRECEIVED, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTRECEIVED"));
+	BoxSizer4->Add(StaticTextReceived, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticTextLost = new wxStaticText(this, ID_STATICTEXTLOST, _("0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTLOST"));
+	BoxSizer4->Add(StaticTextLost, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticBoxSizerInfo->Add(BoxSizer4, 1, wxALL|wxEXPAND, 5);
 	BoxSizer1->Add(StaticBoxSizerInfo, 0, wxALL|wxEXPAND, 5);
 	int GLCanvasAttributes_1[] = {
 		WX_GL_RGBA,
@@ -100,7 +134,6 @@ SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPo
 	PanelPlot->Connect(wxEVT_PAINT,(wxObjectEventFunction)&SensorDataExtPanel::OnPanelPlotPaint,0,this);
 	//*)
 	glCanvas->setStyle(SINGLE_SENSOR_MODE);
-	_updateCounter = 0;
 	_sensor = nullptr;
 }
 
@@ -115,19 +148,42 @@ void SensorDataExtPanel::setSensor(SensorNode* sensor)
     _sensor = sensor;
     _buffer.subscribe(sensor);
 
-    wxString name;
-    name << _("Sensor ") << sensor->getId();
-    StaticTextName->SetLabel(name);
+    wxString label;
+    label << _("Sensor ") << sensor->getId();
+    StaticTextName->SetLabel(label);
     StaticTextIP->SetLabel(sensor->getIPAddress());
 
-    if (sensor->isUpdated())
-    {
-        StaticTextState->SetLabel(_("online"));
-    }
-    else
+    wxLongLong time = wxGetUTCTimeMillis();
+    uint64_t currentTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
+
+    if (sensor->getLastReceiveTime() < currentTime - 1000)
     {
         StaticTextState->SetLabel(_("offline"));
     }
+    else
+    {
+        StaticTextState->SetLabel(_("online"));
+    }
+
+    label.Clear();
+    label << _sensor->getDelay();
+    StaticTextDelay->SetLabel(label);
+
+    label.Clear();
+    label.Printf(_("FPS: %.1f (%.0f ms)"), 1.0/_sensor->getFrameTime(), _sensor->getFrameTime()*1000);
+    StaticTextFPS->SetLabel(label);
+
+    label.Clear();
+    label << sensor->getNumReceivedPackets();
+    StaticTextReceived->SetLabel(label);
+
+    label.Clear();
+    label << sensor->getNumLostPackets();
+    StaticTextLost->SetLabel(label);
+
+    label.Clear();
+    label << sensor->getCurrentTimeStamp();
+    StaticTextTimeStamp->SetLabel(label);
 }
 
 void SensorDataExtPanel::update()
@@ -136,27 +192,49 @@ void SensorDataExtPanel::update()
     {
         return;
     }
-    // TODO(JK#3#): handle sensor is offline case for displaying
-    ++_updateCounter;
-    if (_updateCounter >= 10)
-    {
-        _updateCounter = 0;
 
-        if (!_sensor->isUpdated())
-        {
-            StaticTextState->SetLabel(_("offline"));
-        }
+    wxLongLong time = wxGetUTCTimeMillis();
+    uint64_t currentTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
+
+
+    if (_sensor->getLastReceiveTime() < currentTime - 1000)
+    {
+        StaticTextState->SetLabel(_("offline"));
+
+        // ok, safe to return now in order to save computation time
+        return;
     }
-	if (_sensor->isUpdated())
+    else
     {
         StaticTextState->SetLabel(_("online"));
     }
+
+    wxString label;
+    label << _sensor->getDelay();
+    StaticTextDelay->SetLabel(label);
+
+    label.Clear();
+    label.Printf(_("FPS: %.1f (%.0f ms)"), 1.0/_sensor->getFrameTime(), _sensor->getFrameTime()*1000);
+    StaticTextFPS->SetLabel(label);
+
+    label.Clear();
+    label << _sensor->getNumReceivedPackets();
+    StaticTextReceived->SetLabel(label);
+
+    label.Clear();
+    label << _sensor->getNumLostPackets();
+    StaticTextLost->SetLabel(label);
+
+    label.Clear();
+    label << _sensor->getCurrentTimeStamp();
+    StaticTextTimeStamp->SetLabel(label);
+
 
     if (ToggleButtonOffset->GetValue())
     {
         Quaternion q = _offset.inv() * _sensor->getRotation();// * _offset;
         glCanvas->setSensorOrientation(q);
-        while (_buffer.size() > 0)
+        while (_buffer.sizeFront() > 0)
         {
             q = _offset.inv() * _buffer.front().getOrientation();
             _plotData.push_back(q.toEuler());
@@ -167,7 +245,7 @@ void SensorDataExtPanel::update()
     {
         Quaternion q = _sensor->getRotation();
         glCanvas->setSensorOrientation(q);
-        while (_buffer.size() > 0)
+        while (_buffer.sizeFront() > 0)
         {
             q = _buffer.front().getOrientation();
             _plotData.push_back(q.toEuler());

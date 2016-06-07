@@ -66,6 +66,8 @@ class Skeleton
     bool reparent(int boneId, int parentId, bool keepChildren = true);
 
     void scale(float scaleFactor);
+    void setPosition(float x, float y, float z);
+    Vector3 getPosition() const;
 
     std::vector<int> getBoneIds() const;
     int getRootId() const;

@@ -82,6 +82,8 @@
 		<Unit filename="CustomEvents.h" />
 		<Unit filename="FileHandler.cpp" />
 		<Unit filename="FileHandler.h" />
+		<Unit filename="FilterDialog.cpp" />
+		<Unit filename="FilterDialog.h" />
 		<Unit filename="GLCanvas.cpp" />
 		<Unit filename="GLCanvas.h" />
 		<Unit filename="GLImage.cpp" />
@@ -98,6 +100,8 @@
 		<Unit filename="MotionFilterNone.h" />
 		<Unit filename="MotionFilterSlerp.cpp" />
 		<Unit filename="MotionFilterSlerp.h" />
+		<Unit filename="MotionPlayerPanel.cpp" />
+		<Unit filename="MotionPlayerPanel.h" />
 		<Unit filename="MotionSequence.cpp" />
 		<Unit filename="MotionSequence.h" />
 		<Unit filename="MotionSequenceChannel.cpp" />
@@ -144,6 +148,8 @@
 		<Unit filename="TimelinePanel.h" />
 		<Unit filename="TimelineTrack.cpp" />
 		<Unit filename="TimelineTrack.h" />
+		<Unit filename="Timer.cpp" />
+		<Unit filename="Timer.h" />
 		<Unit filename="TreeItemBoneData.cpp" />
 		<Unit filename="TreeItemBoneData.h" />
 		<Unit filename="Vector3.cpp" />
@@ -177,6 +183,8 @@
 					<wxPanel wxs="wxsmith/PostProcessPanel.wxs" src="PostProcessPanel.cpp" hdr="PostProcessPanel.h" fwddecl="0" i18n="1" name="PostProcessPanel" language="CPP" />
 					<wxPanel wxs="wxsmith/TimelinePanel.wxs" src="TimelinePanel.cpp" hdr="TimelinePanel.h" fwddecl="0" i18n="1" name="TimelinePanel" language="CPP" />
 					<wxDialog wxs="wxsmith/TimelineOverlayDialog.wxs" src="TimelineOverlayDialog.cpp" hdr="TimelineOverlayDialog.h" fwddecl="0" i18n="1" name="TimelineOverlayDialog" language="CPP" />
+					<wxPanel wxs="wxsmith/MotionPlayerPanel.wxs" src="MotionPlayerPanel.cpp" hdr="MotionPlayerPanel.h" fwddecl="0" i18n="1" name="MotionPlayerPanel" language="CPP" />
+					<wxDialog wxs="wxsmith/FilterDialog.wxs" src="FilterDialog.cpp" hdr="FilterDialog.h" fwddecl="0" i18n="1" name="FilterDialog" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

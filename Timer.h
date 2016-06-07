@@ -27,19 +27,28 @@ OF SUCH DAMAGE.
 */
 
 
-#include "SensorData.h"
+#ifndef TIMER_H
+#define TIMER_H
 
-SensorData::SensorData()
+#include <wx/thread.h>
+
+class Timer : public wxThreadHelper
 {
-    //ctor
-}
+  public:
+    Timer(wxWindow* parent);
+    virtual ~Timer();
 
-SensorData::SensorData(uint64_t receiveTime, int timestamp, const Quaternion &orientation) : _receiveTime(receiveTime), _timestamp(timestamp), _orientation(orientation)
-{
+    void start(unsigned int ms);
+    void stop();
+    bool isRunning() const { return _running; }
 
-}
+  protected:
+    virtual wxThread::ExitCode Entry();
 
-SensorData::~SensorData()
-{
-    //dtor
-}
+  private:
+    wxWindow* _parent;
+    bool _running;
+    unsigned int _ms;
+};
+
+#endif // TIMER_H

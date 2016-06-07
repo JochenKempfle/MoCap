@@ -34,18 +34,28 @@ OF SUCH DAMAGE.
 #include "MotionSequence.h"
 #include "SensorNode.h"
 #include "SensorBuffer.h"
+#include <wx/thread.h>
 
-class MotionFilterBase
+class MotionFilterBase : public wxThreadHelper
 {
   public:
     MotionFilterBase();
     virtual ~MotionFilterBase();
+
     virtual std::string getName() const = 0;
     virtual void update() = 0;
+
     void setSensors(std::vector<SensorNode*> sensors);
     void setSkeleton(Skeleton* skeleton);
     void setFrameTime(float frameTime);
     float getFrameTime() const;
+    void setStartTime(uint64_t startTime) { _startTime = startTime; }
+    uint64_t getStartTime() const { return _startTime; }
+
+    void start();
+    void stop();
+    bool isRunning() const { return _running; }
+
     void setRecording(bool recording = true);
     bool isRecording() const;
     MotionSequence getSequence();
@@ -54,10 +64,14 @@ class MotionFilterBase
     virtual void onStartRecording() = 0;
     virtual void onStopRecording() = 0;
 
+    virtual wxThread::ExitCode Entry();
+
     std::vector<SensorBuffer*> _buffers;
     Skeleton* _skeleton;
     MotionSequence _sequence;
     float _frameTime;
+    uint64_t _startTime;
+    bool _running;
     bool _recording;
 
   private:

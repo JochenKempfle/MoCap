@@ -41,6 +41,7 @@ Skeleton::Skeleton(const Skeleton &other)
 {
     _nextId = other._nextId;
     _selectedBoneId = other._selectedBoneId;
+    _name = other._name;
 
     // copy the bone data
     for (auto it = other._bones.begin(); it != other._bones.end(); ++it)
@@ -62,6 +63,7 @@ Skeleton::Skeleton(Skeleton &&other) : Skeleton()
 {
     _nextId = other._nextId;
     _selectedBoneId = other._selectedBoneId;
+    _name = other._name;
     std::swap(_root, other._root);
     std::swap(_bones, other._bones);
 }
@@ -279,6 +281,25 @@ void Skeleton::scale(float scaleFactor)
     update();
 }
 
+void Skeleton::setPosition(float x, float y, float z)
+{
+    if (_root == nullptr)
+    {
+        return;
+    }
+    _root->setStartPos(x, y, z);
+    _root->update();
+}
+
+Vector3 Skeleton::getPosition() const
+{
+    if (_root == nullptr)
+    {
+        return Vector3(0.0f, 0.0f, 0.0f);
+    }
+    return _root->getStartPos();
+}
+
 std::vector<int> Skeleton::getBoneIds() const
 {
     std::vector<int> ids;
@@ -357,6 +378,7 @@ Skeleton& Skeleton::operator=(Skeleton other)
 {
     _nextId = other._nextId;
     _selectedBoneId = other._selectedBoneId;
+    _name = other._name;
     std::swap(_root, other._root);
     std::swap(_bones, other._bones);
     return *this;

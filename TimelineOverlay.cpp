@@ -76,3 +76,47 @@ bool TimelineOverlay::compPriority(TimelineOverlay* overlay1, TimelineOverlay* o
     return overlay1->getFirstTrack()->getChannel() < overlay2->getFirstTrack()->getChannel();
 }
 
+std::istream& TimelineOverlay::read(std::istream& s)
+{
+    s >> _startTime;
+    s >> _length;
+    s >> _priority;
+    unsigned char type;
+    s >> type;
+    _type = static_cast<OverlayType>(type);
+    return s;
+}
+
+std::ostream& TimelineOverlay::write(std::ostream& s) const
+{
+    s << _startTime << ' ' << _length << ' ' << _priority << ' ' << static_cast<unsigned char>(_type);
+    return s;
+}
+
+std::istream& TimelineOverlay::readBinary(std::istream& s)
+{
+    s.read((char*)&_startTime, sizeof(_startTime));
+    s.read((char*)&_length, sizeof(_length));
+    s.read((char*)&_priority, sizeof(_priority));
+    s.read((char*)&_type, sizeof(_type));
+    return s;
+}
+
+std::ostream& TimelineOverlay::writeBinary(std::ostream& s) const
+{
+    s.write((char*)&_startTime, sizeof(_startTime));
+    s.write((char*)&_length, sizeof(_length));
+    s.write((char*)&_priority, sizeof(_priority));
+    s.write((char*)&_type, sizeof(_type));
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& out, const TimelineOverlay& overlay)
+{
+    return overlay.write(out);
+}
+
+std::istream& operator>>(std::istream& in, TimelineOverlay& overlay)
+{
+    return overlay.read(in);
+}

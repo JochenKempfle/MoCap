@@ -316,3 +316,72 @@ Vector3 Bone::getRightDirection()
     return (_chainedOrientation * _defaultOrientation).rotate(Vector3(0.0, 0.0, 1.0));
 }
 
+
+std::istream& Bone::read(std::istream& s)
+{
+    _children.clear();
+    _parent = nullptr;
+
+    std::getline(s, _name);
+    s >> _id;
+    s >> _length;
+    s >> _defaultOrientation;
+    s >> _startPos;
+
+    // ensure the bone is set to default after reading in data
+    setToDefault();
+
+    return s;
+}
+
+std::ostream& Bone::write(std::ostream& s) const
+{
+    return s << _name << std::endl << _id << ' ' << _length << ' ' << _defaultOrientation << ' ' << _startPos;
+}
+
+std::istream& Bone::readBinary(std::istream& s)
+{
+    _children.clear();
+    _parent = nullptr;
+
+    size_t strLength;
+    s.read((char*)&strLength, sizeof(size_t));
+    _name.resize(strLength);
+    s.read((char*)&_name[0], strLength);
+    s.read((char*)&_id, sizeof(_id));
+    s.read((char*)&_length, sizeof(_length));
+
+    _defaultOrientation.readBinary(s);
+    _startPos.readBinary(s);
+
+    // ensure the bone is set to default after reading in data
+    setToDefault();
+
+    return s;
+}
+
+std::ostream& Bone::writeBinary(std::ostream& s) const
+{
+    size_t size = _name.size();
+    s.write((char*)&size, sizeof(size_t));
+    s.write((char*)&_name[0], _name.size());
+    s.write((char*)&_id, sizeof(_id));
+    s.write((char*)&_length, sizeof(_length));
+
+    _defaultOrientation.writeBinary(s);
+    _startPos.writeBinary(s);
+
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& out, const Bone& bone)
+{
+    return bone.write(out);
+}
+
+std::istream& operator>>(std::istream& in, Bone& bone)
+{
+    return bone.read(in);
+}
+
+

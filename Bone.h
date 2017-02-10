@@ -99,6 +99,15 @@ class Bone
     Vector3 getUpDirection();
     Vector3 getRightDirection();
 
+    // read bone data from a stream. Note that you will loose all parent-child relations when reading from a stream!
+    std::istream& read(std::istream &s);
+    // write bone data to a stream. Note that no parent-child relations are written to the stream!
+    std::ostream& write(std::ostream &s) const;
+    // read binary bone data from a stream. Note that you will loose all parent-child relations when reading from a stream!
+    std::istream& readBinary(std::istream &s);
+    // write binary bone data to a stream. Note that no parent-child relations are written to the stream!
+    std::ostream& writeBinary(std::ostream &s) const;
+
     friend class Skeleton;
 
   protected:
@@ -124,5 +133,11 @@ class Bone
     Bone* _parent;
     std::vector<Bone*> _children;
 };
+
+// write bone data to a stream. Note that no parent-child relations are written to the stream!
+std::ostream& operator<<(std::ostream& out, const Bone& bone);
+
+// read bone data from a stream. Note that you will loose all parent-child relations when reading from a stream!
+std::istream& operator>>(std::istream& in, Bone& bone);
 
 #endif // BONE_H

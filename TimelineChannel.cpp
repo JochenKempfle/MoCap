@@ -130,6 +130,24 @@ void TimelineChannel::clear()
     _tracks.clear();
 }
 
+uint64_t TimelineChannel::getMinTime() const
+{
+    if (_tracks.size() == 0)
+    {
+        return std::numeric_limits<uint64_t>::infinity();
+    }
+    return _tracks.begin()->second->getStartTime();
+}
+
+uint64_t TimelineChannel::getMaxTime() const
+{
+    if (_tracks.size() == 0)
+    {
+        return 0;
+    }
+    return _tracks.rbegin()->second->getEndTime();
+}
+
 TimelineTrack* TimelineChannel::getTrackBefore(uint64_t time)
 {
     auto it = _tracks.upper_bound(time);
@@ -255,5 +273,41 @@ std::vector<TimelineTrack*> TimelineChannel::getTracks()
 //}
 
 
+std::istream& TimelineChannel::read(std::istream& s)
+{
+    s >> _channelPos;
+    s >> _boneId;
+    return s;
+}
+
+std::ostream& TimelineChannel::write(std::ostream& s) const
+{
+    s << _channelPos << ' ' << _boneId;
+    return s;
+}
+
+std::istream& TimelineChannel::readBinary(std::istream& s)
+{
+    s.read((char*)&_channelPos, sizeof(_channelPos));
+    s.read((char*)&_boneId, sizeof(_boneId));
+    return s;
+}
+
+std::ostream& TimelineChannel::writeBinary(std::ostream& s) const
+{
+    s.write((char*)&_channelPos, sizeof(_channelPos));
+    s.write((char*)&_boneId, sizeof(_boneId));
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& out, const TimelineChannel& channel)
+{
+    return channel.write(out);
+}
+
+std::istream& operator>>(std::istream& in, TimelineChannel& channel)
+{
+    return channel.read(in);
+}
 
 

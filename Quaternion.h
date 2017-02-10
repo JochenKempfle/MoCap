@@ -213,8 +213,10 @@ class Quaternion
     float data[4];
 };
 
-  //! user friendly output in format (u x y z)
-  std::ostream& operator<<(std::ostream& s, const Quaternion& q);
+//! output in format u x y z
+std::ostream& operator<<(std::ostream& out, const Quaternion& q);
 
+//! input in format u x y z
+std::istream& operator>>(std::istream& in, Quaternion& q);
 
 #endif // QUATERNION_H

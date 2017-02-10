@@ -44,8 +44,12 @@ void Timeline::setSkeletonToTime(uint64_t time)
 {
     for (auto it = _channelGroups.begin(); it != _channelGroups.end(); ++it)
     {
+        _skeleton.setRelBoneOrientation(it->first, computeBoneOrientation(it->first, time));
+
+        /*
         std::vector<TimelineOverlay*> overlays = getOverlaysByBoneId(it->first, time);
 
+        // if there is no overlay, just set the bone orientation according to the channel content
         if (overlays.size() == 0)
         {
             std::vector<TimelineTrack*> tracks = getTracks(it->first, time);
@@ -108,7 +112,6 @@ void Timeline::setSkeletonToTime(uint64_t time)
                 case OverlayType::STATIC_INTERPOLATION:
                     q = q1.slerp(q2, 0.5);
                     break;
-                // TODO(JK#2#): add weighted interpolation with t = 1.0f - track1->getWeight() and q1 unweighted
                 case OverlayType::WEIGHTED_INTERPOLATION:
                     q = track1->getFrameFromAbsTime(time, false).getOrientation().slerp(q2, 1.0 - track1->getWeight(track1->getFrameNumFromAbsTime(time)));
                     break;
@@ -121,6 +124,7 @@ void Timeline::setSkeletonToTime(uint64_t time)
         }
 
         _skeleton.setRelBoneOrientation(it->first, q);
+        */
 
         /*
         std::set<TimelineChannel*> channels = it->second->getChannels();
@@ -138,6 +142,155 @@ void Timeline::setSkeletonToTime(uint64_t time)
         */
     }
     _skeleton.update();
+}
+
+Quaternion Timeline::computeBoneOrientation(int boneId, uint64_t time) const
+{
+    std::vector<TimelineOverlay*> overlays = getOverlaysByBoneId(boneId, time);
+
+    // if there is no overlay, just return the bone orientation according to the channel content
+    if (overlays.size() == 0)
+    {
+        std::vector<const TimelineTrack*> tracks = getTracks(boneId, time);
+        if (tracks.size() > 0)
+        {
+            return tracks[0]->getFrameFromAbsTime(time, true).getOrientation();
+        }
+        // no orientation data available, just return an unit quaternion
+        return Quaternion();
+    }
+
+    std::sort(overlays.begin(), overlays.end(), TimelineOverlay::compPriority);
+
+    Quaternion q;
+    std::map<int, Quaternion> orientations;
+
+    for (size_t i = 0; i < overlays.size(); ++i)
+    {
+        TimelineTrack* track1 = overlays[i]->getFirstTrack();
+        TimelineTrack* track2 = overlays[i]->getSecondTrack();
+        OverlayType type = overlays[i]->getType();
+        Quaternion q1, q2;
+        auto it1 = orientations.find(track1->getId());
+        auto it2 = orientations.find(track2->getId());
+        if (it1 == orientations.end())
+        {
+            q1 = track1->getFrameFromAbsTime(time, true).getOrientation();
+        }
+        else
+        {
+            q1 = it1->second;
+        }
+        if (it2 == orientations.end())
+        {
+            q2 = track2->getFrameFromAbsTime(time, true).getOrientation();
+        }
+        else
+        {
+            q2 = it2->second;
+        }
+        switch (type)
+        {
+            case OverlayType::ADDITIVE:
+                q = q1 * q2;
+                break;
+            case OverlayType::SUBTRACTIVE:
+                q = q1 * q2.inv();
+                break;
+            case OverlayType::IGNORING:
+                q = q1;
+                break;
+            case OverlayType::OVERWRITE:
+                q = q2;
+                break;
+            case OverlayType::LINEAR_INTERPOLATION:
+                q = q1.slerp(q2, double(time - overlays[i]->getStartTime()) / overlays[i]->getLength());
+                break;
+            case OverlayType::STATIC_INTERPOLATION:
+                q = q1.slerp(q2, 0.5);
+                break;
+            case OverlayType::WEIGHTED_INTERPOLATION:
+                q = track1->getFrameFromAbsTime(time, false).getOrientation().slerp(q2, 1.0 - track1->getWeight(track1->getFrameNumFromAbsTime(time)));
+                break;
+            default:
+                q = q1 * q2;
+                break;
+        }
+        orientations[track1->getId()] = q;
+        orientations[track2->getId()] = q;
+    }
+    return q;
+}
+
+void Timeline::createMotionSequence(MotionSequence* sequence, float frameTime) const
+{
+    if (sequence == nullptr)
+    {
+        return;
+    }
+
+    if (frameTime <= 0.0f)
+    {
+        frameTime = 0.04f;
+    }
+
+    uint64_t maxTime = getMaxTime();
+    if (maxTime == 0)
+    {
+        return;
+    }
+
+    // TODO(JK#9#): for motion sequence creation maybe consider min time of the timeline
+
+    sequence->createFromSkeleton(_skeleton);
+
+    sequence->setFrameTime(frameTime);
+
+    // TODO(JK#9#): createMotionSequence can be implemented with better efficiency
+    uint64_t timeStep = frameTime * 1000000.0f;
+    for (auto it = sequence->beginChannels(); it != sequence->endChannels(); ++it)
+    {
+        uint64_t time = 0;
+        for (size_t i = 0; time < maxTime; ++i)
+        {
+            Quaternion q = computeBoneOrientation(it->first, time);
+            it->second->appendFrame(MotionSequenceFrame(q));
+            time += timeStep;
+        }
+    }
+    sequence->setNumFrames(sequence->beginChannels()->second->getNumFrames());
+}
+
+uint64_t Timeline::getMinTime() const
+{
+    uint64_t minTime = std::numeric_limits<uint64_t>::infinity();
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        uint64_t tempMinTime = it->second->getMinTime();
+        if (tempMinTime < minTime)
+        {
+            minTime = tempMinTime;
+            if (minTime == 0)
+            {
+                break;
+            }
+        }
+    }
+    return minTime;
+}
+
+uint64_t Timeline::getMaxTime() const
+{
+    uint64_t maxTime = 0;
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        uint64_t tempMaxTime = it->second->getMaxTime();
+        if (tempMaxTime > maxTime)
+        {
+            maxTime = tempMaxTime;
+        }
+    }
+    return maxTime;
 }
 
 void Timeline::setSkeleton(Skeleton* skeleton)
@@ -182,14 +335,6 @@ void Timeline::setChannelAffiliation(int channel, int boneId)
     channelGroupIt->second->addChannel(it->second);
 
     it->second->setBoneId(boneId);
-    if (boneId < 0 || _skeleton.getBone(boneId) == nullptr)
-    {
-        it->second->setDefaultOrientation(Quaternion());
-    }
-    else
-    {
-        it->second->setDefaultOrientation(_skeleton.getBone(boneId)->getDefaultOrientation());
-    }
 
     // update overlays of all tracks in the channel
     std::vector<TimelineTrack*> tracks = it->second->getTracks();
@@ -417,7 +562,7 @@ void Timeline::swapChannels(int channel1, int channel2)
         channel2It = _channels.find(channel2);
     }
     std::swap(channel1It->second, channel2It->second);
-    // TODO(JK#1#): swapping channels is buggy, also now it uses a channel pointer
+    // TODO(JK#2#): swapping channels is buggy, also now it uses a channel pointer
     //TimelineChannel* channel_1 = _channels[channel1];
     //TimelineChannel* channel_2 = _channels[channel2];
     //TimelineChannel* swapChannel = channel_1;
@@ -450,6 +595,21 @@ void Timeline::clearChannel(int channel)
 void Timeline::sortChannels()
 {
 
+}
+
+void Timeline::changeFrameTime(int trackId, float newFrameTime)
+{
+    changeFrameTime(getTrack(trackId), newFrameTime);
+}
+
+void Timeline::changeFrameTime(TimelineTrack* track, float newFrameTime)
+{
+    if (track == nullptr)
+    {
+        return;
+    }
+    track->setFrameTime(newFrameTime);
+    updateOverlays(track);
 }
 
 void Timeline::cut(int trackId, uint64_t time)
@@ -523,6 +683,25 @@ std::vector<TimelineTrack*> Timeline::getTracks(int boneId, uint64_t time)
     return tracks;
 }
 
+std::vector<const TimelineTrack*> Timeline::getTracks(int boneId, uint64_t time) const
+{
+    std::vector<const TimelineTrack*> tracks;
+    auto groupIt = _channelGroups.find(boneId);
+    if (groupIt == _channelGroups.end() || boneId < 0)
+    {
+        return tracks;
+    }
+    std::set<TimelineChannel*> channels = groupIt->second->getChannels();
+    for (auto it = channels.begin(); it != channels.end(); ++it)
+    {
+        TimelineTrack* track = (*it)->getTrack(time);
+        if (track != nullptr)
+        {
+            tracks.push_back(track);
+        }
+    }
+    return tracks;
+}
 
 TimelineTrack* Timeline::getTrackBefore(int channel, uint64_t time)
 {
@@ -762,6 +941,170 @@ void Timeline::updateOverlays(TimelineTrack* track)
     }
 }
 
+std::istream& Timeline::read(std::istream& s)
+{
+    s >> _nextTrackId;
+
+    size_t numTracks, numChannels, numOverlays;
+
+    s >> numTracks;
+    s >> numChannels;
+    s >> numOverlays;
+
+    s.ignore(100, '\n');
+
+    _skeleton.read(s);
+
+    s.ignore(100, '\n');
+
+    // read tracks
+    for (size_t i = 0; i < numTracks; ++i)
+    {
+        TimelineTrack* newTrack = new TimelineTrack();
+        newTrack->read(s);
+
+        _tracks[newTrack->getId()] = newTrack;
+
+        auto it = _channels.find(newTrack->getChannel());
+        // if the channel does not exist yet, initialize it with the correct channel position
+        if (it == _channels.end())
+        {
+            _channels[newTrack->getChannel()] = new TimelineChannel(newTrack->getChannel());
+            it = _channels.find(newTrack->getChannel());
+        }
+        it->second->insert(newTrack, newTrack->getStartTime());
+
+        updateOverlays(newTrack);
+    }
+    s.ignore(100, '\n');
+
+    for (size_t i = 0; i < numChannels; ++i)
+    {
+        int channel, boneId;
+        s >> channel;
+        s >> boneId;
+        setChannelAffiliation(channel, boneId);
+    }
+    s.ignore(100, '\n');
+
+    for (size_t i = 0; i < numOverlays; ++i)
+    {
+        unsigned int overlayId;
+        s >> overlayId;
+        _overlays[overlayId]->read(s);
+    }
+    return s;
+}
+
+std::ostream& Timeline::write(std::ostream& s) const
+{
+    s << _nextTrackId << ' ' << _tracks.size() << ' ' << _channels.size() << ' ' << _overlays.size() << std::endl;
+    s << _skeleton << std::endl;
+
+    for (auto it = _tracks.begin(); it != _tracks.end(); ++it)
+    {
+        it->second->write(s);
+        s << ' ';
+    }
+    s << std::endl;
+
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        s << it->first << ' ' << it->second->getBoneId() << ' ';
+    }
+    s << std::endl;
+
+    for (auto it = _overlays.begin(); it != _overlays.end(); ++it)
+    {
+        s << it->first << ' ';
+        it->second->write(s);
+        s << ' ';
+    }
+    return s;
+}
+
+std::istream& Timeline::readBinary(std::istream& s)
+{
+    size_t numTracks, numChannels, numOverlays;
+
+    s.read((char*)&_nextTrackId, sizeof(_nextTrackId));
+    s.read((char*)&numTracks, sizeof(size_t));
+    s.read((char*)&numChannels, sizeof(size_t));
+    s.read((char*)&numOverlays, sizeof(size_t));
+
+    _skeleton.readBinary(s);
+
+    // read tracks
+    for (size_t i = 0; i < numTracks; ++i)
+    {
+        TimelineTrack* newTrack = new TimelineTrack();
+        newTrack->readBinary(s);
+
+        _tracks[newTrack->getId()] = newTrack;
+
+        auto it = _channels.find(newTrack->getChannel());
+        // if the channel does not exist yet, initialize it with the correct channel position
+        if (it == _channels.end())
+        {
+            _channels[newTrack->getChannel()] = new TimelineChannel(newTrack->getChannel());
+            it = _channels.find(newTrack->getChannel());
+        }
+        it->second->insert(newTrack, newTrack->getStartTime());
+
+        updateOverlays(newTrack);
+    }
+
+    for (size_t i = 0; i < numChannels; ++i)
+    {
+        int channel, boneId;
+        s.read((char*)&channel, sizeof(int));
+        s.read((char*)&boneId, sizeof(int));
+
+        setChannelAffiliation(channel, boneId);
+    }
+
+    for (size_t i = 0; i < numOverlays; ++i)
+    {
+        unsigned int overlayId;
+        s.read((char*)&overlayId, sizeof(unsigned int));
+        _overlays[overlayId]->readBinary(s);
+    }
+    return s;
+}
+
+std::ostream& Timeline::writeBinary(std::ostream& s) const
+{
+    s.write((char*)&_nextTrackId, sizeof(_nextTrackId));
+    size_t size = _tracks.size();
+    s.write((char*)&size, sizeof(size_t));
+    size = _channels.size();
+    s.write((char*)&size, sizeof(size_t));
+    size = _overlays.size();
+    s.write((char*)&size, sizeof(size_t));
+
+    _skeleton.writeBinary(s);
+
+    for (auto it = _tracks.begin(); it != _tracks.end(); ++it)
+    {
+        it->second->writeBinary(s);
+    }
+
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        s.write((char*)&it->first, sizeof(int));
+        int boneId = it->second->getBoneId();
+        s.write((char*)&boneId, sizeof(int));
+    }
+
+    for (auto it = _overlays.begin(); it != _overlays.end(); ++it)
+    {
+        s.write((char*)&it->first, sizeof(unsigned int));
+        it->second->writeBinary(s);
+    }
+    return s;
+}
+
+
 TimelineOverlay* Timeline::createOverlay(TimelineTrack* track1, TimelineTrack* track2)
 {
     unsigned int id1 = getOverlayId(track1, track2);
@@ -805,4 +1148,14 @@ void Timeline::removeOverlay(TimelineOverlay* overlay)
     removeOverlay(overlay->getFirstTrack(), overlay->getSecondTrack());
 }
 
+
+std::ostream& operator<<(std::ostream& out, const Timeline& timeline)
+{
+    return timeline.write(out);
+}
+
+std::istream& operator>>(std::istream& in, Timeline& timeline)
+{
+    return timeline.read(in);
+}
 

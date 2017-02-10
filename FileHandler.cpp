@@ -29,6 +29,7 @@ OF SUCH DAMAGE.
 
 #include "FileHandler.h"
 #include <wx/wfstream.h>
+#include <wx/stdstream.h>
 #include <wx/txtstrm.h>
 #include <wx/tokenzr.h>
 #include <wx/filename.h>
@@ -76,6 +77,21 @@ bool FileHandler::write(wxString filename, MotionSequence* sequence)
         filename = filename + _(".bvh");
         return writeBVH(filename, sequence);
     }
+    return false;
+}
+
+bool FileHandler::write(wxString filename, Timeline* timeline)
+{
+    // TODO(JK#3#): save timeline
+    if (timeline == nullptr)
+    {
+        return false;
+    }
+    if (filename.Matches(_("*.mct")))
+    {
+        return writeMCT(filename, timeline);
+    }
+    return false;
 }
 
 Skeleton* FileHandler::readBVHSkeleton(wxString filename)
@@ -719,3 +735,44 @@ bool FileHandler::writeHTR(wxString filename, MotionSequence* sequence)
 {
     return true;
 }
+
+
+bool FileHandler::writeMCT(wxString filename, Timeline* timeline)
+{
+    if (timeline == nullptr)
+    {
+        return false;
+    }
+
+    wxFFileOutputStream stream(filename);
+    if (!stream.IsOk())
+    {
+        return false;
+    }
+    wxStdOutputStream out(stream);
+
+    timeline->writeBinary(out);
+
+    return true;
+}
+
+bool FileHandler::readMCT(wxString filename, Timeline* timeline)
+{
+    if (timeline == nullptr)
+    {
+        return false;
+    }
+
+    wxFFileInputStream stream(filename);
+    if (!stream.IsOk())
+    {
+        return false;
+    }
+    wxStdInputStream in(stream);
+
+    timeline->readBinary(in);
+
+    return true;
+}
+
+

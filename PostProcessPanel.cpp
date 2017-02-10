@@ -35,6 +35,7 @@ OF SUCH DAMAGE.
 #include "MoCapMain.h"
 #include "CustomEvents.h"
 
+
 #ifndef WX_PRECOMP
 	//(*InternalHeadersPCH(PostProcessPanel)
 	#include <wx/intl.h>
@@ -217,6 +218,9 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	Connect(ID_LISTBOXSEQUENCES,wxEVT_COMMAND_LISTBOX_SELECTED,(wxObjectEventFunction)&PostProcessPanel::OnListBoxSequencesSelect);
 	PanelDragDropSequence->Connect(wxEVT_PAINT,(wxObjectEventFunction)&PostProcessPanel::OnPanelDragDropSequencePaint,0,this);
 	PanelDragDropSequence->Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&PostProcessPanel::OnPanelDragDropSequenceLeftDown,0,this);
+	Connect(ID_BUTTONEXPORT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&PostProcessPanel::OnButtonExportClick);
+	Connect(ID_BUTTONSAVE,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&PostProcessPanel::OnButtonSaveClick);
+	Connect(ID_BUTTONLOAD,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&PostProcessPanel::OnButtonLoadClick);
 	PanelDragDropFrame->Connect(wxEVT_PAINT,(wxObjectEventFunction)&PostProcessPanel::OnPanelDragDropFramePaint,0,this);
 	PanelDragDropFrame->Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&PostProcessPanel::OnPanelDragDropFrameLeftDown,0,this);
 	timelinePanel->Connect(wxEVT_LEFT_UP,(wxObjectEventFunction)&PostProcessPanel::OnTimelinePanelLeftUp,0,this);
@@ -339,6 +343,65 @@ void PostProcessPanel::OnTimelinePanelLeftUp(wxMouseEvent& event)
     SetCursor(wxCURSOR_ARROW);
     event.Skip();
 }
+
+void PostProcessPanel::OnButtonExportClick(wxCommandEvent& event)
+{
+    // show the file dialog
+    wxFileDialog* fileDialog = new wxFileDialog(this, _("Export bvh file"), _(""), _(""), _("bvh files (*.bvh)|*.bvh"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if (fileDialog->ShowModal() == wxID_CANCEL)
+    {
+        fileDialog->Destroy();
+        return;
+    }
+    SetCursor(wxCURSOR_ARROWWAIT);
+    // TODO(JK#2#): prompt the user for frame time when exporting a sequence
+    MotionSequence* sequence = new MotionSequence();
+    theAnimationManager.getTimeline()->createMotionSequence(sequence, 0.04f);
+
+    FileHandler::write(fileDialog->GetPath(), sequence);
+
+    fileDialog->Destroy();
+    delete sequence;
+    sequence = nullptr;
+
+    SetCursor(wxCURSOR_DEFAULT);
+}
+
+void PostProcessPanel::OnButtonSaveClick(wxCommandEvent& event)
+{
+    // show the file dialog
+    wxFileDialog* fileDialog = new wxFileDialog(this, _("Save motion file"), _(""), _(""), _("mct files (*.mct)|*.mct"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if (fileDialog->ShowModal() == wxID_CANCEL)
+    {
+        fileDialog->Destroy();
+        return;
+    }
+    SetCursor(wxCURSOR_ARROWWAIT);
+
+    FileHandler::writeMCT(fileDialog->GetPath(), theAnimationManager.getTimeline());
+
+    fileDialog->Destroy();
+    SetCursor(wxCURSOR_DEFAULT);
+}
+
+void PostProcessPanel::OnButtonLoadClick(wxCommandEvent& event)
+{
+    // show the file dialog
+    wxFileDialog* fileDialog = new wxFileDialog(this, _("Save motion file"), _(""), _(""), _("mct files (*.mct)|*.mct"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+    if (fileDialog->ShowModal() == wxID_CANCEL)
+    {
+        fileDialog->Destroy();
+        return;
+    }
+    SetCursor(wxCURSOR_ARROWWAIT);
+
+    // TODO(JK#9#): check write/read binary - seems fine
+    FileHandler::readMCT(fileDialog->GetPath(), theAnimationManager.getTimeline());
+
+    fileDialog->Destroy();
+    SetCursor(wxCURSOR_DEFAULT);
+}
+
 
 void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
 {
@@ -541,6 +604,7 @@ void PostProcessPanel::OnListBoxSequencesSelect(wxCommandEvent& event)
     _currentProjectSequence = ListBoxSequences->GetSelection();
     updateSequenceInfo();
 }
+
 
 
 

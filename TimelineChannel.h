@@ -45,9 +45,6 @@ class TimelineChannel
     void setBoneId(int boneId);
     int getBoneId() const;
 
-    void setDefaultOrientation(const Quaternion &orientation) { _defaultOrientation = orientation; }
-    Quaternion getDefaultOrientation() const { return _defaultOrientation; }
-
     // Insert a track at time point given in ms
     void insert(TimelineTrack* track, uint64_t time);
 
@@ -57,6 +54,11 @@ class TimelineChannel
     bool remove(int id, uint64_t timeHint = 0);
 
     void clear();
+
+    // returns the start time of the first track, max(uint64_t) if no track is added
+    uint64_t getMinTime() const;
+    // returns the end time of the last track, 0 if no track is added
+    uint64_t getMaxTime() const;
 
     size_t getNumTracks() const { return _tracks.size(); }
 
@@ -75,13 +77,22 @@ class TimelineChannel
 
     bool operator<(const TimelineChannel &other) { return _channelPos < other._channelPos; }
 
+    // read and write methods will not write the channel content
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
+
   protected:
 
   private:
     int _channelPos;
     int _boneId;
-    Quaternion _defaultOrientation;
     std::map<uint64_t, TimelineTrack*> _tracks;
 };
+
+std::ostream& operator<<(std::ostream& out, const TimelineChannel& channel);
+
+std::istream& operator>>(std::istream& in, TimelineChannel& channel);
 
 #endif // TIMELINECHANNEL_H

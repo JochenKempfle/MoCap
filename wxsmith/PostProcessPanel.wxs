@@ -212,6 +212,7 @@
 											<object class="sizeritem">
 												<object class="wxButton" name="ID_BUTTONEXPORT" variable="ButtonExport" member="yes">
 													<label>Export</label>
+													<handler function="OnButtonExportClick" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
@@ -219,6 +220,7 @@
 											<object class="sizeritem">
 												<object class="wxButton" name="ID_BUTTONSAVE" variable="ButtonSave" member="yes">
 													<label>Save</label>
+													<handler function="OnButtonSaveClick" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>
@@ -226,6 +228,7 @@
 											<object class="sizeritem">
 												<object class="wxButton" name="ID_BUTTONLOAD" variable="ButtonLoad" member="yes">
 													<label>Load</label>
+													<handler function="OnButtonLoadClick" entry="EVT_BUTTON" />
 												</object>
 												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 												<border>5</border>

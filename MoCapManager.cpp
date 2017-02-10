@@ -192,7 +192,7 @@ void MoCapManager::stopSimulation()
 
 void MoCapManager::selectFilter(int filter)
 {
-    if (filter < 0 || filter >= _filters.size())
+    if (filter < 0 || filter >= int(_filters.size()))
     {
         return;
     }

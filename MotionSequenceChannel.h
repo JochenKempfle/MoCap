@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include <vector>
 #include <string>
+#include <iostream>
 #include "Quaternion.h"
 #include "Vector3.h"
 #include "MotionSequenceFrame.h"
@@ -65,14 +66,13 @@ class MotionSequenceChannel
 
     void clear();
 
-    void setBoneLength(float length);
-    float getBoneLength() const;
-
-    void setInitialPose(MotionSequenceFrame pose);
-    MotionSequenceFrame getInitialPose() const;
-
     std::vector<MotionSequenceFrame>::iterator beginFrames() { return _frames.begin(); }
     std::vector<MotionSequenceFrame>::iterator endFrames() { return _frames.end(); }
+
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
 
   protected:
 
@@ -81,9 +81,13 @@ class MotionSequenceChannel
     std::string _name;
     float _frameTime;
     std::vector<MotionSequenceFrame> _frames;
-    // TODO(JK#5#): remove initial pose and bone length from MotionSequenceChannel
-    MotionSequenceFrame _initialPose;
-    float _boneLength;
 };
+
+//! output in format <id name frameTime numFrames [frame0 frame1 ...]>
+std::ostream& operator<<(std::ostream& out, const MotionSequenceChannel& channel);
+
+//! input in format <id name frameTime numframes [frame0 frame1 ...]>
+std::istream& operator>>(std::istream& in, MotionSequenceChannel& channel);
+
 
 #endif // MOTIONSEQUENCECHANNEL_H

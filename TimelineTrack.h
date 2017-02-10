@@ -59,6 +59,7 @@ class TimelineTrack
 
     uint64_t getLength() const;
 
+    // set the frame time of a track. Use Timeline::changeFrameTime to update the overlays!
     void setFrameTime(float frameTime);
     float getFrameTime() const;
 
@@ -95,6 +96,11 @@ class TimelineTrack
     std::vector<std::pair<unsigned int, float> > getWeightPoints() const;
     float getWeight(unsigned int frame) const;
 
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
+
   protected:
   private:
     int _id;
@@ -105,5 +111,9 @@ class TimelineTrack
     std::vector<MotionSequenceFrame> _frames;
     std::map<unsigned int, float> _weightPoints;
 };
+
+std::ostream& operator<<(std::ostream& out, const TimelineTrack& track);
+
+std::istream& operator>>(std::istream& in, TimelineTrack& track);
 
 #endif // TIMELINETRACK_H

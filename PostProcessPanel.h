@@ -143,6 +143,9 @@ class PostProcessPanel: public wxPanel
 		void OnPanelDragDropSequenceLeftDown(wxMouseEvent& event);
 		void OnPanelDragDropFrameLeftDown(wxMouseEvent& event);
 		void OnTimelinePanelLeftUp(wxMouseEvent& event);
+		void OnButtonExportClick(wxCommandEvent& event);
+		void OnButtonSaveClick(wxCommandEvent& event);
+		void OnButtonLoadClick(wxCommandEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
         void OnTimerEvent(wxTimerEvent& event);

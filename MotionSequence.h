@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include <map>
 #include <string>
+#include <iostream>
 #include "MotionSequenceChannel.h"
 #include "Skeleton.h"
 
@@ -84,6 +85,12 @@ class MotionSequence
 
     std::map<int, MotionSequenceChannel*>::iterator beginChannels() { return _channels.begin(); }
     std::map<int, MotionSequenceChannel*>::iterator endChannels() { return _channels.end(); }
+
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
+
   protected:
   private:
     std::string _name;
@@ -93,5 +100,12 @@ class MotionSequence
     bool _hasAbsOrientations;
     std::map<int, MotionSequenceChannel*> _channels;
 };
+
+//! output in format <bool quat vec3>
+std::ostream& operator<<(std::ostream& out, const MotionSequence& sequence);
+
+//! input in format <bool quat vec3>
+std::istream& operator>>(std::istream& in, MotionSequence& sequence);
+
 
 #endif // MOTIONSEQUENCE_H

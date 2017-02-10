@@ -50,11 +50,21 @@ class TimelineChannelGroup
     std::vector<int> getChannelIds() const;
     std::set<TimelineChannel*> getChannels() const { return _channels; }
     bool hasChannel(TimelineChannel* channel) const { return *_channels.find(channel) == channel; }
+
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
+
   protected:
 
   private:
     int _boneId;
     std::set<TimelineChannel*> _channels;
 };
+
+std::ostream& operator<<(std::ostream& out, const TimelineChannelGroup& group);
+
+std::istream& operator>>(std::istream& in, TimelineChannelGroup& group);
 
 #endif // TIMELINECHANNELGROUP_H

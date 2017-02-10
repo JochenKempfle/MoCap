@@ -90,6 +90,11 @@ class Skeleton
     std::map<int, Bone*>::iterator beginBones() { return _bones.begin(); }
     std::map<int, Bone*>::iterator endBones() { return _bones.end(); }
 
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
+
   protected:
 
   private:
@@ -99,5 +104,9 @@ class Skeleton
     Bone* _root;
     std::map<int, Bone*> _bones;
 };
+
+std::ostream& operator<<(std::ostream& out, const Skeleton& skeleton);
+
+std::istream& operator>>(std::istream& in, Skeleton& skeleton);
 
 #endif // SKELETON_H

@@ -1342,8 +1342,9 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
         {
             time = 1000;
         }
-        float newFrameTime = float(time) / float(track->getNumFrames() * 1000000);
-        track->setFrameTime(newFrameTime);
+        float newFrameTime = double(time) / double(track->getNumFrames() * 1000000);
+        // track->setFrameTime(newFrameTime);
+        theAnimationManager.getTimeline()->changeFrameTime(_selectedTrack, newFrameTime);
         Refresh();
     }
 

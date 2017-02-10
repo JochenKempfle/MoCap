@@ -385,4 +385,136 @@ Skeleton& Skeleton::operator=(Skeleton other)
 }
 
 
+std::istream& Skeleton::read(std::istream& s)
+{
+    clear();
+    std::getline(s, _name);
+
+    s >> _nextId;
+
+    size_t numBones = 0;
+    s >> numBones;
+
+    s.ignore(100, '\n');
+
+    Bone boneData;
+
+    // catch the root
+    if (numBones > 0)
+    {
+        s >> boneData;
+        _root = new Bone(boneData.getId());
+        _root->copyContent(boneData);
+        _bones[boneData.getId()] = _root;
+        --numBones;
+    }
+
+    // catch all other bones
+    int parentId = _root->getId();
+    for (size_t i = 0; i < numBones; ++i)
+    {
+        s >> parentId;
+        s >> boneData;
+        Bone* bone = new Bone(boneData.getId());
+        bone->copyContent(boneData);
+        getBone(parentId)->appendChild(bone);
+        _bones[boneData.getId()] = bone;
+    }
+
+    // ensure the skeleton is set to default after reading in data
+    setToDefault();
+
+    return s;
+}
+
+std::ostream& Skeleton::write(std::ostream& s) const
+{
+    std::vector<Bone*> bones = _root->getAllChildrenDFS();
+
+    s << _name << std::endl << _nextId << ' ' << bones.size() + 1 << std::endl;
+
+    _root->write(s);
+    for (size_t i = 0; i < bones.size(); ++i)
+    {
+        s << std::endl << bones[i]->getParentId() << ' ';
+        bones[i]->write(s);
+    }
+    return s;
+}
+
+std::istream& Skeleton::readBinary(std::istream& s)
+{
+    clear();
+
+    size_t strLength;
+    s.read((char*)&strLength, sizeof(size_t));
+    _name.resize(strLength);
+    s.read((char*)&_name[0], strLength);
+
+    s.read((char*)&_nextId, sizeof(_nextId));
+
+    size_t numBones = 0;
+    s.read((char*)&numBones, sizeof(size_t));
+
+    Bone boneData;
+
+    // catch the root
+    if (numBones > 0)
+    {
+        boneData.readBinary(s);
+        _root = new Bone(boneData.getId());
+        _root->copyContent(boneData);
+        _bones[boneData.getId()] = _root;
+        --numBones;
+    }
+
+    // catch all other bones
+    int parentId = _root->getId();
+    for (size_t i = 0; i < numBones; ++i)
+    {
+        s.read((char*)&parentId, sizeof(parentId));
+        boneData.readBinary(s);
+        Bone* bone = new Bone(boneData.getId());
+        bone->copyContent(boneData);
+        getBone(parentId)->appendChild(bone);
+        _bones[boneData.getId()] = bone;
+    }
+
+    // ensure the skeleton is set to default after reading in data
+    setToDefault();
+
+    return s;
+}
+
+std::ostream& Skeleton::writeBinary(std::ostream& s) const
+{
+    std::vector<Bone*> bones = _root->getAllChildrenDFS();
+
+    size_t size = _name.size();
+    s.write((char*)&size, sizeof(size_t));
+    s.write((char*)&_name[0], _name.size());
+    s.write((char*)&_nextId, sizeof(_nextId));
+    size = bones.size() + 1;
+    s.write((char*)&size, sizeof(size_t));
+
+    _root->writeBinary(s);
+    for (size_t i = 0; i < bones.size(); ++i)
+    {
+        int parentId = bones[i]->getParentId();
+        s.write((char*)&parentId, sizeof(parentId));
+        bones[i]->writeBinary(s);
+    }
+
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& out, const Skeleton& skeleton)
+{
+    return skeleton.write(out);
+}
+
+std::istream& operator>>(std::istream& in, Skeleton& skeleton)
+{
+    return skeleton.read(in);
+}
 

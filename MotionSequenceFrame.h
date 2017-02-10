@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include "Quaternion.h"
 #include "Vector3.h"
+#include <iostream>
 
 class MotionSequenceFrame
 {
@@ -45,11 +46,24 @@ class MotionSequenceFrame
     void setPosition(Vector3 position);
     Vector3 getPosition() const;
     bool hasPositionData() const;
+
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
+
   protected:
   private:
     Quaternion _orientation;
     Vector3 _position;
     bool _hasPositionData;
+    // TODO(JK#9#): maybe add bone length to a frame (then a bone can change its length over time)
 };
+
+//! output in format <bool quat vec3>
+std::ostream& operator<<(std::ostream& out, const MotionSequenceFrame& frame);
+
+//! input in format <bool quat vec3>
+std::istream& operator>>(std::istream& in, MotionSequenceFrame& frame);
 
 #endif // MOTIONSEQUENCEFRAME_H

@@ -339,3 +339,139 @@ float TimelineTrack::getWeight(unsigned int frame) const
     return (1.0 - t) * it->second + t * it2->second;
 }
 
+std::istream& TimelineTrack::read(std::istream& s)
+{
+    std::getline(s, _name);
+
+    s >> _id;
+    s >> _channel;
+    s >> _startTime;
+    s >> _frameTime;
+    size_t numFrames;
+    s >> numFrames;
+    size_t numWeightPoints;
+    s >> numWeightPoints;
+
+    s.ignore(100, '\n');
+
+    MotionSequenceFrame frame;
+    _frames.clear();
+    _frames.reserve(numFrames);
+    for (size_t i = 0; i < numFrames; ++i)
+    {
+        frame.read(s);
+        _frames.push_back(frame);
+    }
+
+    s.ignore(100, '\n');
+
+    _weightPoints.clear();
+    unsigned int index;
+    float weight;
+    for (size_t i = 0; i < numWeightPoints; ++i)
+    {
+        s >> index;
+        s >> weight;
+        _weightPoints[index] = weight;
+    }
+    return s;
+}
+
+std::ostream& TimelineTrack::write(std::ostream& s) const
+{
+    s << _name << std::endl << _id << ' ' << _channel << ' ' << _startTime << ' ';
+    s << _frameTime << ' ' << _frames.size() << ' ' << _weightPoints.size() << std::endl;
+
+    for (size_t i = 0; i < _frames.size(); ++i)
+    {
+        _frames[i].write(s);
+        s << ' ';
+    }
+    s << std::endl;
+    for (auto it = _weightPoints.begin(); it != _weightPoints.end(); ++it)
+    {
+        s << it->first << ' ' << it->second << ' ';
+    }
+    return s;
+}
+
+std::istream& TimelineTrack::readBinary(std::istream& s)
+{
+    size_t strLength;
+    s.read((char*)&strLength, sizeof(size_t));
+    _name.resize(strLength);
+    s.read((char*)&_name[0], strLength);
+    s.read((char*)&_id, sizeof(_id));
+    s.read((char*)&_channel, sizeof(_channel));
+    s.read((char*)&_startTime, sizeof(_startTime));
+    s.read((char*)&_frameTime, sizeof(_frameTime));
+
+    size_t numFrames;
+    s.read((char*)&numFrames, sizeof(size_t));
+
+    size_t numWeightPoints;
+    s.read((char*)&numWeightPoints, sizeof(size_t));
+
+    MotionSequenceFrame frame;
+    _frames.clear();
+    _frames.reserve(numFrames);
+
+    for (size_t i = 0; i < numFrames; ++i)
+    {
+        frame.readBinary(s);
+        _frames.push_back(frame);
+    }
+
+    _weightPoints.clear();
+
+    for (size_t i = 0; i < numWeightPoints; ++i)
+    {
+        unsigned int index;
+        float weight;
+
+        s.read((char*)&index, sizeof(unsigned int));
+        s.read((char*)&weight, sizeof(float));
+
+        _weightPoints[index] = weight;
+    }
+    return s;
+}
+
+std::ostream& TimelineTrack::writeBinary(std::ostream& s) const
+{
+    size_t size = _name.size();
+    s.write((char*)&size, sizeof(size_t));
+    s.write((char*)&_name[0], _name.size());
+    s.write((char*)&_id, sizeof(_id));
+    s.write((char*)&_channel, sizeof(_channel));
+    s.write((char*)&_startTime, sizeof(_startTime));
+    s.write((char*)&_frameTime, sizeof(_frameTime));
+
+    size = _frames.size();
+    s.write((char*)&size, sizeof(size_t));
+
+    size = _weightPoints.size();
+    s.write((char*)&size, sizeof(size_t));
+
+    for (size_t i = 0; i < _frames.size(); ++i)
+    {
+        _frames[i].writeBinary(s);
+    }
+
+    for (auto it = _weightPoints.begin(); it != _weightPoints.end(); ++it)
+    {
+        s.write((char*)&it->first, sizeof(unsigned int));
+        s.write((char*)&it->second, sizeof(float));
+    }
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& out, const TimelineTrack& track)
+{
+    return track.write(out);
+}
+
+std::istream& operator>>(std::istream& in, TimelineTrack& track)
+{
+    return track.read(in);
+}

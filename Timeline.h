@@ -48,6 +48,15 @@ class Timeline
 
     void setSkeletonToTime(uint64_t time);
 
+    // compute the relative orientation of a bone at a certain time point (with respect to all associated channels).
+    // Returns an unit quaternion if no orientation data is present
+    Quaternion computeBoneOrientation(int boneId, uint64_t time) const;
+
+    void createMotionSequence(MotionSequence* sequence, float frameTime = 0.04f) const;
+
+    uint64_t getMinTime() const;
+    uint64_t getMaxTime() const;
+
     void setSkeleton(Skeleton* skeleton);
     Skeleton* getSkeleton();
     bool hasSkeleton() const { return _skeleton.getRootId() >= 0; }
@@ -72,6 +81,10 @@ class Timeline
     void clearChannel(int channel);
     void sortChannels();
 
+    // change the frame time of a given track (do not use a track's setFrameTime function, as the overlays are not updated then)
+    void changeFrameTime(int trackId, float newFrameTime);
+    void changeFrameTime(TimelineTrack* track, float newFrameTime);
+
     // cut the track at given absolute time point (if it covers the time point)
     void cut(int trackId, uint64_t time);
     // cut all tracks covering the given time point at this time point
@@ -83,6 +96,7 @@ class Timeline
     TimelineTrack* getTrack(int channel, uint64_t time);
     // get all tracks associated with given bone id at given time. Tracks are sorted by channel
     std::vector<TimelineTrack*> getTracks(int boneId, uint64_t time);
+    std::vector<const TimelineTrack*> getTracks(int boneId, uint64_t time) const;
 
     TimelineTrack* getTrackBefore(int channel, uint64_t time);
     TimelineTrack* getTrackAfter(int channel, uint64_t time);
@@ -105,6 +119,11 @@ class Timeline
 
     void updateOverlays(TimelineTrack* track);
 
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
+
   protected:
 
   private:
@@ -120,5 +139,9 @@ class Timeline
     std::map<int, TimelineChannelGroup*> _channelGroups;
     std::map<unsigned int, TimelineOverlay*> _overlays;
 };
+
+std::ostream& operator<<(std::ostream& out, const Timeline& timeline);
+
+std::istream& operator>>(std::istream& in, Timeline& timeline);
 
 #endif // TIMELINE_H

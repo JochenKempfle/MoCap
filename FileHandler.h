@@ -31,6 +31,7 @@ OF SUCH DAMAGE.
 #define FILEHANDLER_H
 
 #include "MotionSequence.h"
+#include "Timeline.h"
 #include <wx/string.h>
 
 class FileHandler
@@ -41,14 +42,20 @@ class FileHandler
 
     static MotionSequence* read(wxString filename);
     static bool write(wxString filename, MotionSequence* sequence);
+    static bool write(wxString filename, Timeline* timeline);
 
     static Skeleton* readBVHSkeleton(wxString filename);
     static MotionSequence* readBVH(wxString filename);
     static bool writeBVH(wxString filename, MotionSequence* sequence);
 
+    // TODO(JK#2#): implement HTR read and write
     static Skeleton* readHTRSkeleton(wxString filename);
     static MotionSequence* readHTR(wxString filename);
     static bool writeHTR(wxString filename, MotionSequence* sequence);
+
+    static Skeleton* readMCTSkeleton(wxString filename);
+    static bool readMCT(wxString filename, Timeline* timeline);
+    static bool writeMCT(wxString filename, Timeline* timeline);
 
   protected:
 

@@ -74,33 +74,26 @@ Vector3 Vector3::lerp(const Vector3& other, float t) const
 
 std::istream& Vector3::read(std::istream &s)
 {
-    int temp;
-    s >> temp; // should be 3
-    for (unsigned int i=0; i<3; i++)
-      s >> operator()(i);
+    for (unsigned int i = 0; i < 3; ++i)
+        s >> operator()(i);
     return s;
 }
 
 
 std::ostream& Vector3::write(std::ostream &s) const
 {
-    s << 3;
-    for (unsigned int i=0; i<3; i++)
-      s << " " << operator()(i);
-    return s;
+    return s << x() << ' ' << y() << ' ' << z();
 }
 
 
 
 std::istream& Vector3::readBinary(std::istream &s)
 {
-    int temp;
-    s.read((char*)&temp, sizeof(temp));
     double val = 0;
-    for (unsigned int i=0; i<3; i++)
+    for (unsigned int i = 0; i < 3; ++i)
     {
-      s.read((char*)&val, sizeof(val));
-      operator()(i) = (float) val;
+        s.read((char*)&val, sizeof(val));
+        operator()(i) = float(val);
     }
     return s;
 }
@@ -108,12 +101,11 @@ std::istream& Vector3::readBinary(std::istream &s)
 
 std::ostream& Vector3::writeBinary(std::ostream &s) const
 {
-    int temp = 3;
-    s.write((char*)&temp, sizeof(temp));
     double val = 0;
-    for (unsigned int i=0; i<3; i++) {
-      val = operator()(i);
-      s.write((char*)&val, sizeof(val));
+    for (unsigned int i = 0; i < 3; ++i)
+    {
+        val = operator()(i);
+        s.write((char*)&val, sizeof(val));
     }
     return s;
 }
@@ -125,6 +117,10 @@ Vector3 operator*(float x, Vector3 other)
 
 std::ostream& operator<<(std::ostream& out, Vector3 const& v)
 {
-    return out << '(' << v.x() << ' ' << v.y() << ' ' << v.z() << ')';
+    return v.write(out);
 }
 
+std::istream& operator>>(std::istream& in, Vector3& v)
+{
+    return v.read(in);
+}

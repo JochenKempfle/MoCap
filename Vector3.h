@@ -330,8 +330,11 @@ class Vector3
 
 Vector3 operator*(float x, Vector3 other);
 
-  //! user friendly output in format (x y z)
+//! output in format x y z
 std::ostream& operator<<(std::ostream& out, Vector3 const& v);
+
+//! input in format x y z
+std::istream& operator>>(std::istream& in, Vector3& v);
 
 
 #endif // VECTOR3_H

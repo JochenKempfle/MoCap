@@ -53,3 +53,37 @@ std::vector<int> TimelineChannelGroup::getChannelIds() const
     return channels;
 }
 
+std::istream& TimelineChannelGroup::read(std::istream& s)
+{
+    s >> _boneId;
+    return s;
+}
+
+std::ostream& TimelineChannelGroup::write(std::ostream& s) const
+{
+    s << _boneId;
+    return s;
+}
+
+std::istream& TimelineChannelGroup::readBinary(std::istream& s)
+{
+    s.read((char*)&_boneId, sizeof(_boneId));
+    return s;
+}
+
+std::ostream& TimelineChannelGroup::writeBinary(std::ostream& s) const
+{
+    s.write((char*)&_boneId, sizeof(_boneId));
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& out, const TimelineChannelGroup& group)
+{
+    return group.write(out);
+}
+
+std::istream& operator>>(std::istream& in, TimelineChannelGroup& group)
+{
+    return group.read(in);
+}
+

@@ -425,33 +425,26 @@ Vector3 Quaternion::rotate(const Vector3& v) const
 
 std::istream& Quaternion::read(std::istream &s)
 {
-    int temp;
-    s >> temp; // should be 4
-    for (unsigned int i=0; i<4; i++)
-      s >> operator()(i);
+    for (unsigned int i = 0; i < 4; ++i)
+        s >> operator()(i);
     return s;
 }
 
 
 std::ostream& Quaternion::write(std::ostream &s) const
 {
-    s << 4;
-    for (unsigned int i=0; i<4; i++)
-      s << " " << operator()(i);
-    return s;
+    return s << u() << ' ' << x() << ' ' << y() << ' ' << z();
 }
 
 
 
 std::istream& Quaternion::readBinary(std::istream &s)
 {
-    int temp;
-    s.read((char*)&temp, sizeof(temp));
     double val = 0;
-    for (unsigned int i=0; i<4; i++)
+    for (unsigned int i = 0; i < 4; ++i)
     {
-      s.read((char*)&val, sizeof(val));
-      operator()(i) = (float) val;
+        s.read((char*)&val, sizeof(val));
+        operator()(i) = (float) val;
     }
     return s;
 }
@@ -459,22 +452,23 @@ std::istream& Quaternion::readBinary(std::istream &s)
 
 std::ostream& Quaternion::writeBinary(std::ostream &s) const
 {
-    int temp = 4;
-    s.write((char*)&temp, sizeof(temp));
     double val = 0;
-    for (unsigned int i=0; i<4; i++)
+    for (unsigned int i = 0; i < 4; ++i)
     {
-      val = operator()(i);
-      s.write((char*)&val, sizeof(val));
+        val = operator()(i);
+        s.write((char*)&val, sizeof(val));
     }
     return s;
 }
 
 
 
-std::ostream& operator<<(std::ostream& s, const Quaternion& q)
+std::ostream& operator<<(std::ostream& out, const Quaternion& q)
 {
-    s << "(" << q.u() << " " << q.x() << " " << q.y() << " " << q.z() << ")";
-    return s;
+    return q.write(out);
 }
 
+std::istream& operator>>(std::istream& in, Quaternion& q)
+{
+    return q.read(in);
+}

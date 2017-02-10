@@ -267,3 +267,102 @@ MotionSequence& MotionSequence::operator=(MotionSequence other)
 }
 
 
+std::istream& MotionSequence::read(std::istream& s)
+{
+    clear();
+
+    std::getline(s, _name);
+
+    s >> _numFrames;
+    s >> _frameTime;
+    s >> _hasAbsOrientations;
+
+    size_t numChannels;
+    s >> numChannels;
+
+    s.ignore(100, '\n');
+
+    s >> _skeleton;
+
+    MotionSequenceChannel channel;
+    for (size_t i = 0; i < numChannels; ++i)
+    {
+        s.ignore(100, '\n');
+        s >> channel;
+        _channels[channel.getId()] = new MotionSequenceChannel(channel);
+    }
+    return s;
+}
+
+std::ostream& MotionSequence::write(std::ostream& s) const
+{
+    s << _name << std::endl << _numFrames << ' ' << _frameTime << ' ' << _hasAbsOrientations << ' ' << _channels.size() << std::endl;
+    s << _skeleton;
+
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        s << std::endl;
+        it->second->write(s);
+    }
+    return s;
+}
+
+std::istream& MotionSequence::readBinary(std::istream& s)
+{
+    clear();
+
+    size_t strLength;
+    s.read((char*)&strLength, sizeof(size_t));
+    _name.resize(strLength);
+    s.read((char*)&_name[0], strLength);
+
+    s.read((char*)&_numFrames, sizeof(_numFrames));
+    s.read((char*)&_frameTime, sizeof(_frameTime));
+    s.read((char*)&_hasAbsOrientations, sizeof(_hasAbsOrientations));
+
+    size_t numChannels;
+    s.read((char*)&numChannels, sizeof(size_t));
+    _skeleton.readBinary(s);
+
+    MotionSequenceChannel channel;
+    for (size_t i = 0; i < numChannels; ++i)
+    {
+        channel.readBinary(s);
+        _channels[channel.getId()] = new MotionSequenceChannel(channel);
+    }
+    return s;
+}
+
+std::ostream& MotionSequence::writeBinary(std::ostream& s) const
+{
+    size_t size = _name.size();
+    s.write((char*)&size, sizeof(size_t));
+    s.write((char*)&_name[0], _name.size());
+    s.write((char*)&_numFrames, sizeof(_numFrames));
+    s.write((char*)&_frameTime, sizeof(_frameTime));
+    s.write((char*)&_hasAbsOrientations, sizeof(_hasAbsOrientations));
+
+    size = _channels.size();
+    s.write((char*)&size, sizeof(size_t));
+
+    // write skeleton
+    _skeleton.writeBinary(s);
+
+    // write channels
+    for (auto it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        it->second->writeBinary(s);
+    }
+    return s;
+}
+
+std::ostream& operator<<(std::ostream& out, const MotionSequence& sequence)
+{
+    return sequence.write(out);
+}
+
+std::istream& operator>>(std::istream& in, MotionSequence& sequence)
+{
+    return sequence.read(in);
+}
+

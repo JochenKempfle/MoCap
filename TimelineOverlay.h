@@ -77,6 +77,11 @@ class TimelineOverlay
     static bool compChannelDistSmall(TimelineOverlay* overlay1, TimelineOverlay* overlay2) { return overlay1->getChannelDifference() < overlay2->getChannelDifference(); }
     static bool compChannelDistHigh(TimelineOverlay* overlay1, TimelineOverlay* overlay2) { return overlay1->getChannelDifference() > overlay2->getChannelDifference(); }
 
+    std::istream& read(std::istream &s);
+    std::ostream& write(std::ostream &s) const;
+    std::istream& readBinary(std::istream &s);
+    std::ostream& writeBinary(std::ostream &s) const;
+
   protected:
 
   private:
@@ -87,5 +92,9 @@ class TimelineOverlay
     unsigned char _priority;
     OverlayType _type;
 };
+
+std::ostream& operator<<(std::ostream& out, const TimelineOverlay& overlay);
+
+std::istream& operator>>(std::istream& in, TimelineOverlay& overlay);
 
 #endif // TIMELINEOVERLAY_H

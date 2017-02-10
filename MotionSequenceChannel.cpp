@@ -43,19 +43,15 @@ MotionSequenceChannel::MotionSequenceChannel(const MotionSequenceChannel &other)
 {
     _id = other._id;
     _name = other._name;
-    _frames = other._frames;
     _frameTime = other._frameTime;
-    _initialPose = other._initialPose;
-    _boneLength = other._boneLength;
+    _frames = other._frames;
 }
 
 MotionSequenceChannel::MotionSequenceChannel(int id, const MotionSequenceChannel &other) : _id(id)
 {
     _name = other._name;
-    _frames = other._frames;
     _frameTime = other._frameTime;
-    _initialPose = other._initialPose;
-    _boneLength = other._boneLength;
+    _frames = other._frames;
 }
 
 MotionSequenceChannel::~MotionSequenceChannel()
@@ -122,23 +118,96 @@ void MotionSequenceChannel::clear()
     _frames.clear();
 }
 
-void MotionSequenceChannel::setBoneLength(float length)
+
+std::istream& MotionSequenceChannel::read(std::istream& s)
 {
-    _boneLength = length;
+    std::getline(s, _name);
+
+    s >> _id;
+    s >> _frameTime;
+    size_t numFrames;
+    s >> numFrames;
+
+    s.ignore(100, '\n');
+
+    MotionSequenceFrame frame;
+    _frames.clear();
+    _frames.reserve(numFrames);
+    for (size_t i = 0; i < numFrames; ++i)
+    {
+        frame.read(s);
+        _frames.push_back(frame);
+    }
+    return s;
 }
 
-float MotionSequenceChannel::getBoneLength() const
+std::ostream& MotionSequenceChannel::write(std::ostream& s) const
 {
-    return _boneLength;
+    s << _name << std::endl << _id << ' ' << _frameTime << ' ' << _frames.size() << std::endl;
+
+    // catch the first frame to avoid a ' ' at the beginning
+    if (_frames.size() > 0)
+    {
+        _frames[0].write(s);
+    }
+    for (size_t i = 1; i < _frames.size(); ++i)
+    {
+        s << ' ';
+        _frames[i].write(s);
+    }
+    return s;
 }
 
-void MotionSequenceChannel::setInitialPose(MotionSequenceFrame pose)
+std::istream& MotionSequenceChannel::readBinary(std::istream& s)
 {
-    _initialPose = pose;
+    size_t strLength;
+    s.read((char*)&strLength, sizeof(size_t));
+    _name.resize(strLength);
+    s.read((char*)&_name[0], strLength);
+    s.read((char*)&_id, sizeof(_id));
+    s.read((char*)&_frameTime, sizeof(_frameTime));
+
+    size_t numFrames;
+    s.read((char*)&numFrames, sizeof(size_t));
+
+    MotionSequenceFrame frame;
+    _frames.clear();
+    _frames.reserve(numFrames);
+
+    for (size_t i = 0; i < numFrames; ++i)
+    {
+        frame.readBinary(s);
+        _frames.push_back(frame);
+    }
+    return s;
 }
 
-MotionSequenceFrame MotionSequenceChannel::getInitialPose() const
+std::ostream& MotionSequenceChannel::writeBinary(std::ostream& s) const
 {
-    return _initialPose;
+    size_t size = _name.size();
+    s.write((char*)&size, sizeof(size_t));
+    s.write((char*)&_name[0], _name.size());
+    s.write((char*)&_id, sizeof(_id));
+    s.write((char*)&_frameTime, sizeof(_frameTime));
+
+    size = _frames.size();
+    s.write((char*)&size, sizeof(size_t));
+
+    for (size_t i = 0; i < _frames.size(); ++i)
+    {
+        _frames[i].writeBinary(s);
+    }
+    return s;
 }
+
+std::ostream& operator<<(std::ostream& out, const MotionSequenceChannel& channel)
+{
+    return channel.write(out);
+}
+
+std::istream& operator>>(std::istream& in, MotionSequenceChannel& channel)
+{
+    return channel.read(in);
+}
+
 

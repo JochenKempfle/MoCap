@@ -115,6 +115,7 @@ void MotionSequence::createFromSkeleton(const Skeleton &skeleton)
     {
         MotionSequenceChannel* channel = new MotionSequenceChannel(boneIdsWithName[i].first);
         channel->setName(boneIdsWithName[i].second);
+        channel->setFrameTime(_frameTime);
         _channels[boneIdsWithName[i].first] = channel;
     }
 }
@@ -123,6 +124,7 @@ int MotionSequence::createChannel(int parent)
 {
     int id = _skeleton.createBone(parent);
     _channels[id] = new MotionSequenceChannel(id);
+    _channels[id]->setFrameTime(_frameTime);
     return id;
 }
 
@@ -130,6 +132,7 @@ int MotionSequence::createChannel(const MotionSequenceChannel &channelData, int 
 {
     int id = _skeleton.createBone(parent);
     _channels[id] = new MotionSequenceChannel(id, channelData);
+    _channels[id]->setFrameTime(_frameTime);
     return id;
 }
 

@@ -140,7 +140,8 @@ class Quaternion
     Quaternion operator+(const Quaternion &other) const;
     Quaternion operator-(const Quaternion &other) const;
 
-    void operator/= (float x);
+    void operator*=(const Quaternion &other);
+    void operator/=(float x);
     Quaternion& operator= (const Quaternion& other);
     bool operator== (const Quaternion& other) const;
 

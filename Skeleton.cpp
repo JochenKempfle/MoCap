@@ -329,6 +329,30 @@ Bone* Skeleton::getBone(int id)
     return nullptr;
 }
 
+Bone* Skeleton::getBone(std::string name)
+{
+    for (auto it = _bones.begin(); it != _bones.end(); ++it)
+    {
+        if (it->second->getName() == name)
+        {
+            return it->second;
+        }
+    }
+    return nullptr;
+}
+
+int Skeleton::getBoneId(std::string name) const
+{
+    for (auto it = _bones.begin(); it != _bones.end(); ++it)
+    {
+        if (it->second->getName() == name)
+        {
+            return it->first;
+        }
+    }
+    return -1;
+}
+
 bool Skeleton::setBoneData(int id, const Bone &boneData)
 {
     auto it = _bones.find(id);

@@ -50,6 +50,7 @@ class Skeleton
     int createBone(int parent = -1);
     int createBone(const Bone& boneData, int parent = -1);
 
+    size_t getNumBones() const { return _bones.size(); }
     void setBoneName(int id, std::string name);
     std::string getBoneName(int id) const;
     std::vector<std::pair<int, std::string> > getBoneIdsWithName() const;
@@ -74,6 +75,9 @@ class Skeleton
     Bone* getRoot() { return _root; }
 
     Bone* getBone(int id);
+    Bone* getBone(std::string name);
+    int getBoneId(std::string name) const;
+
     bool setBoneData(int id, const Bone &boneData);
     bool setAbsBoneOrientation(int id, const Quaternion &orientation);
     bool setRelBoneOrientation(int id, const Quaternion &orientation);

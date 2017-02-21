@@ -134,7 +134,7 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	BoxSizer10 = new wxBoxSizer(wxVERTICAL);
 	ListBoxSequences = new wxListBox(this, ID_LISTBOXSEQUENCES, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_LISTBOXSEQUENCES"));
 	BoxSizer10->Add(ListBoxSequences, 1, wxALL|wxEXPAND, 5);
-	GenericDirCtrl = new wxGenericDirCtrl(this, ID_GENERICDIRCTRL, _T("C:\\Users\\Jochen\\Desktop"), wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SHOW_FILTERS, _T("*.bvh"), 0, _T("ID_GENERICDIRCTRL"));
+	GenericDirCtrl = new wxGenericDirCtrl(this, ID_GENERICDIRCTRL, _T("C:\\Users\\Jochen\\Desktop"), wxDefaultPosition, wxDefaultSize, wxDIRCTRL_SHOW_FILTERS, _T("All Motion Files|*.bvh;*.htr|BVH Files (*.bvh)|*.bvh|HTR Files (*.htr)|*.htr"), 0, _T("ID_GENERICDIRCTRL"));
 	BoxSizer10->Add(GenericDirCtrl, 2, wxALL|wxEXPAND, 5);
 	StaticBoxSizer1->Add(BoxSizer10, 1, wxEXPAND, 5);
 	BoxSizer11 = new wxBoxSizer(wxVERTICAL);
@@ -347,7 +347,7 @@ void PostProcessPanel::OnTimelinePanelLeftUp(wxMouseEvent& event)
 void PostProcessPanel::OnButtonExportClick(wxCommandEvent& event)
 {
     // show the file dialog
-    wxFileDialog* fileDialog = new wxFileDialog(this, _("Export bvh file"), _(""), _(""), _("bvh files (*.bvh)|*.bvh"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    wxFileDialog* fileDialog = new wxFileDialog(this, _("Export bvh file"), _(""), _(""), _("motion files|*.bvh;*.htr|bvh files (*.bvh)|*.bvh|htr files (*.htr)|*.htr"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     if (fileDialog->ShowModal() == wxID_CANCEL)
     {
         fileDialog->Destroy();
@@ -407,7 +407,7 @@ void PostProcessPanel::OnGenericDirCtrlActivated(wxTreeEvent& event)
 {
     SetCursor(wxCURSOR_ARROWWAIT);
 
-    MotionSequence* sequence = FileHandler::readBVH(GenericDirCtrl->GetPath());
+    MotionSequence* sequence = FileHandler::read(GenericDirCtrl->GetPath());
 
     SetCursor(wxCURSOR_DEFAULT);
 

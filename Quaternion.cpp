@@ -131,13 +131,18 @@ float Quaternion::norm () const
     return (float) sqrt(n);
 }
 
-void Quaternion::operator/= (float x)
+void Quaternion::operator*=(const Quaternion &other)
+{
+    *this = *this * other;
+}
+
+void Quaternion::operator/=(float x)
 {
     for (unsigned int i=0; i<4; ++i)
       operator()(i) /= x;
 }
 
-bool Quaternion::operator== (const Quaternion& other) const
+bool Quaternion::operator==(const Quaternion& other) const
 {
     for (unsigned int i=0; i<4; i++)
     {
@@ -237,7 +242,7 @@ void Quaternion::toRotMatrix(std::vector <double>& rot_matrix_3_3) const
     }
 }
 
-Quaternion& Quaternion::operator= (const Quaternion& other)
+Quaternion& Quaternion::operator=(const Quaternion& other)
 {
     u() = other.u();
     x() = other.x();
@@ -246,7 +251,7 @@ Quaternion& Quaternion::operator= (const Quaternion& other)
     return *this;
 }
 
-Quaternion Quaternion::operator* (const Quaternion& other) const
+Quaternion Quaternion::operator*(const Quaternion& other) const
 {
     return Quaternion(u()*other.u() - x()*other.x() - y()*other.y() - z()*other.z(),
 		      y()*other.z() - other.y()*z() + u()*other.x() + other.u()*x(),
@@ -254,12 +259,12 @@ Quaternion Quaternion::operator* (const Quaternion& other) const
 		      x()*other.y() - other.x()*y() + u()*other.z() + other.u()*z());
 }
 
-Quaternion Quaternion::operator* (const Vector3& v) const
+Quaternion Quaternion::operator*(const Vector3& v) const
 {
     return *this * Quaternion(0, v(0), v(1), v(2));
 }
 
-Quaternion operator* (const Vector3& v, const Quaternion& q)
+Quaternion operator*(const Vector3& v, const Quaternion& q)
 {
     return Quaternion(0, v(0), v(1), v(2)) * q;
 }

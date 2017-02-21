@@ -98,14 +98,14 @@ ConnectionDialog::ConnectionDialog(wxWindow* parent, wxWindowID id,const wxPoint
 	StaticBoxSizer1->Add(BoxSizer4, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _("Insert the IP address of\nthe network your sensors\nare connected to"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
 	StaticBoxSizer1->Add(StaticText1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer2->Add(StaticBoxSizer1, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer2->Add(StaticBoxSizer1, 1, wxALL|wxEXPAND, 5);
 	StaticBoxSizer2 = new wxStaticBoxSizer(wxVERTICAL, this, _("Port"));
 	SpinCtrlPort = new wxSpinCtrl(this, ID_SPINCTRLPORT, _T("5050"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 1024, 65535, 5050, _T("ID_SPINCTRLPORT"));
 	SpinCtrlPort->SetValue(_T("5050"));
 	StaticBoxSizer2->Add(SpinCtrlPort, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticText2 = new wxStaticText(this, ID_STATICTEXT2, _("Select the port (service)\nyour sensors are using"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
 	StaticBoxSizer2->Add(StaticText2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer2->Add(StaticBoxSizer2, 1, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer2->Add(StaticBoxSizer2, 1, wxALL|wxEXPAND, 5);
 	BoxSizer1->Add(BoxSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer3 = new wxBoxSizer(wxHORIZONTAL);
 	ButtonOk = new wxButton(this, ID_BUTTONOK, _("Ok"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONOK"));
@@ -113,7 +113,7 @@ ConnectionDialog::ConnectionDialog(wxWindow* parent, wxWindowID id,const wxPoint
 	BoxSizer3->Add(ButtonOk, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonCancel = new wxButton(this, ID_BUTTONCANCEL, _("Cancel"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONCANCEL"));
 	BoxSizer3->Add(ButtonCancel, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer1->Add(BoxSizer3, 0, wxALL|wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer1->Add(BoxSizer3, 0, wxALL|wxEXPAND, 5);
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);

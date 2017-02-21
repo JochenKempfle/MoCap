@@ -218,7 +218,7 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     Freeze();
     DataPanel->Destroy();
     DataPanel = new ViewPanel(MainPanel, ID_DATAPANEL);
-    DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND, 5);
     DataPanelSizer->Fit(DataPanel);
     DataPanelSizer->SetSizeHints(DataPanel);
     MainSizer->Fit(MainPanel);
@@ -427,7 +427,7 @@ void MoCapFrame::OnButtonSensorDetailClick(wxCommandEvent& event)
     Freeze();
     DataPanel->Destroy();
     DataPanel = new SensorDetailPanel(MainPanel, ID_SENSORDETAILPANEL);
-    DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND, 5);
     DataPanelSizer->Layout();
     MainSizer->Layout();
     Thaw();
@@ -440,7 +440,7 @@ void MoCapFrame::OnButtonVisualClick(wxCommandEvent& event)
     Freeze();
     DataPanel->Destroy();
     DataPanel = new ViewPanel(MainPanel, ID_VIEWPANEL);
-    DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND, 5);
     DataPanelSizer->Layout();
     MainSizer->Layout();
     Thaw();
@@ -455,7 +455,7 @@ void MoCapFrame::OnButtonSkeletonClick(wxCommandEvent& event)
     Freeze();
     DataPanel->Destroy();
     DataPanel = new SkeletonCreatorPanel(MainPanel, ID_SKELETONCREATORPANEL);
-    DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND, 5);
     DataPanelSizer->Layout();
     MainSizer->Layout();
     Thaw();
@@ -469,7 +469,7 @@ void MoCapFrame::OnButtonMotionPlayerClick(wxCommandEvent& event)
     Freeze();
     DataPanel->Destroy();
     DataPanel = new MotionPlayerPanel(MainPanel, ID_MOTIONPLAYERPANEL);
-    DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND, 5);
     DataPanelSizer->Layout();
     MainSizer->Layout();
     Thaw();
@@ -482,7 +482,7 @@ void MoCapFrame::OnButtonPostProcessClick(wxCommandEvent& event)
     Freeze();
     DataPanel->Destroy();
     DataPanel = new PostProcessPanel(MainPanel, ID_POSTPROCESSPANEL);
-    DataPanelSizer->Add(DataPanel, 1, wxEXPAND|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND, 5);
     DataPanelSizer->Layout();
     MainSizer->Layout();
     Thaw();

@@ -269,7 +269,7 @@ MotionSequence* FileHandler::readBVH(wxString filename)
     {
         return nullptr;
     }
-    wxFileInputStream input(filename);
+    wxFFileInputStream input(filename);
     wxTextInputStream textIn(input);
 
     if (!input.IsOk() || input.Eof())
@@ -699,7 +699,7 @@ MotionSequence* FileHandler::readHTR(wxString filename)
     {
         return nullptr;
     }
-    wxFileInputStream input(filename);
+    wxFFileInputStream input(filename);
     wxTextInputStream textIn(input);
 
     if (!input.IsOk() || input.Eof())
@@ -709,30 +709,470 @@ MotionSequence* FileHandler::readHTR(wxString filename)
 
     MotionSequence* sequence = new MotionSequence();
     sequence->setName(wxFileName(filename).GetName().ToStdString());
+    sequence->getSkeleton()->setName(wxFileName(filename).GetName().ToStdString());
+
+    size_t numSegments = 0;
+    size_t numFrames = 0;
+    float frameTime = 0.0f;
+
+    double calibrationFactor = 1.0;
+    double scaleFactor = 1.0;
+    double rotationFactor = 1.0;
+
+    wxString rotationOrder;
+
+    wxString rootBoneName;
+    wxString currentBoneName;
+    int currentBoneId = -1;
+
+    std::map<std::string, std::vector<std::string> > parentChildMap;
+    std::map<std::string, Bone> boneMap;
 
     wxStringTokenizer tokenizer;
 
+    // read mode describes how to interpret data:
+    // 0 -> default/ignore, 1 -> header, 2 -> hierarchy,
+    // 3 -> basePosition, 4 -> data, 5 -> EndOfFile
+    char readMode = 0;
+
+    long longBuffer;
+    double doubleBuffer;
+
+    // TODO(JK#3#): improve read HTR (still buggy)
     while (input.IsOk() && !input.Eof())
     {
         tokenizer.SetString(textIn.ReadLine());
 
         while (tokenizer.HasMoreTokens())
         {
-            if (tokenizer.GetNextToken().Matches(_("#*")))
-            {
-                continue;
-            }
-            else if (tokenizer.GetNextToken().IsSameAs(_("[header]"), false))
-            {
+            wxString token = tokenizer.GetNextToken();
 
+            if (token.Matches(_("#*")))
+            {
+                break;
+            }
+            else if (token.IsSameAs(_("[Header]"), false))
+            {
+                // set header mode
+                readMode = 1;
+                break;
+            }
+            else if (token.IsSameAs(_("[SegmentNames&Hierarchy]"), false))
+            {
+                // set hierarchy mode
+                readMode = 2;
+                break;
+            }
+            else if (token.IsSameAs(_("[BasePosition]"), false))
+            {
+                // set basePosition mode
+                readMode = 3;
+                break;
+            }
+            else if (token.IsSameAs(_("[EndOfFile]"), false))
+            {
+                // set EndOfFile mode
+                readMode = 5;
+                break;
+            }
+            else if (token.Matches(_("[*]")))
+            {
+                // set data mode
+                readMode = 4;
+                // create skeleton and sequence (if not done yet)
+                if (sequence->getSkeleton()->getNumBones() == 0)
+                {
+                    std::map<std::string, std::vector<std::string> >::iterator parentIt;
+
+                    sequence->setFrameTime(frameTime);
+
+                    Skeleton skeleton;
+                    skeleton.setName(sequence->getName());
+
+                    std::vector<std::pair<int, std::string> > bones;
+                    bones.push_back(std::make_pair(-1, rootBoneName.ToStdString()));
+
+                    // TODO(JK#9#): HTR format can contain multiple roots - what to do?
+                    // detect multiple roots and return in this case
+                    parentIt = parentChildMap.find("global");
+                    if (parentIt != parentChildMap.end())
+                    {
+                        if (parentIt->second.size() != 1)
+                        {
+                            return nullptr;
+                        }
+                    }
+
+                    for (size_t i = 0; i < bones.size(); ++i)
+                    {
+                        int boneId;
+                        auto boneIt = boneMap.find(bones[i].second);
+                        if (boneIt != boneMap.end())
+                        {
+                            boneId = skeleton.createBone(boneIt->second, bones[i].first);
+
+                            parentIt = parentChildMap.find(bones[i].second);
+                            if (parentIt != parentChildMap.end())
+                            {
+                                for (size_t j = 0; j < parentIt->second.size(); ++j)
+                                {
+                                    bones.push_back(std::make_pair(boneId, parentIt->second[j]));
+                                }
+                            }
+                        }
+                    }
+                    skeleton.update();
+                    sequence->createFromSkeleton(skeleton);
+                }
+                // set current bone
+                currentBoneName = token.Truncate(token.Length() - 1).AfterFirst('[');
+                currentBoneId = sequence->getSkeleton()->getBoneId(currentBoneName.ToStdString());
+                break;
+            }
+
+            // read header
+            if (readMode == 1)
+            {
+                if (token.IsSameAs(_("FileType"), false))
+                {
+                    token = tokenizer.GetNextToken();
+                    // TODO(JK#9#): consider to allow gtr files (in readHTR)
+                    if (!token.IsSameAs(_("htr"), false))
+                    {
+                        delete sequence;
+                        return nullptr;
+                    }
+                }
+                else if (token.IsSameAs(_("DataType"), false))
+                {
+                    // DataType HTRS #Translation followed by rotation and scale data
+                    token = tokenizer.GetNextToken();
+                    // TODO(JK#9#): consider to allow other than HTRS files (in readHTR)
+                    if (!token.IsSameAs(_("HTRS"), false))
+                    {
+                        delete sequence;
+                        return nullptr;
+                    }
+                }
+                else if (token.IsSameAs(_("FileVersion"), false))
+                {
+                    // FileVersion 1 #integer
+                    token = tokenizer.GetNextToken();
+                    // TODO(JK#9#): only file version 1 for HTR files supported yet
+                    if (!token.IsSameAs(_("1")))
+                    {
+                        delete sequence;
+                        return nullptr;
+                    }
+                }
+                else if (token.IsSameAs(_("NumSegments"), false))
+                {
+                    //NumSegments 18 #integer
+                    token = tokenizer.GetNextToken();
+                    token.ToLong(&longBuffer);
+                    numSegments = longBuffer;
+                }
+                else if (token.IsSameAs(_("NumFrames"), false))
+                {
+                    // NumFrames 2 #integer
+                    token = tokenizer.GetNextToken();
+                    token.ToLong(&longBuffer);
+                    numFrames = longBuffer;
+                }
+                else if (token.IsSameAs(_("DataFrameRate"), false))
+                {
+                    // DataFrameRate 60 #integer, data frame rate in this file
+                    token = tokenizer.GetNextToken();
+                    token.ToLong(&longBuffer);
+                    frameTime = 1.0f/float(longBuffer);
+                }
+                else if (token.IsSameAs(_("EulerRotationOrder"), false))
+                {
+                    // EulerRotationOrder ZYX
+                    rotationOrder = tokenizer.GetNextToken().Lower();
+                }
+                else if (token.IsSameAs(_("CalibrationUnits"), false))
+                {
+                    // CalibrationUnits mm
+                    token = tokenizer.GetNextToken().Lower();
+                    if (token.IsSameAs(_("mm")) || token.Matches(_("millimeter*")))
+                    {
+                        calibrationFactor = 0.001;
+                    }
+                    else if (token.IsSameAs(_("cm")) || token.Matches(_("centimeter*")))
+                    {
+                        calibrationFactor = 0.01;
+                    }
+                    else if (token.IsSameAs(_("dm")) || token.Matches(_("decimeter*")))
+                    {
+                        calibrationFactor = 0.1;
+                    }
+                    else if (token.IsSameAs(_("m")) || token.Matches(_("meter*")))
+                    {
+                        calibrationFactor = 1.0;
+                    }
+                    else if (token.IsSameAs(_("in")) || token.Matches(_("inch*")))
+                    {
+                        calibrationFactor = 0.0254;
+                    }
+                }
+                else if (token.IsSameAs(_("RotationUnits"), false))
+                {
+                    // RotationUnits Degrees
+                    token = tokenizer.GetNextToken();
+                    if (token.Lower().Matches(_("deg*")))
+                    {
+                        rotationFactor = M_PI/180.0;
+                    }
+                    else
+                    {
+                        rotationFactor = 1.0;
+                    }
+                }
+                else if (token.IsSameAs(_("GlobalAxisofGravity"), false))
+                {
+                    // GlobalAxisofGravity Y
+                    token = tokenizer.GetNextToken();
+                }
+                else if (token.IsSameAs(_("BoneLengthAxis"), false))
+                {
+                    // BoneLengthAxis Y
+                    token = tokenizer.GetNextToken();
+                }
+                else if (token.IsSameAs(_("ScaleFactor"), false))
+                {
+                    // ScaleFactor 1.000000
+                    token = tokenizer.GetNextToken();
+                    token.ToDouble(&doubleBuffer);
+                    scaleFactor = doubleBuffer;
+                }
+            }
+            // read hierarchy
+            else if (readMode == 2)
+            {
+                //token = tokenizer.GetNextToken();
+                wxString parent = tokenizer.GetNextToken();
+                if (parent.IsSameAs(_("global"), false))
+                {
+                    rootBoneName = token;
+                    parent = parent.Lower();
+                }
+                parentChildMap[parent.ToStdString()].push_back(token.ToStdString());
+            }
+            // read basePosition
+            else if (readMode == 3)
+            {
+                wxString boneName = token;
+
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                float tx = doubleBuffer * calibrationFactor;
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                float ty = doubleBuffer * calibrationFactor;
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                float tz = doubleBuffer * calibrationFactor;
+
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                Quaternion rx = Quaternion(doubleBuffer * rotationFactor, 0.0, 0.0);
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                Quaternion ry = Quaternion(0.0, doubleBuffer * rotationFactor, 0.0);
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                Quaternion rz = Quaternion(0.0, 0.0, doubleBuffer * rotationFactor);
+
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                float boneLength = doubleBuffer * calibrationFactor;
+
+                Quaternion boneOrientation;
+
+                for (size_t i = 0; i < 3; ++i)
+                {
+                    if (rotationOrder[i] == 'x')
+                    {
+                        boneOrientation = rx * boneOrientation;
+                    }
+                    else if (rotationOrder[i] == 'y')
+                    {
+                        boneOrientation = ry * boneOrientation;
+                    }
+                    else if (rotationOrder[i] == 'z')
+                    {
+                        boneOrientation = rz * boneOrientation;
+                    }
+                }
+                Bone bone;
+                bone.setStartPos(tx, ty, tz);
+                bone.setDefaultOrientation(boneOrientation);
+                bone.setLength(boneLength);
+                bone.setName(boneName.ToStdString());
+                boneMap[boneName.ToStdString()] = bone;
+            }
+            // read data
+            else if (readMode == 4)
+            {
+                token.ToLong(&longBuffer);
+                size_t frameNumber = longBuffer;
+
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                float tx = doubleBuffer * calibrationFactor;
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                float ty = doubleBuffer * calibrationFactor;
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                float tz = doubleBuffer * calibrationFactor;
+
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                Quaternion rx = Quaternion(doubleBuffer * rotationFactor, 0.0, 0.0);
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                Quaternion ry = Quaternion(0.0, doubleBuffer * rotationFactor, 0.0);
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                Quaternion rz = Quaternion(0.0, 0.0, doubleBuffer * rotationFactor);
+
+                token = tokenizer.GetNextToken();
+                token.ToDouble(&doubleBuffer);
+                float boneLength = doubleBuffer;
+
+                Quaternion frameOrientation;
+
+                for (size_t i = 0; i < 3; ++i)
+                {
+                    if (rotationOrder[i] == 'x')
+                    {
+                        frameOrientation = rx * frameOrientation;
+                    }
+                    else if (rotationOrder[i] == 'y')
+                    {
+                        frameOrientation = ry * frameOrientation;
+                    }
+                    else if (rotationOrder[i] == 'z')
+                    {
+                        frameOrientation = rz * frameOrientation;
+                    }
+                }
+
+                MotionSequenceFrame frame;
+                if (currentBoneName == rootBoneName)
+                {
+                    frame.setPosition(Vector3(tx, ty, tz));
+                }
+                frame.setOrientation(frameOrientation);
+                sequence->getChannel(currentBoneId)->appendFrame(frame);
+            }
+            // end of file
+            else if (readMode == 5)
+            {
             }
         }
+        sequence->setNumFrames(numFrames);
+        // sequence->setHasAbsOrientations();
     }
     return sequence;
 }
 
 bool FileHandler::writeHTR(wxString filename, MotionSequence* sequence)
 {
+    if (sequence == nullptr)
+    {
+        return false;
+    }
+    Skeleton* skeleton = sequence->getSkeleton();
+    if (skeleton == nullptr)
+    {
+        return false;
+    }
+    skeleton->setToDefault();
+
+    Bone* root = skeleton->getRoot();
+    if (root == nullptr)
+    {
+        return false;
+    }
+
+    {
+        wxFileName file(filename);
+        //check if the directory exists
+        if (!wxDirExists(file.GetPath()))
+        {
+            wxMkdir(file.GetPath());
+        }
+    }
+
+    wxFFileOutputStream output(filename);
+    wxTextOutputStream textOut(output);
+
+    std::vector<Bone*> bones = root->getAllChildrenDFS();
+    bones.insert(bones.begin(), root);
+
+    float degreeFactor = 180.0/M_PI;
+
+    textOut << _("#Hierarchical Translation and Rotation (.htr) file") << endl;
+    textOut << _("[Header]") << endl;
+    textOut << _("FileType htr") << endl;
+    textOut << _("DataType HTRS") << endl;
+    textOut << _("FileVersion 1") << endl;
+    textOut << _("NumSegments ") << sequence->getNumChannels() << endl;
+    textOut << _("NumFrames ") << sequence->getNumFrames() << endl;
+    textOut << _("DataFrameRate ") << int(1.0f/sequence->getFrameTime() + 0.5f) << endl;
+    textOut << _("EulerRotationOrder XYZ") << endl;
+    textOut << _("CalibrationUnits mm") << endl;
+    textOut << _("RotationUnits Degrees") << endl;
+    textOut << _("GlobalAxisofGravity Y") << endl;
+    textOut << _("BoneLengthAxis Y") << endl;
+    textOut << _("ScaleFactor 1.000000") << endl;
+
+    textOut << _("[SegmentNames&Hierarchy]") << endl;
+    textOut << _("#CHILD PARENT") << endl;
+    textOut << root->getName() << _(" GLOBAL") << endl;
+
+    for (size_t i = 1; i < bones.size(); ++i)
+    {
+        textOut << bones[i]->getName() << _(" ") << bones[i]->getParent()->getName() << endl;
+    }
+
+    textOut << _("[BasePosition]") << endl;
+    textOut << _("#SegmentName Tx, Ty, Tz, Rx, Ry, Rz, BoneLength") << endl;
+
+    for (size_t i = 0; i < bones.size(); ++i)
+    {
+        // convert to mm
+        Vector3 pos = bones[i]->getStartPos() * 1000.0f;
+        // convert to degrees
+        Vector3 rot = bones[i]->getDefaultOrientation().toEuler() * degreeFactor;
+
+        float length = bones[i]->getLength() * 1000.0f;
+        textOut << bones[i]->getName() << _(" ") << pos.x() << _(" ") << pos.y() << _(" ") << pos.z() << _(" ");
+        textOut << rot.x() << _(" ") << rot.y() << _(" ") << rot.z() << _(" ") << length << endl;
+    }
+
+    textOut << _("#Beginning of Data") << endl;
+
+    for (auto it = sequence->beginChannels(); it != sequence->endChannels(); ++it)
+    {
+        textOut << _("[") << it->second->getName() << _("]") << endl;
+        int i = 1;
+        for (auto frameIt = it->second->beginFrames(); frameIt != it->second->endFrames(); ++frameIt)
+        {
+            // convert to mm
+            Vector3 pos = frameIt->getPosition() * 1000.0f;
+            // convert to degrees
+            Vector3 rot = frameIt->getOrientation().toEuler() * degreeFactor;
+
+            textOut << i++ << _(" ") << pos.x() << _(" ") << pos.y() << _(" ") << pos.z() << _(" ");
+            textOut << rot.x() << _(" ") << rot.y() << _(" ") << rot.z() << _(" ") << _(" 1.000000") << endl;
+        }
+    }
+    textOut << _("[ENDOFFILE]") << endl;
+
     return true;
 }
 

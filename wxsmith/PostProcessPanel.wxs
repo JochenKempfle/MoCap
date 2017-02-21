@@ -91,7 +91,7 @@
 											<object class="sizeritem">
 												<object class="wxGenericDirCtrl" name="ID_GENERICDIRCTRL" variable="GenericDirCtrl" member="yes">
 													<defaultfolder>C:\\Users\\Jochen\\Desktop</defaultfolder>
-													<filter>*.bvh</filter>
+													<filter>All Motion Files|*.bvh;*.htr|BVH Files (*.bvh)|*.bvh|HTR Files (*.htr)|*.htr</filter>
 													<style>wxDIRCTRL_SHOW_FILTERS</style>
 												</object>
 												<flag>wxALL|wxEXPAND</flag>

@@ -15,17 +15,17 @@
 					<Add option="-std=c++11" />
 					<Add option="-g" />
 					<Add option="-D__WXDEBUG__" />
-					<Add directory="D:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswud" />
+					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswud" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="D:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswud" />
+					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswud" />
 				</ResourceCompiler>
 				<Linker>
 					<Add library="libwxmsw31ud_gl.a" />
 					<Add library="libwxmsw31ud.a" />
 					<Add library="opengl32" />
 					<Add library="glu32" />
-					<Add directory="D:/Engines/wxWidgets-3.1.0/lib/gcc_dll" />
+					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -36,10 +36,10 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
-					<Add directory="D:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswu" />
+					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswu" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="D:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswu" />
+					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswu" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
@@ -47,7 +47,7 @@
 					<Add library="libwxmsw31u.a" />
 					<Add library="opengl32" />
 					<Add library="glu32" />
-					<Add directory="D:/Engines/wxWidgets-3.1.0/lib/gcc_dll" />
+					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll" />
 				</Linker>
 			</Target>
 		</Build>
@@ -63,14 +63,16 @@
 			<Add option="-DWXUSINGDLL" />
 			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DWX_PRECOMP" />
-			<Add directory="D:/Engines/wxWidgets-3.1.0/include" />
+			<Add directory="C:/Engines/wxWidgets-3.1.0/include" />
 		</Compiler>
 		<ResourceCompiler>
-			<Add directory="D:/Engines/wxWidgets-3.1.0/include" />
+			<Add directory="C:/Engines/wxWidgets-3.1.0/include" />
 		</ResourceCompiler>
 		<Linker>
 			<Add option="-mthreads" />
 		</Linker>
+		<Unit filename="AABB.cpp" />
+		<Unit filename="AABB.h" />
 		<Unit filename="AnimationManager.cpp" />
 		<Unit filename="AnimationManager.h" />
 		<Unit filename="Bone.cpp" />
@@ -78,6 +80,8 @@
 		<Unit filename="ConnectionDialog.cpp" />
 		<Unit filename="ConnectionDialog.h" />
 		<Unit filename="CustomEvents.h" />
+		<Unit filename="ExportDialog.cpp" />
+		<Unit filename="ExportDialog.h" />
 		<Unit filename="FileHandler.cpp" />
 		<Unit filename="FileHandler.h" />
 		<Unit filename="FilterDialog.cpp" />
@@ -183,6 +187,7 @@
 					<wxDialog wxs="wxsmith/TimelineOverlayDialog.wxs" src="TimelineOverlayDialog.cpp" hdr="TimelineOverlayDialog.h" fwddecl="0" i18n="1" name="TimelineOverlayDialog" language="CPP" />
 					<wxPanel wxs="wxsmith/MotionPlayerPanel.wxs" src="MotionPlayerPanel.cpp" hdr="MotionPlayerPanel.h" fwddecl="0" i18n="1" name="MotionPlayerPanel" language="CPP" />
 					<wxDialog wxs="wxsmith/FilterDialog.wxs" src="FilterDialog.cpp" hdr="FilterDialog.h" fwddecl="0" i18n="1" name="FilterDialog" language="CPP" />
+					<wxDialog wxs="wxsmith/ExportDialog.wxs" src="ExportDialog.cpp" hdr="ExportDialog.h" fwddecl="0" i18n="1" name="ExportDialog" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

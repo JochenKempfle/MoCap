@@ -24,6 +24,7 @@
 				<object class="wxButton" name="ID_BUTTONCLEAR" variable="ButtonClear" member="yes">
 					<label>Clear All</label>
 					<size>-1,26</size>
+					<handler function="OnButtonClearClick" entry="EVT_BUTTON" />
 				</object>
 				<flag>wxALL|wxALIGN_TOP</flag>
 				<border>2</border>
@@ -32,6 +33,7 @@
 				<object class="wxButton" name="ID_BUTTONREMOVE" variable="ButtonRemove" member="yes">
 					<label>Remove</label>
 					<size>-1,26</size>
+					<handler function="OnButtonRemoveClick" entry="EVT_BUTTON" />
 				</object>
 				<flag>wxALL|wxALIGN_TOP</flag>
 				<border>2</border>
@@ -49,6 +51,16 @@
 				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 				<border>5</border>
 				<option>1</option>
+			</object>
+			<object class="sizeritem">
+				<object class="wxToggleButton" name="ID_TOGGLEBUTTONSTICKYENDS" variable="ToggleButtonStickyEnds" member="yes">
+					<label>Sticky Ends</label>
+					<checked>1</checked>
+					<size>-1,26</size>
+					<handler function="OnToggleButtonStickyEndsToggle" entry="EVT_TOGGLEBUTTON" />
+				</object>
+				<flag>wxALL|wxALIGN_TOP</flag>
+				<border>2</border>
 			</object>
 			<object class="sizeritem">
 				<object class="wxButton" name="ID_BUTTONZOOMIN" variable="ButtonZoomIn" member="yes">

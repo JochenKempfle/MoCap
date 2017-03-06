@@ -18,6 +18,7 @@
 					</object>
 					<object class="sizeritem">
 						<object class="wxSlider" name="ID_SLIDERFRAMES" variable="SliderFrames" member="yes">
+							<max>1</max>
 							<tickfreq>1</tickfreq>
 							<handler function="OnSliderFramesCmdSliderUpdated" entry="EVT_COMMAND_SLIDER_UPDATED" />
 						</object>

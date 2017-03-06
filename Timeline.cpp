@@ -293,6 +293,11 @@ uint64_t Timeline::getMaxTime() const
     return maxTime;
 }
 
+void Timeline::setSkeleton(const Skeleton &skeleton)
+{
+    _skeleton = skeleton;
+}
+
 void Timeline::setSkeleton(Skeleton* skeleton)
 {
     _skeleton = *skeleton;
@@ -562,16 +567,6 @@ void Timeline::swapChannels(int channel1, int channel2)
         channel2It = _channels.find(channel2);
     }
     std::swap(channel1It->second, channel2It->second);
-    // TODO(JK#2#): swapping channels is buggy, also now it uses a channel pointer
-    //TimelineChannel* channel_1 = _channels[channel1];
-    //TimelineChannel* channel_2 = _channels[channel2];
-    //TimelineChannel* swapChannel = channel_1;
-
-    // setChannelAffiliation(channel1, channel_2->getBoneId());
-    // setChannelAffiliation(channel2, swapChannel->getBoneId());
-
-    //channel_1 = channel_2;
-    //channel_2 = swapChannel;
 
     channel1It->second->setChannelPos(channel1);
     channel2It->second->setChannelPos(channel2);

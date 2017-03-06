@@ -64,6 +64,12 @@ SensorNode::~SensorNode()
     //dtor
 }
 
+void SensorNode::setBoneId(int boneId)
+{
+    _boneId = boneId;
+    setHasBone(boneId >= 0);
+}
+
 void SensorNode::update(const SensorRawData &rawData)
 {
     // TODO(JK#9#): implement some kind of filtering here (do this in a Motion filter!)
@@ -71,7 +77,7 @@ void SensorNode::update(const SensorRawData &rawData)
     _rotation.x() = rawData.rotation[1];
     _rotation.y() = rawData.rotation[2];
     _rotation.z() = rawData.rotation[3];
-    // TODO(JK#1#): remove sensor coordinate mapping from SensorNode::update() as soon as there is a valid mapping routine
+    // TODO(JK#9#): remove sensor coordinate mapping from SensorNode::update() as soon as there is a valid mapping routine
     // Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
     // Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
     // x = y*x;
@@ -122,6 +128,7 @@ void SensorNode::update(const SensorRawData &rawData)
 //                ++it;
 //            }
             _frameTime = float(_buffer.back().getTimestamp() - _buffer.front().getTimestamp()) / (9.0f * 1000.0f);
+            _delay = _lastReceiveTime - _startTime - _currentTimeStamp;
         }
         return;
     }

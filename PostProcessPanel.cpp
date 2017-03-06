@@ -31,6 +31,7 @@ OF SUCH DAMAGE.
 #include "PostProcessPanel.h"
 #include "AnimationManager.h"
 #include "FileHandler.h"
+#include "ExportDialog.h"
 #include "MoCapManager.h"
 #include "MoCapMain.h"
 #include "CustomEvents.h"
@@ -87,7 +88,6 @@ END_EVENT_TABLE()
 PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
 	//(*Initialize(PostProcessPanel)
-	wxBoxSizer* BoxSizer4;
 	wxStaticBoxSizer* StaticBoxSizer2;
 	wxBoxSizer* BoxSizer5;
 	wxBoxSizer* BoxSizer10;
@@ -104,7 +104,7 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	Create(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("wxID_ANY"));
 	BoxSizer1 = new wxBoxSizer(wxVERTICAL);
 	BoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
-	BoxSizer4 = new wxBoxSizer(wxVERTICAL);
+	BoxSizerPreview = new wxBoxSizer(wxVERTICAL);
 	int GLCanvasAttributes_1[] = {
 		WX_GL_RGBA,
 		WX_GL_DOUBLEBUFFER,
@@ -113,9 +113,11 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 		0, 0 };
 	glCanvas = new GLCanvas(this, ID_GLCANVAS, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE, _T("ID_GLCANVAS"), GLCanvasAttributes_1);
 	glCanvas->SetBackgroundColour(wxColour(0,0,0));
-	BoxSizer4->Add(glCanvas, 1, wxALL|wxEXPAND, 5);
-	SliderFrames = new wxSlider(this, ID_SLIDERFRAMES, 0, 0, 100, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_SLIDERFRAMES"));
-	BoxSizer4->Add(SliderFrames, 0, wxEXPAND, 5);
+	BoxSizerPreview->Add(glCanvas, 1, wxALL|wxEXPAND, 5);
+	SliderFrames = new wxSlider(this, ID_SLIDERFRAMES, 0, 0, 1, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_SLIDERFRAMES"));
+	SliderFrames->SetTickFreq(1);
+	SliderFrames->Hide();
+	BoxSizerPreview->Add(SliderFrames, 0, wxEXPAND, 5);
 	BoxSizer9 = new wxBoxSizer(wxHORIZONTAL);
 	BoxSizer9->Add(-1,-1,1, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ButtonPlay = new wxButton(this, ID_BUTTONPLAY, _("Play"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONPLAY"));
@@ -127,8 +129,8 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	BoxSizer9->Add(ToggleButtonTimeline, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	ToggleButtonPreview = new wxToggleButton(this, ID_TOGGLEBUTTONPREVIEW, _("Preview"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TOGGLEBUTTONPREVIEW"));
 	BoxSizer9->Add(ToggleButtonPreview, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	BoxSizer4->Add(BoxSizer9, 0, wxEXPAND, 5);
-	BoxSizer2->Add(BoxSizer4, 1, wxEXPAND, 5);
+	BoxSizerPreview->Add(BoxSizer9, 0, wxEXPAND, 5);
+	BoxSizer2->Add(BoxSizerPreview, 1, wxEXPAND, 5);
 	BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
 	StaticBoxSizer1 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Import"));
 	BoxSizer10 = new wxBoxSizer(wxVERTICAL);
@@ -212,6 +214,7 @@ PostProcessPanel::PostProcessPanel(wxWindow* parent,wxWindowID id,const wxPoint&
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
 
+	Connect(ID_SLIDERFRAMES,wxEVT_COMMAND_SLIDER_UPDATED,(wxObjectEventFunction)&PostProcessPanel::OnSliderFramesCmdSliderUpdated);
 	Connect(ID_BUTTONPLAY,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&PostProcessPanel::OnButtonPlayClick);
 	Connect(ID_TOGGLEBUTTONTIMELINE,wxEVT_COMMAND_TOGGLEBUTTON_CLICKED,(wxObjectEventFunction)&PostProcessPanel::OnToggleButtonTimelineToggle);
 	Connect(ID_TOGGLEBUTTONPREVIEW,wxEVT_COMMAND_TOGGLEBUTTON_CLICKED,(wxObjectEventFunction)&PostProcessPanel::OnToggleButtonPreviewToggle);
@@ -275,24 +278,20 @@ void PostProcessPanel::OnTimerEvent(wxTimerEvent& event)
 {
     if (_previewMode)
     {
+        // TODO(JK#9#2017-03-01): timer is not very accurate, set current frame dependent on real time since start
         MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
         if (_currentFrame >= sequence->getNumFrames())
         {
             _currentFrame = 0;
         }
         sequence->setToFrame(_currentFrame);
-        //SliderFrames->SetValue(_currentFrame);
+        SliderFrames->SetValue(_currentFrame);
         glCanvas->Refresh();
         ++_currentFrame;
     }
     else
     {
-        // TODO(JK#1#): play timeline, use getCurrentCursorPosition as start
-        // timelinePanel->getCursorPosition();
         timelinePanel->setCursorPosition(_currentTimelineTime);
-        // SliderFrames->SetValue(_currentTimelineTime / 25000);
-        //theAnimationManager.getTimeline()->setSkeletonToTime(_currentTimelineTime);
-        //glCanvas->Refresh();
         _currentTimelineTime += 40 * 1000;
     }
 }
@@ -346,7 +345,10 @@ void PostProcessPanel::OnTimelinePanelLeftUp(wxMouseEvent& event)
 
 void PostProcessPanel::OnButtonExportClick(wxCommandEvent& event)
 {
-    // show the file dialog
+    // show the export dialog
+    ExportDialog* exportDialog = new ExportDialog(this);
+    exportDialog->ShowModal();
+    delete exportDialog;
     wxFileDialog* fileDialog = new wxFileDialog(this, _("Export bvh file"), _(""), _(""), _("motion files|*.bvh;*.htr|bvh files (*.bvh)|*.bvh|htr files (*.htr)|*.htr"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     if (fileDialog->ShowModal() == wxID_CANCEL)
     {
@@ -387,7 +389,7 @@ void PostProcessPanel::OnButtonSaveClick(wxCommandEvent& event)
 void PostProcessPanel::OnButtonLoadClick(wxCommandEvent& event)
 {
     // show the file dialog
-    wxFileDialog* fileDialog = new wxFileDialog(this, _("Save motion file"), _(""), _(""), _("mct files (*.mct)|*.mct"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+    wxFileDialog* fileDialog = new wxFileDialog(this, _("Open motion file"), _(""), _(""), _("mct files (*.mct)|*.mct"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
     if (fileDialog->ShowModal() == wxID_CANCEL)
     {
         fileDialog->Destroy();
@@ -441,6 +443,8 @@ void PostProcessPanel::OnToggleButtonTimelineToggle(wxCommandEvent& event)
         return;
     }
     stop();
+    SliderFrames->Hide();
+    BoxSizerPreview->Layout();
     _previewMode = false;
     _currentTimelineTime = timelinePanel->getCursorPosition();
     glCanvas->setSkeleton(theAnimationManager.getTimelineSkeleton());
@@ -456,8 +460,9 @@ void PostProcessPanel::OnToggleButtonPreviewToggle(wxCommandEvent& event)
         return;
     }
     stop();
+    SliderFrames->Show();
+    BoxSizerPreview->Layout();
     _previewMode = true;
-    _currentFrame = 0;
     glCanvas->setSkeleton(theAnimationManager.getSequenceSkeleton(_currentProjectSequence));
     glCanvas->Refresh();
 }
@@ -488,18 +493,17 @@ void PostProcessPanel::OnButtonPlayClick(wxCommandEvent& event)
 {
     if (_timer->IsRunning())
     {
-        ButtonPlay->SetLabel(_("Play"));
         stop();
     }
     else
     {
-        ButtonPlay->SetLabel(_("Pause"));
         play();
     }
 }
 
 void PostProcessPanel::play()
 {
+    ButtonPlay->SetLabel(_("Pause"));
     if (_previewMode)
     {
         MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
@@ -510,7 +514,7 @@ void PostProcessPanel::play()
             _timer->Start(sequence->getFrameTime() * 1000.0f);
         }
     }
-    else if (ToggleButtonTimeline->GetValue())
+    else
     {
         _currentTimelineTime = timelinePanel->getCursorPosition();
         _timer->Start(40);
@@ -519,6 +523,7 @@ void PostProcessPanel::play()
 
 void PostProcessPanel::stop()
 {
+    ButtonPlay->SetLabel(_("Play"));
     _timer->Stop();
     if (_previewMode)
     {
@@ -554,6 +559,8 @@ void PostProcessPanel::updateSequenceInfo()
     StaticTextFPS->SetLabel(_("0"));
     StaticTextLength->SetLabel(_("0"));
 
+    SliderFrames->SetMax(1);
+
     MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
     if (sequence == nullptr)
     {
@@ -583,6 +590,8 @@ void PostProcessPanel::updateSequenceInfo()
     }
     TreeCtrlSkeleton->ExpandAll();
 
+    SliderFrames->SetMax(sequence->getNumFrames());
+
     wxString label;
     label << sequence->getNumFrames();
     StaticTextFrames->SetLabel(label);
@@ -602,7 +611,20 @@ void PostProcessPanel::updateSequenceInfo()
 void PostProcessPanel::OnListBoxSequencesSelect(wxCommandEvent& event)
 {
     _currentProjectSequence = ListBoxSequences->GetSelection();
+    _currentFrame = 0;
     updateSequenceInfo();
+}
+
+void PostProcessPanel::OnSliderFramesCmdSliderUpdated(wxScrollEvent& event)
+{
+    MotionSequence* sequence = theAnimationManager.getProjectSequence(_currentProjectSequence);
+    if (sequence == nullptr)
+    {
+        return;
+    }
+    _currentFrame = SliderFrames->GetValue();
+    sequence->setToFrame(_currentFrame);
+    glCanvas->Refresh();
 }
 
 

@@ -371,7 +371,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 
     wxLogDebug(msg);
 */
-    // TODO(JK#9#): handle setting of id for sensor node (and data) (solved by setting IP + id as name)
+    // handle setting of id for sensor node (and data) (solved by setting IP + id as name)
     wxString name = sensorAddress.IPAddress() + _("-");
     name << data.id;
 
@@ -544,10 +544,6 @@ void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
 
     dialog->Destroy();
 
-/*    ButtonConnect->Hide();
-    ButtonAutoAssign->Show();
-    ButtonStart->Show();
-    ButtonCalibrate->Show();*/
     ButtonDisconnect->Enable();
     Refresh();
     _timer->Start(15);
@@ -556,7 +552,15 @@ void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
 
 void MoCapFrame::OnButtonDisconnectClick(wxCommandEvent& event)
 {
-    // TODO(JK#1#): check onButtonDisconnectClick, also check if currently recording!
+    if (theMoCapManager.isRecording())
+    {
+        if (wxMessageBox(_("Do you want to disconnect and stop recording without saving?"), _("Attention"), wxICON_EXCLAMATION|wxYES|wxNO|wxCENTRE) == wxNO)
+        {
+            return;
+        }
+    }
+
+    theMoCapManager.stopSimulation();
     _timer->Stop();
 
     if (_socket != nullptr)
@@ -566,11 +570,6 @@ void MoCapFrame::OnButtonDisconnectClick(wxCommandEvent& event)
     }
 
     ButtonDisconnect->Disable();
-    //ButtonCalibrate->Hide();
-    //ButtonStart->Hide();
-    //ButtonStop->Hide();
-    //ButtonAutoAssign->Hide();
-
     theMoCapManager.resetSkeleton();
     Refresh();
     // update panels

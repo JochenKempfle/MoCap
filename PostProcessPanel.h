@@ -82,6 +82,7 @@ class PostProcessPanel: public wxPanel
 		wxTreeCtrl* TreeCtrlSkeleton;
 		wxSpinCtrl* SpinCtrlPitch;
 		wxStaticText* StaticText5;
+		wxBoxSizer* BoxSizerPreview;
 		wxButton* ButtonSave;
 		TimelinePanel* timelinePanel;
 		wxListBox* ListBoxSequences;
@@ -146,6 +147,7 @@ class PostProcessPanel: public wxPanel
 		void OnButtonExportClick(wxCommandEvent& event);
 		void OnButtonSaveClick(wxCommandEvent& event);
 		void OnButtonLoadClick(wxCommandEvent& event);
+		void OnSliderFramesCmdSliderUpdated(wxScrollEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
         void OnTimerEvent(wxTimerEvent& event);

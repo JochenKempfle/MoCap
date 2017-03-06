@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 #include "AnimationManager.h"
 #include "MoCapManager.h"
 #include "TimelineOverlayDialog.h"
+#include "FileHandler.h"
 #include <wx/dcbuffer.h>
 #include <wx/richtext/richtextbuffer.h>
 #include <algorithm>
@@ -49,6 +50,7 @@ OF SUCH DAMAGE.
 const long TimelinePanel::ID_BUTTONCLEAR = wxNewId();
 const long TimelinePanel::ID_BUTTONREMOVE = wxNewId();
 const long TimelinePanel::ID_BUTTONCUT = wxNewId();
+const long TimelinePanel::ID_TOGGLEBUTTONSTICKYENDS = wxNewId();
 const long TimelinePanel::ID_BUTTONZOOMIN = wxNewId();
 const long TimelinePanel::ID_BUTTONZOOMOUT = wxNewId();
 //*)
@@ -75,6 +77,9 @@ TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,c
 	ButtonCut = new wxButton(this, ID_BUTTONCUT, _("Cut"), wxDefaultPosition, wxSize(-1,26), 0, wxDefaultValidator, _T("ID_BUTTONCUT"));
 	BoxSizer1->Add(ButtonCut, 0, wxALL|wxALIGN_TOP, 2);
 	BoxSizer1->Add(-1,-1,1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ToggleButtonStickyEnds = new wxToggleButton(this, ID_TOGGLEBUTTONSTICKYENDS, _("Sticky Ends"), wxDefaultPosition, wxSize(-1,26), 0, wxDefaultValidator, _T("ID_TOGGLEBUTTONSTICKYENDS"));
+	ToggleButtonStickyEnds->SetValue(true);
+	BoxSizer1->Add(ToggleButtonStickyEnds, 0, wxALL|wxALIGN_TOP, 2);
 	ButtonZoomIn = new wxButton(this, ID_BUTTONZOOMIN, _("Zoom +"), wxDefaultPosition, wxSize(-1,26), 0, wxDefaultValidator, _T("ID_BUTTONZOOMIN"));
 	BoxSizer1->Add(ButtonZoomIn, 0, wxALL|wxALIGN_TOP, 2);
 	ButtonZoomOut = new wxButton(this, ID_BUTTONZOOMOUT, _("Zoom -"), wxDefaultPosition, wxSize(-1,26), 0, wxDefaultValidator, _T("ID_BUTTONZOOMOUT"));
@@ -83,7 +88,10 @@ TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,c
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
 
+	Connect(ID_BUTTONCLEAR,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonClearClick);
+	Connect(ID_BUTTONREMOVE,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonRemoveClick);
 	Connect(ID_BUTTONCUT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonCutClick);
+	Connect(ID_TOGGLEBUTTONSTICKYENDS,wxEVT_COMMAND_TOGGLEBUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnToggleButtonStickyEndsToggle);
 	Connect(ID_BUTTONZOOMIN,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonZoomInClick);
 	Connect(ID_BUTTONZOOMOUT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonZoomOutClick);
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&TimelinePanel::OnPaint);
@@ -114,6 +122,14 @@ TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,c
     _draggedTrackLength = 0;
     _dragIsValid = true;
     _sequenceToAdd = -1;
+    _hasStickyEnds = true;
+    _stickyEndPixelSize = 4;
+    _startMarkerTime = 0;
+    _endMarkerTime = 1000000;
+    _cursorOnStartMarker = false;
+    _cursorOnEndMarker = false;
+    _clickedStartMarker = false;
+    _clickedEndMarker = false;
     _glCanvas = nullptr;
 
     _interpolationPossible = false;
@@ -140,6 +156,7 @@ void TimelinePanel::prepareAddingSequence(int sequence, const std::vector<int> &
     _mouseToTrackOffset = 30;
     _sequenceToAdd = sequence;
     _channelsToAdd = channels;
+    _selectedTrack = -1;
 }
 
 void TimelinePanel::prepareAddingFrame(const MotionSequenceFrame &frame, float frameTime)
@@ -154,6 +171,7 @@ void TimelinePanel::prepareAddingFrame(const MotionSequenceFrame &frame, float f
     _trackToAdd.setFrameTime(frameTime);
     _trackToAdd.setName("Custom Frame");
     //_frameToAdd = frame;
+    _selectedTrack = -1;
 }
 
 void TimelinePanel::setCursorPosition(uint64_t time)
@@ -218,11 +236,40 @@ void TimelinePanel::OnPopupSkeletonsClick(wxCommandEvent &event)
         int i = id - sequences.size();
         if (i == 0)
         {
-            // TODO(JK#2#): load default skeleton for timeline
+            // load default skeleton for timeline
+            theAnimationManager.setTimelineSkeleton(theMoCapManager.createDefaultSkeleton());
+        }
+        else if (i == 1)
+        {
+            // load default skeleton for timeline
+            theAnimationManager.setTimelineSkeleton(theMoCapManager.getSkeleton());
         }
         else
         {
-            // TODO(JK#2#): load a skeleton from file for timeline
+            // load a skeleton from file for timeline
+            // first show a file dialog
+            wxFileDialog* fileDialog = new wxFileDialog(this, _("Import skeleton from motion file"), _(""), _(""), _("BVH files (*.bvh)|*.bvh"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+            if (fileDialog->ShowModal() == wxID_CANCEL)
+            {
+                fileDialog->Destroy();
+                return;
+            }
+            SetCursor(wxCURSOR_ARROWWAIT);
+
+            Skeleton* skeleton = FileHandler::readBVHSkeleton(fileDialog->GetPath());
+            fileDialog->Destroy();
+
+            SetCursor(wxCURSOR_DEFAULT);
+
+            if (skeleton == nullptr)
+            {
+                wxString msg;
+                msg << _("Error loading the file: ") << fileDialog->GetPath();
+                wxMessageBox(msg, _("Error"), wxICON_ERROR);
+                return;
+            }
+            theAnimationManager.setTimelineSkeleton(*skeleton);
+            delete skeleton;
         }
     }
     theAnimationManager.getTimelineSkeleton()->setToDefault();
@@ -254,8 +301,9 @@ void TimelinePanel::showPopUpSkeletons()
 {
     std::vector<MotionSequence*> sequences = theAnimationManager.getProjectSequences();
     wxMenu menu;
-    menu.Append(sequences.size(), _("Default Skeleton"));
-    menu.Append(sequences.size() + 1, _("Open From File"));
+    menu.Append(sequences.size(), _("Load Default Skeleton"));
+    menu.Append(sequences.size() + 1, _("Custom Skeleton (Editor)"));
+    menu.Append(sequences.size() + 2, _("Open From File"));
     for (size_t i = 0; i < sequences.size(); ++i)
     {
         wxString name = sequences[i]->getSkeleton()->getName();
@@ -284,7 +332,7 @@ void TimelinePanel::endDragDrop()
 
     if (_dragIsValid)
     {
-        int64_t time = getTimeFromPosition(wxPoint(_draggedTrackPos, 0));
+        int64_t time = _draggedTrackStartTime;
         // time should normally not be smaller than zero, but to be sure, better check if time is valid
         if (time < 0)
         {
@@ -347,13 +395,17 @@ int TimelinePanel::getLengthFromTime(float time) const
 
 int TimelinePanel::getPositionFromTime(int64_t time) const
 {
-    // add  + _ysPerTimeUnit/2 in the division to avoid rounding errors, otherwise one gets always floor(value)
-    return _timelineStartX + (_numPixelsPerTimeUnit * (time - _timeOffset) + _ysPerTimeUnit/2) / _ysPerTimeUnit;
+    return _timelineStartX + (_numPixelsPerTimeUnit * (time - _timeOffset) /*+ _ysPerTimeUnit/2*/) / _ysPerTimeUnit;
 }
 
 int64_t TimelinePanel::getTimeFromPosition(wxPoint pos) const
 {
     return (_ysPerTimeUnit * (pos.x - _timelineStartX)) / _numPixelsPerTimeUnit + _timeOffset;
+}
+
+int64_t TimelinePanel::getTimeFromPosition(int posX) const
+{
+    return (_ysPerTimeUnit * (posX - _timelineStartX)) / _numPixelsPerTimeUnit + _timeOffset;
 }
 
 int TimelinePanel::getChannelFromPosition(wxPoint pos) const
@@ -410,9 +462,8 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
         dc->DrawText(track->getName(), textPosition);
     }
 
-    // draw overlapping and weighting only when not dragging
-    // TODO(JK#9#): track content of selected track disappears while adding new sequence or track (_dragging and _selectedTrack are set in this case!)
-    if (!(_dragging && _selectedTrack == track->getId()))
+    // draw overlapping and weighting only when not dragging the currently selected track
+    if (!(_dragging && _selectedTrack == track->getId() && _trackToAdd.getNumFrames() == 0))
     {
         // draw overlapping
         std::vector<TimelineOverlay*> overlays = theAnimationManager.getTimeline()->getOverlays(track);
@@ -464,7 +515,7 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
             {
                 overlapColour = wxColour(100, 200, 200);
             }
-            // TODO(JK#2#): add colors for other overlay types
+            // TODO(JK#2#): add colors for other overlay types here
 
             dc->GradientFillLinear(wxRect(start, overlapLength), overlapColour, bgColour, gradientDirection);
 
@@ -713,11 +764,11 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
     unsigned int numChannels = size.y/_channelHeight + 1;
     // the number of currently visible time units
     int numTimeUnits = size.x/_numPixelsPerTimeUnit + 1;
-    uint64_t endTime = getTimeFromPosition(wxPoint(size.x, size.y));
+    int64_t endTime = getTimeFromPosition(wxPoint(size.x, size.y));
 
     Timeline* timeline = theAnimationManager.getTimeline();
 
-    // TODO(JK#1#): draw content of timeline
+    // draw content of timeline
 
 
     // first of all draw the content (the tracks) of the timeline. This way there is no special routine needed which
@@ -746,7 +797,6 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
 
 
     // draw dragged tracks
-
     if (_dragging && _dragIsValid)
     {
         brush.SetColour(200, 100, 0);
@@ -871,6 +921,40 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
         }
     }
 
+    // draw start/end time markers for exporting a sequence
+    pen.SetColour(wxColour(0, 150, 255));
+    pen.SetWidth(2);
+    brush.SetColour(wxColour(0, 150, 255));
+    dc.SetPen(pen);
+    dc.SetBrush(brush);
+    if (_startMarkerTime >= _timeOffset && _startMarkerTime <= endTime)
+    {
+        int pos = getPositionFromTime(_startMarkerTime);
+        dc.DrawLine(pos, _optionsHeight + 2, pos + 5, _optionsHeight + 2);
+        if (_cursorOnStartMarker)
+        {
+            dc.DrawLine(pos, _optionsHeight + 4, pos + 5, _optionsHeight + 4);
+        }
+        dc.DrawLine(pos, _optionsHeight + 1, pos, _timelineStartY - 1);
+        dc.DrawLine(pos, _timelineStartY - 1, pos + 5, _timelineStartY - 1);
+    }
+    if (_endMarkerTime >= _timeOffset && _endMarkerTime <= endTime)
+    {
+        int pos = getPositionFromTime(_endMarkerTime);
+        dc.DrawLine(pos, _optionsHeight + 2, pos - 5, _optionsHeight + 2);
+        if (_cursorOnEndMarker)
+        {
+            dc.DrawLine(pos, _optionsHeight + 4, pos - 5, _optionsHeight + 4);
+        }
+        dc.DrawLine(pos, _optionsHeight + 1, pos, _timelineStartY - 1);
+        dc.DrawLine(pos, _timelineStartY - 1, pos - 5, _timelineStartY - 1);
+    }
+
+    pen.SetColour(wxColour(0, 0, 0));
+    pen.SetWidth(1);
+    dc.SetPen(pen);
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+
     // draw channel options (channel name etc)
     for (unsigned int i = 0; i < numChannels; ++i)
     {
@@ -973,6 +1057,7 @@ void TimelinePanel::OnPaint(wxPaintEvent& event)
 
 
 
+// TODO(JK#7#): allow to rename/tag timeline tracks manually
 void TimelinePanel::OnLeftDown(wxMouseEvent& event)
 {
     wxPoint pos = event.GetPosition();
@@ -1030,8 +1115,19 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
         }
         else if (pos.y < _timelineStartY)
         {
-            setCursorPosition(getTimeFromPosition(pos));
-            _clickedTime = true;
+            if (_cursorOnEndMarker)
+            {
+                _clickedEndMarker = true;
+            }
+            else if (_cursorOnStartMarker)
+            {
+                _clickedStartMarker = true;
+            }
+            else
+            {
+                setCursorPosition(getTimeFromPosition(pos));
+                _clickedTime = true;
+            }
         }
         else
         {
@@ -1065,6 +1161,7 @@ void TimelinePanel::OnLeftDown(wxMouseEvent& event)
             {
                 _selectedTrack = track->getId();
                 _mouseToTrackOffset = pos.x - getPositionFromTime(track->getStartTime());
+                _draggedTrackStartTime = track->getStartTime();
                 _draggedTrackLength = track->getLength();
                 _draggedTrackPos = pos.x - _mouseToTrackOffset;
                 _draggedTrackChannel = getChannelFromPosition(pos);
@@ -1093,6 +1190,8 @@ void TimelinePanel::OnLeftUp(wxMouseEvent& event)
         ReleaseMouse();
     }
     _clickedTime = false;
+    _clickedStartMarker = false;
+    _clickedEndMarker = false;
     _clickedChannel = -1;
 
     _resizeTrack = false;
@@ -1231,23 +1330,40 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
         {
             _dragIsValid = true;
             _draggedTrackPos = pos.x - _mouseToTrackOffset;
+            _draggedTrackChannel = getChannelFromPosition(pos);
+            _draggedTrackStartTime = getTimeFromPosition(_draggedTrackPos);
+            int64_t draggedTrackEndTime = _draggedTrackStartTime + _draggedTrackLength;
             // if the position would end up at a time point smaller than 0, set it to the start of the timeline
-            if (getTimeFromPosition(wxPoint(_draggedTrackPos, 0)) <= 0)
+            if (_draggedTrackStartTime <= 0)
             {
                 _draggedTrackPos = getPositionFromTime(0);
+                _draggedTrackStartTime = 0;
+                draggedTrackEndTime = _draggedTrackLength;
             }
             // check if the track is beyond the maximum time and clamp it to the max time
-            else if (int64_t(_draggedTrackLength) + getTimeFromPosition(wxPoint(_draggedTrackPos, 0)) > _maxTime)
+            else if (draggedTrackEndTime > _maxTime)
             {
                 _draggedTrackPos = getPositionFromTime(_maxTime - _draggedTrackLength);
+                _draggedTrackStartTime = _maxTime - _draggedTrackLength;
+                draggedTrackEndTime = _maxTime;
             }
-            else if (abs(getPositionFromTime(_cursorPosition) - _draggedTrackPos) < 3)
+            else if (_hasStickyEnds)
             {
-                // clamp dragged track to the time cursor if nearby
-                _draggedTrackPos = getPositionFromTime(_cursorPosition);
+                if (abs(getPositionFromTime(_cursorPosition) - _draggedTrackPos) < _stickyEndPixelSize)
+                {
+                    // clamp dragged track to the time cursor if nearby
+                    _draggedTrackPos = getPositionFromTime(_cursorPosition);
+                }
+
+                TimelineTrack* trackBefore = theAnimationManager.getTimeline()->getTrackBefore(_draggedTrackChannel, _draggedTrackStartTime);
+                if (trackBefore != nullptr && trackBefore->getId() != _selectedTrack && abs(_draggedTrackPos - getPositionFromTime(trackBefore->getEndTime())) < _stickyEndPixelSize)
+                {
+                    _draggedTrackPos = getPositionFromTime(trackBefore->getEndTime());
+                    _draggedTrackStartTime = trackBefore->getEndTime();
+                    draggedTrackEndTime = _draggedTrackStartTime +  _draggedTrackLength;
+                }
             }
-            // TODO(JK#1#): add a routine to clamp a track to other tracks and to don't allow them to overlap
-            _draggedTrackChannel = getChannelFromPosition(pos);
+            // TODO(JK#3#): add a routine to don't allow tracks to overlap
         }
         Refresh();
     }
@@ -1286,11 +1402,30 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
     }
     else if (!_editSelectedTrack)
     {
+        int64_t time = getTimeFromPosition(pos);
+        // check if cursor is on time markers
+        if (pos.y < _timelineStartY && pos.y > _optionsHeight)
+        {
+            if (_cursorOnStartMarker || _cursorOnEndMarker)
+            {
+                _cursorOnStartMarker = false;
+                _cursorOnEndMarker = false;
+                Refresh();
+            }
+            if (abs(pos.x - getPositionFromTime(_endMarkerTime) + 3) < 3)
+            {
+                _cursorOnEndMarker = true;
+                Refresh();
+            }
+            else if (abs(pos.x - getPositionFromTime(_startMarkerTime) - 3) < 3)
+            {
+                _cursorOnStartMarker = true;
+                Refresh();
+            }
+        }
         if (pos.x > _timelineStartX && pos.y > _timelineStartY)
         {
-            // TODO(JK#1#): rename _interpolationChannel to _currentChannel, also make create something like _currentMouseTime, _curreentMouseChannel etc
             _interpolationChannel = getChannelFromPosition(pos);
-            uint64_t time = getTimeFromPosition(pos);
             if (theAnimationManager.getTimeline()->isBetweenTwoTracks(_interpolationChannel, time))
             {
                 SetToolTip(_("Right click for interpolation"));
@@ -1302,7 +1437,7 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
             // check if _interpolationPossible was set to avoid unnecessary refreshes
             else if (_interpolationPossible)
             {
-                SetToolTip(_(""));
+                UnsetToolTip();
                 _interpolationPossible = false;
                 Refresh();
             }
@@ -1326,7 +1461,7 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
         // check if _interpolationPossible was set to avoid unnecessary refreshes
         else if (_interpolationPossible)
         {
-            SetToolTip(_(""));
+            UnsetToolTip();
             _interpolationPossible = false;
             Refresh();
         }
@@ -1349,12 +1484,7 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
     }
 
 
-    if (_clickedChannel >= 0)
-    {
-        // TODO(JK#1#): use _clickedChannel for swapping channels
-        // Refresh();
-    }
-    else if (_clickedTime)
+    if (_clickedTime)
     {
         if (pos.x < _timelineStartX)
         {
@@ -1364,6 +1494,38 @@ void TimelinePanel::OnMouseMove(wxMouseEvent& event)
         {
             setCursorPosition(getTimeFromPosition(pos));
         }
+    }
+    else if (_clickedStartMarker)
+    {
+        if (pos.x < _timelineStartX)
+        {
+            _startMarkerTime = _timeOffset;
+        }
+        else
+        {
+            _startMarkerTime = getTimeFromPosition(pos);
+        }
+        if (_startMarkerTime > _endMarkerTime)
+        {
+            _startMarkerTime = _endMarkerTime;
+        }
+        Refresh();
+    }
+    else if (_clickedEndMarker)
+    {
+        if (pos.x < _timelineStartX)
+        {
+            _endMarkerTime = _timeOffset;
+        }
+        else
+        {
+            _endMarkerTime = getTimeFromPosition(pos);
+        }
+        if (_endMarkerTime < _startMarkerTime)
+        {
+            _endMarkerTime = _startMarkerTime;
+        }
+        Refresh();
     }
 }
 
@@ -1400,7 +1562,7 @@ void TimelinePanel::OnMouseWheel(wxMouseEvent& event)
 
 void TimelinePanel::OnMouseEnter(wxMouseEvent& event)
 {
-    SetFocus();
+    // SetFocus();
     Refresh();
 }
 
@@ -1413,6 +1575,22 @@ void TimelinePanel::OnKillFocus(wxFocusEvent& event)
 {
     _clickedTime = false;
     _clickedChannel = -1;
+}
+
+void TimelinePanel::OnButtonClearClick(wxCommandEvent& event)
+{
+    theAnimationManager.getTimeline()->clear();
+    Refresh();
+}
+
+void TimelinePanel::OnButtonRemoveClick(wxCommandEvent& event)
+{
+    if (_selectedTrack < 0)
+    {
+        return;
+    }
+    theAnimationManager.getTimeline()->erase(_selectedTrack);
+    Refresh();
 }
 
 void TimelinePanel::OnButtonCutClick(wxCommandEvent& event)
@@ -1428,154 +1606,157 @@ void TimelinePanel::OnButtonCutClick(wxCommandEvent& event)
     Refresh();
 }
 
+void TimelinePanel::OnToggleButtonStickyEndsToggle(wxCommandEvent& event)
+{
+    _hasStickyEnds = ToggleButtonStickyEnds->GetValue();
+}
+
 void TimelinePanel::OnButtonZoomInClick(wxCommandEvent& event)
 {
-    _ysPerTimeUnit /= 1000;
-    switch (_ysPerTimeUnit)
+    int64_t NewYsPerTimeUnit = _ysPerTimeUnit/1000;
+    switch (NewYsPerTimeUnit)
     {
         case 20:
-            _ysPerTimeUnit = 10;
+            NewYsPerTimeUnit = 10;
             break;
         case 50:
-            _ysPerTimeUnit = 20;
+            NewYsPerTimeUnit = 20;
             break;
         case 100:
-            _ysPerTimeUnit = 50;
+            NewYsPerTimeUnit = 50;
             break;
         case 200:
-            _ysPerTimeUnit = 100;
+            NewYsPerTimeUnit = 100;
             break;
         case 500:
-            _ysPerTimeUnit = 200;
+            NewYsPerTimeUnit = 200;
             break;
         case 1000:
-            _ysPerTimeUnit = 500;
+            NewYsPerTimeUnit = 500;
             break;
         case 2000:
-            _ysPerTimeUnit = 1000;
+            NewYsPerTimeUnit = 1000;
             break;
         case 5000:
-            _ysPerTimeUnit = 2000;
+            NewYsPerTimeUnit = 2000;
             break;
         case 10000:
-            _ysPerTimeUnit = 5000;
+            NewYsPerTimeUnit = 5000;
             break;
         case 20000:
-            _ysPerTimeUnit = 10000;
+            NewYsPerTimeUnit = 10000;
             break;
         case 30000:
-            _ysPerTimeUnit = 20000;
+            NewYsPerTimeUnit = 20000;
             break;
         case 60000:
-            _ysPerTimeUnit = 30000;
+            NewYsPerTimeUnit = 30000;
             break;
         case 120000:
-            _ysPerTimeUnit = 60000;
+            NewYsPerTimeUnit = 60000;
             break;
         case 300000:
-            _ysPerTimeUnit = 120000;
+            NewYsPerTimeUnit = 120000;
             break;
         case 600000:
-            _ysPerTimeUnit = 300000;
+            NewYsPerTimeUnit = 300000;
             break;
         default:
             break;
     }
-    _ysPerTimeUnit *= 1000;
+    NewYsPerTimeUnit *= 1000;
+
+    int64_t delta = _cursorPosition - _timeOffset;
+    if (delta > 0 && int64_t(_cursorPosition) < getTimeFromPosition(GetSize().x))
+    {
+        int64_t deltaTimeUnits = _cursorPosition/NewYsPerTimeUnit - delta/_ysPerTimeUnit;
+        if (deltaTimeUnits < 0)
+        {
+            deltaTimeUnits = 0;
+        }
+        _timeOffset = deltaTimeUnits * NewYsPerTimeUnit;
+    }
+
+    _ysPerTimeUnit = NewYsPerTimeUnit;
     Refresh();
 }
 
 void TimelinePanel::OnButtonZoomOutClick(wxCommandEvent& event)
 {
-    _ysPerTimeUnit /= 1000;
-    switch (_ysPerTimeUnit)
+    int64_t NewYsPerTimeUnit = _ysPerTimeUnit/1000;
+    switch (NewYsPerTimeUnit)
     {
         case 10:
-            _ysPerTimeUnit = 20;
-            _timeOffset /= 20 * 1000;
-            _timeOffset *= 20 * 1000;
+            NewYsPerTimeUnit = 20;
             break;
         case 20:
-            _ysPerTimeUnit = 50;
-            _timeOffset /= 50 * 1000;
-            _timeOffset *= 50 * 1000;
+            NewYsPerTimeUnit = 50;
             break;
         case 50:
-            _ysPerTimeUnit = 100;
-            _timeOffset /= 100 * 1000;
-            _timeOffset *= 100 * 1000;
+            NewYsPerTimeUnit = 100;
             break;
         case 100:
-            _ysPerTimeUnit = 200;
-            _timeOffset /= 200 * 1000;
-            _timeOffset *= 200 * 1000;
+            NewYsPerTimeUnit = 200;
             break;
         case 200:
-            _ysPerTimeUnit = 500;
-            _timeOffset /= 500 * 1000;
-            _timeOffset *= 500 * 1000;
+            NewYsPerTimeUnit = 500;
             break;
         case 500:
-            _ysPerTimeUnit = 1000;
-            _timeOffset /= 1000 * 1000;
-            _timeOffset *= 1000 * 1000;
+            NewYsPerTimeUnit = 1000;
             break;
         case 1000:
-            _ysPerTimeUnit = 2000;
-            _timeOffset /= 2000 * 1000;
-            _timeOffset *= 2000 * 1000;
+            NewYsPerTimeUnit = 2000;
             break;
         case 2000:
-            _ysPerTimeUnit = 5000;
-            _timeOffset /= 5000 * 1000;
-            _timeOffset *= 5000 * 1000;
+            NewYsPerTimeUnit = 5000;
             break;
         case 5000:
-            _ysPerTimeUnit = 10000;
-            _timeOffset /= 10000 * 1000;
-            _timeOffset *= 10000 * 1000;
+            NewYsPerTimeUnit = 10000;
             break;
         case 10000:
-            _ysPerTimeUnit = 20000;
-            _timeOffset /= 20000 * 1000;
-            _timeOffset *= 20000 * 1000;
+            NewYsPerTimeUnit = 20000;
             break;
         case 20000:
-            _ysPerTimeUnit = 30000;
-            _timeOffset /= 30000 * 1000;
-            _timeOffset *= 30000 * 1000;
+            NewYsPerTimeUnit = 30000;
             break;
         case 30000:
-            _ysPerTimeUnit = 60000;
-            _timeOffset /= 60000 * 1000;
-            _timeOffset *= 60000 * 1000;
+            NewYsPerTimeUnit = 60000;
             break;
         case 60000:
-            _ysPerTimeUnit = 120000;
-            _timeOffset /= 120000 * 1000;
-            _timeOffset *= 120000 * 1000;
+            NewYsPerTimeUnit = 120000;
             break;
         case 120000:
-            _ysPerTimeUnit = 300000;
-            _timeOffset /= 300000 * 1000;
-            _timeOffset *= 300000 * 1000;
+            NewYsPerTimeUnit = 300000;
             break;
         case 300000:
-            _ysPerTimeUnit = 600000;
-            _timeOffset /= 600000 * 1000;
-            _timeOffset *= 600000 * 1000;
+            NewYsPerTimeUnit = 600000;
             break;
         default:
             break;
     }
-    _ysPerTimeUnit *= 1000;
     // adjust time offset to time boundary
-    while (_timeOffset + _ysPerTimeUnit * (GetSize().x - _timelineStartX) / _numPixelsPerTimeUnit >= _maxTime)
+    /*while (_timeOffset + _ysPerTimeUnit * (GetSize().x - _timelineStartX) / _numPixelsPerTimeUnit >= _maxTime)
     {
         _timeOffset -= _ysPerTimeUnit;
     }
+    */
+    NewYsPerTimeUnit *= 1000;
+
+    int64_t delta = _cursorPosition - _timeOffset;
+    if (delta > 0 && int64_t(_cursorPosition) < getTimeFromPosition(GetSize().x))
+    {
+        int64_t deltaTimeUnits = _cursorPosition/NewYsPerTimeUnit - delta/_ysPerTimeUnit;
+        if (deltaTimeUnits < 0)
+        {
+            deltaTimeUnits = 0;
+        }
+        _timeOffset = deltaTimeUnits * NewYsPerTimeUnit;
+    }
+
+    _ysPerTimeUnit = NewYsPerTimeUnit;
     Refresh();
 }
+
 
 
 

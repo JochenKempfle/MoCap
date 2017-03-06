@@ -7,7 +7,7 @@
 			<object class="sizeritem">
 				<object class="wxBoxSizer" variable="BoxSizer2" member="no">
 					<object class="sizeritem">
-						<object class="wxBoxSizer" variable="BoxSizer4" member="no">
+						<object class="wxBoxSizer" variable="BoxSizerPreview" member="yes">
 							<orient>wxVERTICAL</orient>
 							<object class="sizeritem">
 								<object class="wxGLCanvas" name="ID_GLCANVAS" subclass="GLCanvas" variable="glCanvas" member="yes">
@@ -20,7 +20,12 @@
 								<option>1</option>
 							</object>
 							<object class="sizeritem">
-								<object class="wxSlider" name="ID_SLIDERFRAMES" variable="SliderFrames" member="yes" />
+								<object class="wxSlider" name="ID_SLIDERFRAMES" variable="SliderFrames" member="yes">
+									<max>1</max>
+									<tickfreq>1</tickfreq>
+									<hidden>1</hidden>
+									<handler function="OnSliderFramesCmdSliderUpdated" entry="EVT_COMMAND_SLIDER_UPDATED" />
+								</object>
 								<flag>wxEXPAND</flag>
 								<border>5</border>
 							</object>

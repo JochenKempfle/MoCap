@@ -112,7 +112,8 @@ class MoCapManager
 
     void update();
 
-    void createDefaultSkeleton();
+    void createAndSetDefaultSkeleton();
+    Skeleton createDefaultSkeleton() const;
 
   protected:
     static MoCapManager* _moCapManager;

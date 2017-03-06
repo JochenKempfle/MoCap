@@ -57,6 +57,7 @@ class Timeline
     uint64_t getMinTime() const;
     uint64_t getMaxTime() const;
 
+    void setSkeleton(const Skeleton &skeleton);
     void setSkeleton(Skeleton* skeleton);
     Skeleton* getSkeleton();
     bool hasSkeleton() const { return _skeleton.getRootId() >= 0; }
@@ -65,7 +66,6 @@ class Timeline
     int getChannelAffiliation(int channelId) const;
     std::string getChannelAffiliationName(int channelId) const;
 
-    // TODO(JK#2#): inserting or moving a track at different zoom levels causes different start positions (insert/move at beginning at different zoom levels!)
     void insert(MotionSequence* sequence, int toChannel, uint64_t time);
     void insert(MotionSequenceChannel* channel, int toChannel, uint64_t time, std::string name = "");
     void insert(const TimelineTrack &track, int toChannel, uint64_t time);

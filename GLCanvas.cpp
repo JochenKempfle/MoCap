@@ -65,12 +65,16 @@ GLCanvas::GLCanvas(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wx
 	Connect(wxEVT_MOTION,(wxObjectEventFunction)&GLCanvas::OnMouseMove);
 	Connect(wxEVT_MOUSEWHEEL,(wxObjectEventFunction)&GLCanvas::OnMouseWheel);
 	Connect(wxEVT_MOUSE_CAPTURE_LOST, (wxObjectEventFunction)&GLCanvas::OnMouseCaptureLost);
+	Connect(wxEVT_ENTER_WINDOW, (wxObjectEventFunction)&GLCanvas::OnEnterWindow);
+	Connect(wxEVT_LEAVE_WINDOW, (wxObjectEventFunction)&GLCanvas::OnLeaveWindow);
     InitGL();
     _xRotation = 0.0f;
     _yRotation = M_PI;
     _cameraPosition = Vector3(0.0f, 1.0f, 3.0f);
     _cameraFront = Vector3(0.0f, 0.0f, -1.0f);
     _cameraUp = Vector3(0.0f, 1.0f, 0.0f);
+    _cameraRight = Vector3(1.0f, 0.0f, 0.0f);
+    _showUI = false;
     _lClicked = false;
     _rClicked = false;
     _skeleton = nullptr;
@@ -88,9 +92,15 @@ void GLCanvas::OnPaint(wxPaintEvent &event)
 {
 	wxPaintDC dc(this);
 
-	if (!_GLRC) return;
+	if (!_GLRC)
+    {
+        return;
+    }
 
 	SetCurrent(*_GLRC);
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
 
 	if (_style & SINGLE_SENSOR_MODE)
     {
@@ -103,14 +113,15 @@ void GLCanvas::OnPaint(wxPaintEvent &event)
 	// _image.render();
 	// glFlush();
 	SwapBuffers();
+	if (_showUI && !(_style & SELECTION_MODE))
+    {
+        drawUserInterface(dc);
+    }
 	event.Skip();
 }
 
 void GLCanvas::OnSize(wxSizeEvent &event)
 {
-	// this is also necessary to update the context on some platforms - no longer =)
-	// wxGLCanvas::OnSize(event);
-
 	// set GL viewport
 	wxSize size = event.GetSize();
 	if (_GLRC)
@@ -133,19 +144,66 @@ void GLCanvas::OnEraseBackground(wxEraseEvent &event)
 void GLCanvas::OnEnterWindow(wxMouseEvent &event)
 {
 	SetFocus();
+	_showUI = true;
 	event.Skip();
+	Refresh();
 }
 
+void GLCanvas::OnLeaveWindow(wxMouseEvent &event)
+{
+	_showUI = false;
+	event.Skip();
+	Refresh();
+}
 
 void GLCanvas::OnLeftDown(wxMouseEvent &event)
 {
     SetFocus();
+
+    wxSize size = GetSize();
+    wxPoint pos = event.GetPosition();
+
+    if (pos.x > size.x - _buttonSize && pos.y < _numButtons * _buttonSize)
+    {
+        int index = pos.y / _buttonSize;
+        switch (index)
+        {
+            case 0:
+                _style = _style & DRAW_GRID ? _style & ~DRAW_GRID : _style | DRAW_GRID;
+                break;
+
+            case 1:
+                _style = _style & DRAW_AABB ? _style & ~DRAW_AABB : _style | DRAW_AABB;
+                break;
+
+            case 2:
+                _style = _style & DRAW_LOCAL_COORDINATE_SYSTEM ? _style & ~DRAW_LOCAL_COORDINATE_SYSTEM : _style | DRAW_LOCAL_COORDINATE_SYSTEM;
+                break;
+
+            case 3:
+                _style = _style & DRAW_LABEL ? _style & ~DRAW_LABEL : _style | DRAW_LABEL;
+                break;
+
+            case 4:
+                _cameraPosition = _skeleton->getPosition() - 2*_cameraFront;
+                break;
+
+            case 5:
+                wxMessageBox(_("not yet implemented!"), _("Error"), wxICON_ERROR);
+                break;
+
+            default:
+                break;
+        }
+        return;
+    }
+
     if (!HasCapture())
     {
         CaptureMouse();
     }
     _lClicked = true;
-    _mousePosAtClick = event.GetPosition();
+    _mousePosAtClick = pos;
 
     SetCursor(wxCURSOR_BLANK);
 
@@ -191,13 +249,63 @@ void GLCanvas::OnRightUp(wxMouseEvent &event)
 
 void GLCanvas::OnMouseMove(wxMouseEvent &event)
 {
+    wxSize size = GetSize();
+    wxPoint pos = event.GetPosition();
+
+    if (pos.x > size.x - _buttonSize && pos.y < _numButtons * _buttonSize)
+    {
+        wxString tooltip;
+        int index = pos.y / _buttonSize;
+        switch (index)
+        {
+            case 0:
+                tooltip = _("Show grid");
+                break;
+
+            case 1:
+                tooltip = _("Show bounding box");
+                break;
+
+            case 2:
+                tooltip = _("Show coordinate system");
+                break;
+
+            case 3:
+                tooltip = _("Show label");
+                break;
+
+            case 4:
+                tooltip = _("Move to skeleton");
+                break;
+
+            case 5:
+                tooltip = _("Settings");
+                break;
+
+            default:
+                tooltip = _("");
+                break;
+        }
+        if (!HasToolTips())
+        {
+            SetToolTip(tooltip);
+        }
+        else if (GetToolTip()->GetTip() != tooltip)
+        {
+            SetToolTip(tooltip);
+        }
+    }
+    else if (HasToolTips())
+    {
+        UnsetToolTip();
+    }
     if (_style & SINGLE_SENSOR_MODE)
     {
         return;
     }
     if (_rClicked)
     {
-        wxPoint delta = event.GetPosition() - _mousePosAtClick;
+        wxPoint delta = pos - _mousePosAtClick;
         _xRotation -= 0.1f * M_PI/180.0f * float(delta.y);
         if (_xRotation > M_PI/2.0)
         {
@@ -210,6 +318,7 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
         _yRotation -= 0.1f * M_PI/180.0f * float(delta.x);
         _cameraFront = Vector3(cos(_xRotation) * sin(_yRotation), sin(_xRotation), cos(_xRotation) * cos(_yRotation)).normalized();
         _cameraUp = Vector3(sin(_yRotation - M_PI/2.0f), 0.0f, cos(_yRotation - M_PI/2.0f)).cross(_cameraFront).normalized();
+        _cameraRight = _cameraFront.cross(_cameraUp).normalized();
         //_mousePosAtClick = event.GetPosition();
         //wxPoint cursorPos = ClientToScreen(_mousePosAtClick);
         WarpPointer(_mousePosAtClick.x, _mousePosAtClick.y);
@@ -219,7 +328,7 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
     if (_lClicked)
     {
         wxPoint delta = event.GetPosition() - _mousePosAtClick;
-        _cameraPosition -= _cameraSpeed * float(delta.x) * _cameraFront.cross(_cameraUp).normalized();
+        _cameraPosition -= _cameraSpeed * float(delta.x) * _cameraRight;
         _cameraPosition += _cameraSpeed * float(delta.y) * _cameraUp;
         //_cameraPosition.y() += _cameraSpeed * float(delta.y);
         // _mousePosAtClick = event.GetPosition();
@@ -257,14 +366,15 @@ void GLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
 
 void GLCanvas::renderSkeleton() const
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
     Vector3 lookAt = _cameraPosition + _cameraFront;
     gluLookAt(_cameraPosition.x(), _cameraPosition.y(), _cameraPosition.z(),
               lookAt.x()         , lookAt.y()         , lookAt.z(),
               _cameraUp.x()      , _cameraUp.y()      , _cameraUp.z());
 
+    if (_style & DRAW_GRID)
+    {
+        drawGrid();
+    }
     if (_skeleton == nullptr)
     {
         return;
@@ -406,6 +516,16 @@ void GLCanvas::renderSkeleton() const
                 glVertex3f(leftPoint.x(), leftPoint.y(), leftPoint.z());
                 glVertex3f(upPoint.x(), upPoint.y(), upPoint.z());
             glEnd();
+
+            // draw labels
+            if (_style & DRAW_LABEL)
+            {
+                // glDisable(GL_DEPTH_TEST);
+                GLImage* image = _labels.find(boneId)->second;
+                image->setPosition(startPos + 0.5f * bone.getLength() * dir - 0.06f * bone.getLength() * _cameraFront);
+                image->render();
+                // glEnable(GL_DEPTH_TEST);
+            }
         }
 
         if (_style & DRAW_SPIN_ARROWS && bone.getId() == _skeleton->getSelectedBoneId())
@@ -616,9 +736,6 @@ void GLCanvas::drawSpinArrows(Vector3 pos, Vector3 dir, Vector3 up, Vector3 righ
 
 void GLCanvas::renderSingleSensor() const
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
 //    Vector3 lookAt = Vector3(0.0f, 0.0f, 0.0f);
     // Vector3 lookAt = _cameraPosition + _cameraFront;
 //    gluLookAt(_cameraPosition.x(), _cameraPosition.y(), _cameraPosition.z(),
@@ -760,14 +877,24 @@ void GLCanvas::InitGL()
 
 int GLCanvas::getObjectIdAt(const wxPoint& pos)
 {
+    if (pos.x > GetSize().x - _buttonSize && pos.y < _numButtons * _buttonSize)
+    {
+        return -1;
+    }
+
     int id = -1;
     if (_GLRC)
     {
         SetCurrent(*_GLRC);
         glDisable(GL_BLEND);
         _style |= SELECTION_MODE;
+
         glClearColor(1.0, 1.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glLoadIdentity();
+
         renderSkeleton();
+
         glFlush();
         glClearColor(0.0, 0.0, 0.0, 0.0);
         _style &= ~SELECTION_MODE;
@@ -787,4 +914,144 @@ int GLCanvas::getObjectIdAt(const wxPoint& pos)
     return id;
 }
 
+void GLCanvas::setSkeleton(Skeleton* skeleton)
+{
+    _skeleton = skeleton;
+    for (auto it = _labels.begin(); it != _labels.end(); ++it)
+    {
+        delete it->second;
+    }
+    _labels.clear();
 
+    wxMemoryDC dc;
+    dc.SetPen(*wxWHITE_PEN);
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    dc.SetTextForeground(*wxWHITE);
+    for (auto it = _skeleton->beginBones(); it != _skeleton->endBones(); ++it)
+    {
+        wxString name = it->second->getName();
+        wxSize textSize = dc.GetTextExtent(name);
+        textSize.x += 4;
+        textSize.y += 1;
+        wxBitmap bmp(textSize);
+        dc.SelectObject(bmp);
+        dc.DrawRoundedRectangle(0, 0, textSize.x, textSize.y, 5);
+        dc.DrawText(name, 2, 0);
+
+        GLImage* image = new GLImage();
+
+        image->setImage(bmp);
+        image->setBillboard();
+        image->scale(0.003f * textSize.x, 0.003f * textSize.x);
+
+        _labels[it->first] = image;
+    }
+}
+
+void GLCanvas::drawUserInterface(wxDC &dc) const
+{
+    wxSize size = GetSize();
+    wxPoint pos(0, 0);
+    pos.x = size.x - _buttonSize;
+
+    wxSize buttonSize(_buttonSize, _buttonSize);
+
+    wxPen pen;
+    wxBrush brush;
+
+    pen.SetColour(wxColour(0, 0, 0));
+    pen.SetWidth(1);
+	dc.SetPen(pen);
+
+    brush.SetColour(wxColour(0, 0, 0));
+	dc.SetBrush(brush);
+
+	// draw black background behind all buttons
+	dc.DrawRectangle(pos.x, pos.y, _buttonSize, _numButtons * _buttonSize);
+
+    pen.SetColour(wxColour(255, 255, 255));
+	dc.SetPen(pen);
+
+	// draw grit
+	dc.DrawRectangle(pos.x + 1, pos.y + 1, _buttonSize - 2, _buttonSize - 2);
+
+	dc.DrawLine(pos.x + _buttonSizeHalf, pos.y + 1, pos.x + _buttonSizeHalf, pos.y + _buttonSize - 1);
+	dc.DrawLine(pos.x + 1, pos.y + _buttonSizeHalf, size.x - 1, pos.y + _buttonSizeHalf);
+
+	pos.y += _buttonSize;
+
+	// draw a cube for showing AABB
+	dc.DrawRectangle(pos.x + _buttonSizeHalf - 3, pos.y + 3, _buttonSizeHalf, _buttonSizeHalf);
+	dc.DrawRectangle(pos.x + 2, pos.y + _buttonSizeHalf - 2, _buttonSizeHalf, _buttonSizeHalf);
+
+	dc.DrawLine(pos.x + 2, pos.y + _buttonSizeHalf - 2, pos.x + _buttonSizeHalf - 3, pos.y + 3);
+	dc.DrawLine(pos.x + 2 + _buttonSizeHalf, pos.y + _buttonSizeHalf - 2, pos.x + _buttonSize - 3, pos.y + 3);
+	dc.DrawLine(pos.x + 2 + _buttonSizeHalf, pos.y + _buttonSize - 3, pos.x + _buttonSize - 3, pos.y + _buttonSizeHalf + 2);
+
+	pos.y += _buttonSize;
+
+	// draw coordinate system
+	dc.DrawLine(pos.x + 2, pos.y + 3, pos.x + 2, pos.y + _buttonSize - 2);
+	dc.DrawLine(pos.x + 2, pos.y + _buttonSize - 2, size.x - 3, pos.y + _buttonSize - 2);
+
+	dc.DrawLine(pos.x + 2, pos.y + _buttonSize - 2, pos.x + _buttonSize - 6, pos.y + _buttonSizeHalf + 2);
+
+	pos.y += _buttonSize;
+
+	// draw label
+	dc.DrawRoundedRectangle(pos.x + 4, pos.y + 3, _buttonSize - 5, _buttonSizeHalf, 3.0);
+	dc.DrawSpline(pos.x + 4, pos.y + _buttonSizeHalf - 3, pos.x + 1, pos.y + _buttonSizeHalf + 4, pos.x + _buttonSizeHalf + 4, pos.y + _buttonSizeHalf + 6);
+
+	pos.y += _buttonSize;
+
+	// draw locate skeleton button
+	dc.DrawLine(pos.x + _buttonSizeHalf, pos.y + 2, pos.x + _buttonSizeHalf, pos.y + _buttonSize - 1);
+	dc.DrawLine(pos.x + 2, pos.y + _buttonSizeHalf, size.x - 1, pos.y + _buttonSizeHalf);
+
+	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf, _buttonSizeHalf - 4);
+	brush.SetColour(wxColour(255, 255, 255));
+	dc.SetBrush(brush);
+	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf, _buttonSizeHalf - 8);
+
+
+	pos.y += _buttonSize;
+
+	// draw settings button
+	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf, _buttonSizeHalf - 3);
+
+    pen.SetColour(wxColour(0, 0, 0));
+	dc.SetPen(pen);
+
+	brush.SetColour(wxColour(0, 0, 0));
+	dc.SetBrush(brush);
+
+	dc.DrawCircle(pos.x + _buttonSizeHalf + 6, pos.y + _buttonSizeHalf, 2);
+	dc.DrawCircle(pos.x + _buttonSizeHalf - 6, pos.y + _buttonSizeHalf, 2);
+
+	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf + 6, 2);
+	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf - 6, 2);
+
+    pen.SetColour(wxColour(255, 255, 255));
+	dc.SetPen(pen);
+
+	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf, _buttonSizeHalf - 7);
+}
+
+void GLCanvas::drawGrid() const
+{
+    int x = int(_cameraPosition.x());
+    int z = int(_cameraPosition.z());
+
+    glBegin(GL_LINES);
+        glColor3d(0.95, 0.95, 0.95);
+
+        for (int i = -20; i < 21; ++i)
+        {
+            glVertex3i(x + i, 0, z - 20);
+            glVertex3i(x + i, 0, z + 20);
+
+            glVertex3i(x - 20, 0, z + i);
+            glVertex3i(x + 20, 0, z + i);
+        }
+    glEnd();
+}

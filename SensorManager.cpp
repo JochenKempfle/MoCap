@@ -75,25 +75,14 @@ void SensorManager::updateSensor(std::string IPAddress, const SensorRawData &dat
         it = _sensorFromIP.find(IPAddress);
         it->second->update(data);
     }
-    // TODO(JK#2#): adapt sensor data axis orientation to GL orientation
-    // the sensors z-axis points in the direction of screens y-axis, so rotate first
-    // Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
-    // Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
-    // x = y*x;
-    // it->second->setRotation(/*x*/it->second->getRotation()/*x.inv()*/);
-    // it->second->setUpdated(true);
 }
 
 bool SensorManager::updateSensor(int id, const SensorRawData &data)
 {
-    // the sensors z-axis points in the direction of screens y-axis, so rotate first
-    // Quaternion x(1.0, 0.0, 0.0, -M_PI*90.0/180.0);
     auto it = _sensors.find(id);
     if (it != _sensors.end())
     {
         it->second->update(data);
-        // it->second->setRotation(/*x*/it->second->getRotation()/*x.inv()*/);
-        // it->second->setUpdated(true);
         return true;
     }
     return false;
@@ -132,7 +121,7 @@ std::vector<int> SensorManager::getMoving(double minDegree)
         }
     }
     //_previousSensorData = getSensors();
-    // TODO(JK#1#): handle get previous sensor data with the sensor buffer
+    // TODO(JK#2#): handle get previous sensor data with the sensor buffer
     _previousSensorData.clear();
     for (size_t i = 0; i < getSensors().size(); ++i)
     {

@@ -45,7 +45,9 @@ enum GLCanvasStyle
     DRAW_SPIN_ARROWS = 8,
     SELECTION_MODE = 16,
     DRAW_SENSORS = 32,
-    SINGLE_SENSOR_MODE = 64
+    SINGLE_SENSOR_MODE = 64,
+    DRAW_AABB = 128,
+    DRAW_LABEL = 256
 };
 
 
@@ -62,13 +64,13 @@ class GLCanvas : public wxGLCanvas
     void renderSingleSensor() const;
     void InitGL();
     int getObjectIdAt(const wxPoint& pos);
-    void setSkeleton(Skeleton* skeleton) { _skeleton = skeleton; }
+    void setSkeleton(Skeleton* skeleton);
     void setSensorOrientation(const Quaternion &orientation) { _sensorOrientation = orientation; }
 
-    void setStyle(unsigned char flags) { _style = flags; }
-    void setStyleFlag(unsigned char flags) { _style |= flags; }
-    void unsetStyleFlag(unsigned char flags) { _style &= ~flags; }
-    unsigned char getStyle() const { return _style; }
+    void setStyle(unsigned int flags) { _style = flags; }
+    void setStyleFlag(unsigned int flags) { _style |= flags; }
+    void unsetStyleFlag(unsigned int flags) { _style &= ~flags; }
+    unsigned int getStyle() const { return _style; }
 
   private:
     bool init;
@@ -78,6 +80,7 @@ class GLCanvas : public wxGLCanvas
     void OnSize(wxSizeEvent &event);
     void OnEraseBackground(wxEraseEvent &event);
     void OnEnterWindow(wxMouseEvent &event);
+    void OnLeaveWindow(wxMouseEvent &event);
     void OnLeftDown(wxMouseEvent &event);
     void OnLeftUp(wxMouseEvent &event);
     void OnRightDown(wxMouseEvent &event);
@@ -85,6 +88,10 @@ class GLCanvas : public wxGLCanvas
     void OnMouseMove(wxMouseEvent &event);
     void OnMouseWheel(wxMouseEvent &event);
     void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
+
+    void drawUserInterface(wxDC &dc) const;
+
+    void drawGrid() const;
 
     wxPoint _mousePosAtClick;
     bool _lClicked;
@@ -95,12 +102,19 @@ class GLCanvas : public wxGLCanvas
     Vector3 _cameraPosition;
     Vector3 _cameraFront;
     Vector3 _cameraUp;
+    Vector3 _cameraRight;
+
+    bool _showUI;
 
     Skeleton* _skeleton;
     Quaternion _sensorOrientation;
-    GLImage _image;
+    std::map<int, GLImage*> _labels;
 
-    unsigned char _style;
+    unsigned int _style;
+
+    const int _numButtons = 6;
+    const int _buttonSize = 20;
+    const int _buttonSizeHalf = _buttonSize/2;
 
 	DECLARE_EVENT_TABLE()
 };

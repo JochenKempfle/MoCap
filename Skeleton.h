@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include "Bone.h"
 #include "Quaternion.h"
+#include "AABB.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -88,6 +89,9 @@ class Skeleton
     void unselectBone() { _selectedBoneId = -1; }
     Bone* getSelectedBone() { return getBone(_selectedBoneId); }
     int getSelectedBoneId() const { return _selectedBoneId; }
+
+    AABB getAABB() const;
+    AABB getAABBFromDefaultPose() const;
 
     Skeleton& operator=(Skeleton other);
 

@@ -63,7 +63,7 @@ class SensorNode
     int getId() const { return _id; }
     std::string getIPAddress() const { return _IPAddress; }
 
-    void setBoneId(int id) { _boneId = id; }
+    void setBoneId(int boneId);
     int getBoneId() const { return _boneId; }
 
     unsigned char getState() const { return _state; }
@@ -104,7 +104,6 @@ class SensorNode
     float getFrameTime() const { return _frameTime; } // float(_buffer.back().getTimestamp() - _buffer.front().getTimestamp()) / (_buffer.size() * 1000); }
     float getCurrentFrameTime() const { return _currentFrameTime; }
 
-    // TODO(JK#1#): delay!
     int getDelay() const { return _delay; } // (_lastReceiveTime - _startTime - _currentTimeStamp)/10; }
 
     unsigned int getNumReceivedPackets() const { return _numReceivedPackets; }

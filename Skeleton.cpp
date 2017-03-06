@@ -397,6 +397,22 @@ void Skeleton::update()
     */
 }
 
+AABB Skeleton::getAABB() const
+{
+    AABB box(_root->getStartPos(), _root->getEndPos());
+    for (auto it = _bones.begin(); it != _bones.end(); ++it)
+    {
+        box.enclose(it->second->getEndPos());
+    }
+    return box;
+}
+
+AABB Skeleton::getAABBFromDefaultPose() const
+{
+    Skeleton dummy = *this;
+    dummy.setToDefault();
+    return dummy.getAABB();
+}
 
 Skeleton& Skeleton::operator=(Skeleton other)
 {

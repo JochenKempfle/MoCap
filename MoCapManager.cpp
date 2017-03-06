@@ -38,7 +38,7 @@ MoCapManager::MoCapManager()
 {
     _state = RECORD;
     // create a skeleton
-    createDefaultSkeleton();
+    createAndSetDefaultSkeleton();
     _filters.push_back(new MotionFilterNone(&_skeleton));
     _filters.push_back(new MotionFilterSlerp(&_skeleton));
     _recording = false;
@@ -63,7 +63,7 @@ MoCapManager& MoCapManager::getInstance()
 
 void MoCapManager::assignSensorToBone(int sensorId, int boneId)
 {
-    // TODO(JK#1#): assign sensor to bone is sometimes buggy (assigns multiple sensors to same bone) rewrite!
+    // TODO(JK#9#): assign sensor to bone is sometimes buggy (assigns multiple sensors to same bone) - rewrite!
     if (sensorId < 0)
     {
         return;
@@ -82,7 +82,7 @@ void MoCapManager::assignSensorToBone(int sensorId, int boneId)
     _sensorIdFromBoneId[boneId] = sensorId;
     theSensorManager.setSensorStateHasBone(sensorId, true);
     theSensorManager.getSensor(sensorId)->setBoneId(boneId);
-    // TODO(JK#1#): set sensors to filter only when recording, also only set sensors with bone id
+    // TODO(JK#5#): set sensors to filter only when recording, also only set sensors with bone id
     _filters[_currentFilter]->setSensors(theSensorManager.getSensors());
 }
 
@@ -100,7 +100,7 @@ void MoCapManager::removeSensorFromBones(int sensorId)
 
 int MoCapManager::getSensorIdFromBoneId(int boneId)
 {
-    // TODO(JK#1#): remove _sensorIdFromBoneId, as there is no use for this, this may fix the buggy assign sensor behaviour
+    // TODO(JK#9#): remove _sensorIdFromBoneId, as there is no use for this, this may fix the buggy assign sensor behaviour
     auto it = _sensorIdFromBoneId.find(boneId);
     if (it != _sensorIdFromBoneId.end())
     {
@@ -221,16 +221,16 @@ MotionSequence* MoCapManager::stopRecording()
     _recording = false;
     _filters[_currentFilter]->setRecording(false);
     MotionSequence* sequence = new MotionSequence(_filters[_currentFilter]->getSequence());
-    // TODO(JK#1#): set recorded MotionSequence details (name, frameTime, numFrames etc in appropriate function eg in the filter)
+    // TODO(JK#4#): set recorded MotionSequence details (name, frameTime, numFrames etc in appropriate function eg in the filter)
     sequence->setName("recording");
-    //sequence->setFrameTime(0.01f);
+    // TODO(JK#5#2017-03-01): maybe do not add the recorded sequence to the animation manager (at least not here)
     theAnimationManager.addProjectSequence(sequence);
     return sequence;
 }
 
 void MoCapManager::update()
 {
-    // TODO(JK#1#): don't use a recording filter for update, maybe use special filter
+    // TODO(JK#9#): don't use a recording filter for update, maybe use special filter
     //_filters[_currentFilter]->update();
     return;
     std::vector<SensorNode*> sensors = theSensorManager.getSensors();
@@ -245,105 +245,112 @@ void MoCapManager::update()
     _skeleton.update();
 }
 
-void MoCapManager::createDefaultSkeleton()
+void MoCapManager::createAndSetDefaultSkeleton()
 {
     _skeleton.clear();
+    _skeleton = createDefaultSkeleton();
+}
+
+Skeleton MoCapManager::createDefaultSkeleton() const
+{
+    Skeleton skeleton;
 
     Bone boneData;
     // hip - this will be the anchor of the skeleton
     boneData.setStartPos(Vector3(0.0, 1.0, 0.0));
     boneData.setLength(0.001);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 0.0, 1.0), M_PI*90.0/180.0) * Quaternion(Vector3(-1.0, 0.0, 0.0), M_PI*90.0/180.0));
-    int hip = _skeleton.createBone(boneData);
-    setBoneName(hip, "hip");
+    boneData.setName("hip");
+    int hip = skeleton.createBone(boneData);
 
     // hip - neck (i.e. the body)
     boneData.setLength(0.55);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 0.0, 1.0), M_PI*90.0/180.0) * Quaternion(Vector3(-1.0, 0.0, 0.0), M_PI*90.0/180.0));
-    int neck = _skeleton.createBone(boneData, hip);
-    setBoneName(neck, "body");
+    boneData.setName("body");
+    int neck = skeleton.createBone(boneData, hip);
 
     // neck - head
     boneData.setLength(0.30);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 0.0, 1.0), M_PI*90.0/180.0) * Quaternion(Vector3(-1.0, 0.0, 0.0), M_PI*90.0/180.0));
-    int head = _skeleton.createBone(boneData, neck);
-    setBoneName(head, "head");
+    boneData.setName("head");
+    skeleton.createBone(boneData, neck);
 
     // neck - right shoulder
     boneData.setLength(0.20);
     boneData.setDefaultOrientation(Quaternion(1.0, 0.0, 0.0, 0.0));
-    int rShoulder = _skeleton.createBone(boneData, neck);
-    setBoneName(rShoulder, "rShoulder");
+    boneData.setName("rShoulder");
+    int rShoulder = skeleton.createBone(boneData, neck);
 
     // right upper arm
     boneData.setLength(0.35);
     boneData.setDefaultOrientation(Quaternion(1.0, 0.0, 0.0, 0.0));
-    int rUpperArm = _skeleton.createBone(boneData, rShoulder);
-    setBoneName(rUpperArm, "rUpperArm");
+    boneData.setName("rUpperArm");
+    int rUpperArm = skeleton.createBone(boneData, rShoulder);
 
     // right lower arm
     boneData.setLength(0.30);
     boneData.setDefaultOrientation(Quaternion(1.0, 0.0, 0.0, 0.0));
-    int rLowerArm = _skeleton.createBone(boneData, rUpperArm);
-    setBoneName(rLowerArm, "rLowerArm");
+    boneData.setName("rLowerArm");
+    skeleton.createBone(boneData, rUpperArm);
 
     // neck - left shoulder
     boneData.setLength(0.20);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0));
-    int lShoulder = _skeleton.createBone(boneData, neck);
-    setBoneName(lShoulder, "lShoulder");
+    boneData.setName("lShoulder");
+    int lShoulder = skeleton.createBone(boneData, neck);
 
     // left upper arm
     boneData.setLength(0.35);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0));
-    int lUpperArm = _skeleton.createBone(boneData, lShoulder);
-    setBoneName(lUpperArm, "lUpperArm");
+    boneData.setName("lUpperArm");
+    int lUpperArm = skeleton.createBone(boneData, lShoulder);
 
     // left lower arm
     boneData.setLength(0.30);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0));
-    int lLowerArm = _skeleton.createBone(boneData, lUpperArm);
-    setBoneName(lLowerArm, "lLowerArm");
+    boneData.setName("lLowerArm");
+    skeleton.createBone(boneData, lUpperArm);
 
     // hip - right leg
     boneData.setLength(0.20);
     boneData.setDefaultOrientation(Quaternion(1.0, 0.0, 0.0, 0.0));
-    int rHip = _skeleton.createBone(boneData, hip);
-    setBoneName(rHip, "rHip");
+    boneData.setName("rHip");
+    int rHip = skeleton.createBone(boneData, hip);
 
     // right upper leg
     boneData.setLength(0.45);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 0.0, -1.0), M_PI*90.0/180.0) * Quaternion(Vector3(-1.0, 0.0, 0.0), M_PI*90.0/180.0));
-    int rUpperLeg = _skeleton.createBone(boneData, rHip);
-    setBoneName(rUpperLeg, "rUpperLeg");
+    boneData.setName("rUpperLeg");
+    int rUpperLeg = skeleton.createBone(boneData, rHip);
 
     // right lower leg
     boneData.setLength(0.45);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 0.0, -1.0), M_PI*90.0/180.0) * Quaternion(Vector3(-1.0, 0.0, 0.0), M_PI*90.0/180.0));
-    int rLowerLeg = _skeleton.createBone(boneData, rUpperLeg);
-    setBoneName(rLowerLeg, "rLowerLeg");
+    boneData.setName("rLowerLeg");
+    skeleton.createBone(boneData, rUpperLeg);
 
     // hip - left leg
     boneData.setLength(0.20);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0));
-    int lHip = _skeleton.createBone(boneData, hip);
-    setBoneName(lHip, "lHip");
+    boneData.setName("lHip");
+    int lHip = skeleton.createBone(boneData, hip);
 
     // left upper leg
     boneData.setLength(0.45);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 0.0, -1.0), M_PI*90.0/180.0) * Quaternion(Vector3(1.0, 0.0, 0.0), M_PI*90.0/180.0));
-    int lUpperLeg = _skeleton.createBone(boneData, lHip);
-    setBoneName(lUpperLeg, "lUpperLeg");
+    boneData.setName("lUpperLeg");
+    int lUpperLeg = skeleton.createBone(boneData, lHip);
 
     // left lower leg
     boneData.setLength(0.45);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 0.0, -1.0), M_PI*90.0/180.0) * Quaternion(Vector3(1.0, 0.0, 0.0), M_PI*90.0/180.0));
-    int lLowerLeg = _skeleton.createBone(boneData, lUpperLeg);
-    setBoneName(lLowerLeg, "lLowerLeg");
+    boneData.setName("lLowerLeg");
+    skeleton.createBone(boneData, lUpperLeg);
 
-    _skeleton.setName("Default Skeleton");
-    _skeleton.update();
-    //_skeleton.setCurrentAsDefault();
+    skeleton.setName("Default Skeleton");
+    skeleton.update();
+    //skeleton.setCurrentAsDefault();
+    return skeleton;
 }
 
 

@@ -52,6 +52,9 @@ class GLImage
     void show(bool visible = true) { _visible = visible; }
     bool isVisible() const { return _visible; }
 
+    void setBillboard(bool value = true) { _billboarding = value; }
+    bool isBillboard() const { return _billboarding; }
+
     void loadImage(wxString filename);
     void setImage(const wxBitmap &bmp);
     void setImage(const wxImage &image);
@@ -82,6 +85,7 @@ class GLImage
     float _width;
     float _height;
     bool _visible;
+    bool _billboarding;
 };
 
 #endif // GLIMAGE_H

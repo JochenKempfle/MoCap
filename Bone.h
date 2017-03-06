@@ -48,7 +48,6 @@ class Bone
 
     void setLength(float length) { _length = length; }
     float getLength() const { return _length; }
-    // TODO(JK#4#): don't allow setting of absolute positions? => more safe (solved?)
     // TODO(JK#2#): make bone orientation dependent on relative default orientation, add new set***Orientation method
     void setAbsOrientation(const Quaternion &orientation);
     void setRelOrientation(const Quaternion &orientation);
@@ -124,9 +123,13 @@ class Bone
     int _id;
     std::string _name;
     float _length;
+    // the orientation of this bone after chaining all parents' orientations
     Quaternion _chainedOrientation;
+    // the current orientation relative to the bone's parent
     Quaternion _relOrientation;
+    // the absolute default orientation of this bone
     Quaternion _defaultOrientation;
+
     Vector3 _startPos;
     Vector3 _endPos;
     bool _useAbsOrientation;

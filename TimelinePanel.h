@@ -42,6 +42,7 @@ OF SUCH DAMAGE.
 	//*)
 #endif
 //(*Headers(TimelinePanel)
+#include <wx/tglbtn.h>
 //*)
 
 class TimelinePanel: public wxPanel
@@ -55,9 +56,12 @@ class TimelinePanel: public wxPanel
 		wxButton* ButtonZoomOut;
 		wxButton* ButtonZoomIn;
 		wxButton* ButtonRemove;
+		wxToggleButton* ToggleButtonStickyEnds;
 		wxButton* ButtonClear;
 		wxButton* ButtonCut;
 		//*)
+
+		// TODO(JK#8#2017-02-24): Maybe add moveToCursor/navigation (front, back) function in timeline panel
 
 		void prepareAddingSequence(int sequence, const std::vector<int> &channels);
 		void prepareAddingFrame(const MotionSequenceFrame &frame, float frameTime);
@@ -76,6 +80,7 @@ class TimelinePanel: public wxPanel
 		static const long ID_BUTTONCLEAR;
 		static const long ID_BUTTONREMOVE;
 		static const long ID_BUTTONCUT;
+		static const long ID_TOGGLEBUTTONSTICKYENDS;
 		static const long ID_BUTTONZOOMIN;
 		static const long ID_BUTTONZOOMOUT;
 		//*)
@@ -96,6 +101,9 @@ class TimelinePanel: public wxPanel
 		void OnButtonCutClick(wxCommandEvent& event);
 		void OnRightDown(wxMouseEvent& event);
 		void OnRightUp(wxMouseEvent& event);
+		void OnToggleButtonStickyEndsToggle(wxCommandEvent& event);
+		void OnButtonClearClick(wxCommandEvent& event);
+		void OnButtonRemoveClick(wxCommandEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
         void OnPopupBonesClick(wxCommandEvent& event);
@@ -114,6 +122,7 @@ class TimelinePanel: public wxPanel
         // returns the time point at which the given point will be in current setting (zoom factor, time offset)
         // always check if time is negative, this means the point is before the beginning and therefore invalid
         int64_t getTimeFromPosition(wxPoint pos) const;
+        int64_t getTimeFromPosition(int posX) const;
         int getChannelFromPosition(wxPoint pos) const;
         int getPositionFromChannel(int channel) const;
 
@@ -143,6 +152,7 @@ class TimelinePanel: public wxPanel
         bool _dragIsValid;
         int _draggedTrackPos;
         int _draggedTrackChannel;
+        int64_t _draggedTrackStartTime;
         uint64_t _draggedTrackLength;
 
         bool _interpolationPossible;
@@ -153,6 +163,17 @@ class TimelinePanel: public wxPanel
         int _sequenceToAdd;
         TimelineTrack _trackToAdd;
         std::vector<int> _channelsToAdd;
+
+        bool _hasStickyEnds;
+        int _stickyEndPixelSize;
+
+        int64_t _startMarkerTime;
+        int64_t _endMarkerTime;
+
+        bool _cursorOnStartMarker;
+        bool _cursorOnEndMarker;
+        bool _clickedStartMarker;
+        bool _clickedEndMarker;
 
 		// std::vector<std::vector<MotionTrack> > _channelContent;
 

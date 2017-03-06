@@ -59,9 +59,38 @@ void GLImage::render() const
 
     glPushMatrix();
     glTranslatef(_position.x(), _position.y(), _position.z());
-    glRotatef(_rotation.x(), 1.0f, 0.0f, 0.0f);
-    glRotatef(_rotation.y(), 0.0f, 1.0f, 0.0f);
-    glRotatef(_rotation.z(), 0.0f, 0.0f, 1.0f);
+    if (_billboarding)
+    {
+        float modelview[16];
+
+        // get the current modelview matrix
+        glGetFloatv(GL_MODELVIEW_MATRIX , modelview);
+
+        // undo all rotations (all scaling is lost as well!)
+        for (int i = 0; i < 3; ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+            {
+                if (i == j)
+                {
+                    modelview[i*4 + j] = 1.0f;
+                }
+                else
+                {
+                    modelview[i*4 + j] = 0.0f;
+                }
+            }
+        }
+
+        // set the modelview with no rotations and scaling
+        glLoadMatrixf(modelview);
+    }
+    else
+    {
+        glRotatef(_rotation.x(), 1.0f, 0.0f, 0.0f);
+        glRotatef(_rotation.y(), 0.0f, 1.0f, 0.0f);
+        glRotatef(_rotation.z(), 0.0f, 0.0f, 1.0f);
+    }
     glScalef(_scaleX, _scaleY, 1.0f);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

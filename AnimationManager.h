@@ -48,6 +48,7 @@ class AnimationManager
     static AnimationManager& getInstance();
 
     Skeleton* getSequenceSkeleton(int sequenceId);
+    void setTimelineSkeleton(const Skeleton &skeleton) { _timeline.setSkeleton(skeleton); }
     void setTimelineSkeleton(Skeleton* skeleton) { _timeline.setSkeleton(skeleton); }
     Skeleton* getTimelineSkeleton();
 

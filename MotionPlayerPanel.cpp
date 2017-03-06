@@ -84,7 +84,7 @@ MotionPlayerPanel::MotionPlayerPanel(wxWindow* parent,wxWindowID id,const wxPoin
 	glCanvas = new GLCanvas(this, ID_GLCANVAS, wxDefaultPosition, wxDefaultSize, 0, _T("ID_GLCANVAS"), GLCanvasAttributes_1);
 	glCanvas->SetBackgroundColour(wxColour(0,0,0));
 	BoxSizer2->Add(glCanvas, 1, wxALL|wxEXPAND, 5);
-	SliderFrames = new wxSlider(this, ID_SLIDERFRAMES, 0, 0, 100, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_SLIDERFRAMES"));
+	SliderFrames = new wxSlider(this, ID_SLIDERFRAMES, 0, 0, 1, wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_SLIDERFRAMES"));
 	SliderFrames->SetTickFreq(1);
 	BoxSizer2->Add(SliderFrames, 0, wxALL|wxEXPAND, 5);
 	ButtonPlay = new wxButton(this, ID_BUTTONPLAY, _("Play"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONPLAY"));

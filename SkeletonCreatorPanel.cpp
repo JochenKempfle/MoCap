@@ -418,6 +418,7 @@ void SkeletonCreatorPanel::updateBoneInfo()
 
 void SkeletonCreatorPanel::OnGlCanvasLeftDown(wxMouseEvent& event)
 {
+    // event.Skip();
     int id = glCanvas->getObjectIdAt(event.GetPosition());
     int nextFreeId = theMoCapManager.getSkeleton()->getNextFreeId();
     // if the id is smaller than the next free id, a bone (id > 0) or free space (id == -1) was clicked. Set selection to clicked object (unselects if id < 0)
@@ -596,7 +597,7 @@ void SkeletonCreatorPanel::OnButtonImportClick(wxCommandEvent& event)
 {
     // show the file dialog
     // TODO(JK#5#): import skeleton corrections
-    wxFileDialog* fileDialog = new wxFileDialog(this, _("Open bvh file"), _(""), _(""), _("bvh files (*.bvh)|*.bvh"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+    wxFileDialog* fileDialog = new wxFileDialog(this, _("Import skeleton from file"), _(""), _(""), _("bvh files (*.bvh)|*.bvh"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
     if (fileDialog->ShowModal() == wxID_CANCEL)
     {
         fileDialog->Destroy();
@@ -651,7 +652,7 @@ void SkeletonCreatorPanel::OnButtonExportClick(wxCommandEvent& event)
 
 void SkeletonCreatorPanel::OnButtonLoadDefaultClick(wxCommandEvent& event)
 {
-    theMoCapManager.createDefaultSkeleton();
+    theMoCapManager.createAndSetDefaultSkeleton();
     theMoCapManager.getSkeleton()->update();
     selectBone(-1);
     updateTreeCtrlSkeleton();

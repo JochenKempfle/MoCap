@@ -58,7 +58,6 @@ class TimelineOverlay
     void setLength(uint64_t length) { _length = length; }
     uint64_t getLength() const { return _length; }
 
-    // TODO(JK#1#): ensure overlays are not overlapping multiple times
     // set overlay tracks sorted by their channel. If channel of track1 is smaller than the channel of track2,
     // the first track (returned by getFirstTrack()) is set to track1, otherwise the second track is set to track1
     void setTracks(TimelineTrack* track1, TimelineTrack* track2);

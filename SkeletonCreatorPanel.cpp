@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 #include "SkeletonCreatorPanel.h"
 #include "FileHandler.h"
 #include "MotionSequence.h"
+#include "ConstraintDialog.h"
 
 #include "MoCapManager.h"
 
@@ -662,6 +663,8 @@ void SkeletonCreatorPanel::OnButtonLoadDefaultClick(wxCommandEvent& event)
 
 void SkeletonCreatorPanel::OnButtonAddBoneClick(wxCommandEvent& event)
 {
+    ConstraintDialog dialog(this);
+    dialog.ShowModal();
     Bone* bone = theMoCapManager.getSelectedBone();
     int id;
     Bone newBone;

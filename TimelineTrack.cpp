@@ -256,6 +256,15 @@ MotionSequenceFrame TimelineTrack::getFrame(unsigned int pos, bool weighted) con
     return frame;
 }
 
+void TimelineTrack::setFrame(unsigned int pos, const MotionSequenceFrame& frame)
+{
+    while (pos >= _frames.size())
+    {
+        _frames.push_back(MotionSequenceFrame());
+    }
+    _frames[pos] = frame;
+}
+
 MotionSequenceFrame TimelineTrack::getFirstFrame(bool weighted) const
 {
     return getFrame(0, weighted);

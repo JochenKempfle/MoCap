@@ -86,6 +86,14 @@ Quaternion::Quaternion(const Vector3 &from, const Vector3 &to)
     normalize();
 }
 
+Quaternion::Quaternion(float realPart, const Vector3 vectorPart)
+{
+    u() = realPart;
+    x() = vectorPart.x();
+    y() = vectorPart.y();
+    z() = vectorPart.z();
+}
+
 Quaternion::Quaternion(double roll, double pitch, double yaw)
 {
     double sroll   = sin(roll);
@@ -95,10 +103,11 @@ Quaternion::Quaternion(double roll, double pitch, double yaw)
     double cpitch = cos(pitch);
     double cyaw   = cos(yaw);
 
-    double m[3][3] = { //create rotational Matrix
-      {cyaw*cpitch, cyaw*spitch*sroll - syaw*croll, cyaw*spitch*croll + syaw*sroll},
-      {syaw*cpitch, syaw*spitch*sroll + cyaw*croll, syaw*spitch*croll - cyaw*sroll},
-      {    -spitch,                  cpitch*sroll,                  cpitch*croll}
+    double m[3][3] =
+    { //create rotational Matrix
+        {cyaw*cpitch, cyaw*spitch*sroll - syaw*croll, cyaw*spitch*croll + syaw*sroll},
+        {syaw*cpitch, syaw*spitch*sroll + cyaw*croll, syaw*spitch*croll - cyaw*sroll},
+        {    -spitch,                  cpitch*sroll,                  cpitch*croll}
     };
 
     float _u = (float) (sqrt(std::max(0., 1 + m[0][0] + m[1][1] + m[2][2]))/2.0);
@@ -113,22 +122,22 @@ Quaternion::Quaternion(double roll, double pitch, double yaw)
 
 Quaternion::Quaternion(const Vector3& axis, double angle)
 {
-    double sa = sin(angle/2);
-    double ca = cos(angle/2);
+    double sa = std::sin(angle/2);
+    double ca = std::cos(angle/2);
     x() = float(axis.x()*sa);
     y() = float(axis.y()*sa);
     z() = float(axis.z()*sa);
     u() = float(ca);
 }
 
-float Quaternion::norm () const
+float Quaternion::norm() const
 {
     double n = 0;
-    for (unsigned int i=0; i<4; i++)
+    for (unsigned int i = 0; i < 4; ++i)
     {
-      n += operator()(i) * operator()(i);
+        n += operator()(i) * operator()(i);
     }
-    return (float) sqrt(n);
+    return (float) std::sqrt(n);
 }
 
 void Quaternion::operator*=(const Quaternion &other)
@@ -138,16 +147,20 @@ void Quaternion::operator*=(const Quaternion &other)
 
 void Quaternion::operator/=(float x)
 {
-    for (unsigned int i=0; i<4; ++i)
-      operator()(i) /= x;
+    for (unsigned int i = 0; i < 4; ++i)
+    {
+        operator()(i) /= x;
+    }
 }
 
 bool Quaternion::operator==(const Quaternion& other) const
 {
-    for (unsigned int i=0; i<4; i++)
+    for (unsigned int i = 0; i < 4; ++i)
     {
-      if (operator()(i) != other(i))
-        return false;
+        if (operator()(i) != other(i))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -272,16 +285,15 @@ Quaternion operator*(const Vector3& v, const Quaternion& q)
 Quaternion& Quaternion::normalize()
 {
     double len = norm();
-    if (len > 0)
-      *this /= (float) len;
+    if (len > 0.0)
+      *this /= float(len);
     return *this;
 }
 
 Quaternion Quaternion::normalized() const
 {
     Quaternion result(*this);
-    result.normalize();
-    return result;
+    return result.normalize();
 }
 
 double Quaternion::dot(const Quaternion &other) const
@@ -294,6 +306,21 @@ double Quaternion::dot(const Quaternion &other) const
 float Quaternion::getShortestAngleTo(const Quaternion &other) const
 {
     return 2.0f * std::acos(std::fabs(dot(other)));
+}
+
+Vector3 Quaternion::getImag() const
+{
+    return Vector3(x(), y(), z());
+}
+
+Vector3 Quaternion::getRotationAxis() const
+{
+    return Vector3(x(), y(), z()).normalize();
+}
+
+float Quaternion::getRotationAngle() const
+{
+    return 2.0f * std::acos(u());
 }
 
 Quaternion Quaternion::lerp(const Quaternion &other, float t) const
@@ -323,7 +350,7 @@ Quaternion Quaternion::slerp(const Quaternion &other, double t) const
     double scale0;
     double scale1;
 
-    if(absD == 1.0)
+    if (absD == 1.0)
     {
         scale0 = 1.0 - t;
         scale1 = t;
@@ -331,10 +358,10 @@ Quaternion Quaternion::slerp(const Quaternion &other, double t) const
     else
     {
         double theta = std::acos(absD);
-        double sinTheta = std::sin(theta);
+        double sinThetaInv = 1.0/std::sin(theta);
 
-        scale0 = std::sin((1.0 - t) * theta) / sinTheta;
-        scale1 = std::sin((t * theta)) / sinTheta;
+        scale0 = std::sin((1.0 - t) * theta) * sinThetaInv;
+        scale1 = std::sin((t * theta)) * sinThetaInv;
     }
     if (d < 0)
     {
@@ -349,7 +376,7 @@ void Quaternion::decomposeSwingTwist(const Vector3 &direction, Quaternion* swing
     // swing is rotation around vector perpendicular to direction
     // twist is the rotation around direction vector
     Vector3 p = Vector3(x(), y(), z()).dot(direction) * direction;
-    *twist = Quaternion(u(), p.x(), p.y(), p.z()).normalize();
+    *twist = Quaternion(u(), p.x(), p.y(), p.z()).normalized();
     *swing = *this * twist->inv();
 }
 

@@ -40,22 +40,21 @@ OF SUCH DAMAGE.
 //*)
 
 //(*IdInit(ExportDialog)
-const long ExportDialog::ID_SPINCTRL1 = wxNewId();
+const long ExportDialog::ID_SPINCTRLSTARTTIMESEC = wxNewId();
 const long ExportDialog::ID_STATICTEXT1 = wxNewId();
-const long ExportDialog::ID_SPINCTRL3 = wxNewId();
+const long ExportDialog::ID_SPINCTRLSTARTTIMEMS = wxNewId();
 const long ExportDialog::ID_BUTTONSTARTTIMECURSOR = wxNewId();
 const long ExportDialog::ID_BUTTONSTARTTIMEMARKER = wxNewId();
 const long ExportDialog::ID_BUTTONSTARTTIMEDEFAULT = wxNewId();
-const long ExportDialog::ID_SPINCTRL2 = wxNewId();
+const long ExportDialog::ID_SPINCTRLENDTIMESEC = wxNewId();
 const long ExportDialog::ID_STATICTEXT2 = wxNewId();
-const long ExportDialog::ID_SPINCTRL4 = wxNewId();
+const long ExportDialog::ID_SPINCTRLENDTIMEMS = wxNewId();
 const long ExportDialog::ID_BUTTONENDTIMECURSOR = wxNewId();
 const long ExportDialog::ID_BUTTONENDTIMEMARKER = wxNewId();
 const long ExportDialog::ID_BUTTONENDTIMEDEFAULT = wxNewId();
 const long ExportDialog::ID_STATICLINE1 = wxNewId();
 const long ExportDialog::ID_STATICTEXT3 = wxNewId();
 const long ExportDialog::ID_SPINCTRLFRAMETIME = wxNewId();
-const long ExportDialog::ID_CHECKBOXINTERPOLATE = wxNewId();
 const long ExportDialog::ID_FILEPICKERCTRLEXPORT = wxNewId();
 const long ExportDialog::ID_BUTTONOK = wxNewId();
 const long ExportDialog::ID_BUTTONCANCEL = wxNewId();
@@ -89,14 +88,14 @@ ExportDialog::ExportDialog(wxWindow* parent,wxWindowID id,const wxPoint& pos,con
 	BoxSizer8 = new wxBoxSizer(wxHORIZONTAL);
 	StaticBoxSizer1 = new wxStaticBoxSizer(wxVERTICAL, this, _("Start Time (sec : ms)"));
 	BoxSizer6 = new wxBoxSizer(wxHORIZONTAL);
-	SpinCtrl1 = new wxSpinCtrl(this, ID_SPINCTRL1, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 100000, 0, _T("ID_SPINCTRL1"));
-	SpinCtrl1->SetValue(_T("0"));
-	BoxSizer6->Add(SpinCtrl1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	SpinCtrlStartTimeSec = new wxSpinCtrl(this, ID_SPINCTRLSTARTTIMESEC, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxTAB_TRAVERSAL, 0, 100000, 0, _T("ID_SPINCTRLSTARTTIMESEC"));
+	SpinCtrlStartTimeSec->SetValue(_T("0"));
+	BoxSizer6->Add(SpinCtrlStartTimeSec, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticText1 = new wxStaticText(this, ID_STATICTEXT1, _(":"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT1"));
 	BoxSizer6->Add(StaticText1, 0, wxTOP|wxBOTTOM|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	SpinCtrl3 = new wxSpinCtrl(this, ID_SPINCTRL3, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 999, 0, _T("ID_SPINCTRL3"));
-	SpinCtrl3->SetValue(_T("0"));
-	BoxSizer6->Add(SpinCtrl3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	SpinCtrlStartTimeMS = new wxSpinCtrl(this, ID_SPINCTRLSTARTTIMEMS, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxTAB_TRAVERSAL, 0, 999, 0, _T("ID_SPINCTRLSTARTTIMEMS"));
+	SpinCtrlStartTimeMS->SetValue(_T("0"));
+	BoxSizer6->Add(SpinCtrlStartTimeMS, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticBoxSizer1->Add(BoxSizer6, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer5 = new wxBoxSizer(wxHORIZONTAL);
 	ButtonStartTimeCursor = new wxButton(this, ID_BUTTONSTARTTIMECURSOR, _("Cursor"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSTARTTIMECURSOR"));
@@ -109,14 +108,14 @@ ExportDialog::ExportDialog(wxWindow* parent,wxWindowID id,const wxPoint& pos,con
 	BoxSizer8->Add(StaticBoxSizer1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticBoxSizer2 = new wxStaticBoxSizer(wxVERTICAL, this, _("End Time (sec : ms)"));
 	BoxSizer9 = new wxBoxSizer(wxHORIZONTAL);
-	SpinCtrl2 = new wxSpinCtrl(this, ID_SPINCTRL2, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 100000, 0, _T("ID_SPINCTRL2"));
-	SpinCtrl2->SetValue(_T("0"));
-	BoxSizer9->Add(SpinCtrl2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	SpinCtrlEndTimeSec = new wxSpinCtrl(this, ID_SPINCTRLENDTIMESEC, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxTAB_TRAVERSAL, 0, 100000, 0, _T("ID_SPINCTRLENDTIMESEC"));
+	SpinCtrlEndTimeSec->SetValue(_T("0"));
+	BoxSizer9->Add(SpinCtrlEndTimeSec, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticText2 = new wxStaticText(this, ID_STATICTEXT2, _(":"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXT2"));
 	BoxSizer9->Add(StaticText2, 0, wxTOP|wxBOTTOM|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	SpinCtrl4 = new wxSpinCtrl(this, ID_SPINCTRL4, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 999, 0, _T("ID_SPINCTRL4"));
-	SpinCtrl4->SetValue(_T("0"));
-	BoxSizer9->Add(SpinCtrl4, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	SpinCtrlEndTimeMS = new wxSpinCtrl(this, ID_SPINCTRLENDTIMEMS, _T("0"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxTAB_TRAVERSAL, 0, 999, 0, _T("ID_SPINCTRLENDTIMEMS"));
+	SpinCtrlEndTimeMS->SetValue(_T("0"));
+	BoxSizer9->Add(SpinCtrlEndTimeMS, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticBoxSizer2->Add(BoxSizer9, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer7 = new wxBoxSizer(wxHORIZONTAL);
 	ButtonEndTimeCursor = new wxButton(this, ID_BUTTONENDTIMECURSOR, _("Cursor"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONENDTIMECURSOR"));
@@ -139,11 +138,8 @@ ExportDialog::ExportDialog(wxWindow* parent,wxWindowID id,const wxPoint& pos,con
 	SpinCtrlFrameTime->SetValue(_T("10"));
 	BoxSizer2->Add(SpinCtrlFrameTime, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticBoxSizer3->Add(BoxSizer2, 0, wxALL|wxALIGN_LEFT, 5);
-	CheckBoxInterpolate = new wxCheckBox(this, ID_CHECKBOXINTERPOLATE, _("Interpolate Frames"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_CHECKBOXINTERPOLATE"));
-	CheckBoxInterpolate->SetValue(false);
-	StaticBoxSizer3->Add(CheckBoxInterpolate, 0, wxALL|wxALIGN_LEFT, 5);
 	BoxSizer4->Add(StaticBoxSizer3, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
-	FilePickerCtrlExport = new wxFilePickerCtrl(this, ID_FILEPICKERCTRLEXPORT, wxEmptyString, _("Select a file"), _T("*.*"), wxDefaultPosition, wxDefaultSize, wxFLP_OVERWRITE_PROMPT|wxFLP_SAVE|wxFLP_USE_TEXTCTRL, wxDefaultValidator, _T("ID_FILEPICKERCTRLEXPORT"));
+	FilePickerCtrlExport = new wxFilePickerCtrl(this, ID_FILEPICKERCTRLEXPORT, wxEmptyString, wxEmptyString, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxFLP_OVERWRITE_PROMPT|wxFLP_SAVE|wxFLP_USE_TEXTCTRL, wxDefaultValidator, _T("ID_FILEPICKERCTRLEXPORT"));
 	BoxSizer4->Add(FilePickerCtrlExport, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer1->Add(BoxSizer4, 0, wxALL|wxEXPAND, 5);
 	BoxSizer3 = new wxBoxSizer(wxHORIZONTAL);
@@ -157,6 +153,12 @@ ExportDialog::ExportDialog(wxWindow* parent,wxWindowID id,const wxPoint& pos,con
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
 
+	Connect(ID_BUTTONSTARTTIMECURSOR,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ExportDialog::OnButtonStartTimeCursorClick);
+	Connect(ID_BUTTONSTARTTIMEMARKER,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ExportDialog::OnButtonStartTimeMarkerClick);
+	Connect(ID_BUTTONSTARTTIMEDEFAULT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ExportDialog::OnButtonStartTimeDefaultClick);
+	Connect(ID_BUTTONENDTIMECURSOR,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ExportDialog::OnButtonEndTimeCursorClick);
+	Connect(ID_BUTTONENDTIMEMARKER,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ExportDialog::OnButtonEndTimeMarkerClick);
+	Connect(ID_BUTTONENDTIMEDEFAULT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ExportDialog::OnButtonEndTimeDefaultClick);
 	Connect(ID_BUTTONOK,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ExportDialog::OnButtonOkClick);
 	Connect(ID_BUTTONCANCEL,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&ExportDialog::OnButtonCancelClick);
 	//*)
@@ -168,6 +170,29 @@ ExportDialog::~ExportDialog()
 	//*)
 }
 
+
+void ExportDialog::setValues(uint64_t startMarkerTime, uint64_t endMarkerTime, uint64_t cursorTime, uint64_t endTime)
+{
+    _startMarkerTime = startMarkerTime;
+    _endMarkerTime = endMarkerTime;
+    _cursorTime = cursorTime;
+    _endTime = endTime;
+}
+
+float ExportDialog::getFrameTime() const
+{
+    return float(SpinCtrlFrameTime->GetValue())/1000.0f;
+}
+
+uint64_t ExportDialog::getStartTime() const
+{
+    return SpinCtrlStartTimeSec->GetValue() * 1000000 + SpinCtrlStartTimeMS->GetValue() * 1000;
+}
+
+uint64_t ExportDialog::getEndTime() const
+{
+    return SpinCtrlEndTimeSec->GetValue() * 1000000 + SpinCtrlEndTimeMS->GetValue() * 1000;
+}
 
 void ExportDialog::OnButtonOkClick(wxCommandEvent& event)
 {
@@ -192,3 +217,38 @@ void ExportDialog::OnButtonCancelClick(wxCommandEvent& event)
     Show(false);
 }
 
+void ExportDialog::OnButtonStartTimeCursorClick(wxCommandEvent& event)
+{
+    SpinCtrlStartTimeSec->SetValue(_cursorTime / 1000000);
+    SpinCtrlStartTimeMS->SetValue((_cursorTime / 1000) % 1000);
+}
+
+void ExportDialog::OnButtonStartTimeMarkerClick(wxCommandEvent& event)
+{
+    SpinCtrlStartTimeSec->SetValue(_startMarkerTime / 1000000);
+    SpinCtrlStartTimeMS->SetValue((_startMarkerTime / 1000) % 1000);
+}
+
+void ExportDialog::OnButtonStartTimeDefaultClick(wxCommandEvent& event)
+{
+    SpinCtrlStartTimeSec->SetValue(0);
+    SpinCtrlStartTimeMS->SetValue(0);
+}
+
+void ExportDialog::OnButtonEndTimeCursorClick(wxCommandEvent& event)
+{
+    SpinCtrlEndTimeSec->SetValue(_cursorTime / 1000000);
+    SpinCtrlEndTimeMS->SetValue((_cursorTime / 1000) % 1000);
+}
+
+void ExportDialog::OnButtonEndTimeMarkerClick(wxCommandEvent& event)
+{
+    SpinCtrlEndTimeSec->SetValue(_endMarkerTime / 1000000);
+    SpinCtrlEndTimeMS->SetValue((_endMarkerTime / 1000) % 1000);
+}
+
+void ExportDialog::OnButtonEndTimeDefaultClick(wxCommandEvent& event)
+{
+    SpinCtrlEndTimeSec->SetValue(_endTime / 1000000);
+    SpinCtrlEndTimeMS->SetValue((_endTime / 1000) % 1000);
+}

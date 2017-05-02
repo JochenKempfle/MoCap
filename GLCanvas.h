@@ -34,6 +34,15 @@ OF SUCH DAMAGE.
 #include "GLImage.h"
 #include "Skeleton.h"
 #include "Vector3.h"
+#include "JointConstraint.h"
+
+#if defined(__WXMAC__) || defined(__WXCOCOA__)
+    #include <OpenGL/gl.h>
+    #include <OpenGL/glu.h>
+#else
+    #include <GL/gl.h>
+    #include <GL/glu.h>
+#endif
 
 
 enum GLCanvasStyle
@@ -46,8 +55,11 @@ enum GLCanvasStyle
     SELECTION_MODE = 16,
     DRAW_SENSORS = 32,
     SINGLE_SENSOR_MODE = 64,
-    DRAW_AABB = 128,
-    DRAW_LABEL = 256
+    SINGLE_JOINT_MODE = 128,
+    DRAW_AABB = 256,
+    DRAW_LABEL = 512,
+    DRAW_ROTATION_AXIS = 1024,
+    DRAW_JOINT_CONSTRAINTS = 2048
 };
 
 
@@ -62,10 +74,12 @@ class GLCanvas : public wxGLCanvas
     void renderSkeleton() const;
     void drawSpinArrows(Vector3 pos, Vector3 dir, Vector3 up, Vector3 right) const;
     void renderSingleSensor() const;
+    void renderSingleJoint() const;
     void InitGL();
     int getObjectIdAt(const wxPoint& pos);
     void setSkeleton(Skeleton* skeleton);
     void setSensorOrientation(const Quaternion &orientation) { _sensorOrientation = orientation; }
+    void setConstraint(JointConstraint* constraint) { _constraint = constraint; }
 
     void setStyle(unsigned int flags) { _style = flags; }
     void setStyleFlag(unsigned int flags) { _style |= flags; }
@@ -92,6 +106,8 @@ class GLCanvas : public wxGLCanvas
     void drawUserInterface(wxDC &dc) const;
 
     void drawGrid() const;
+    void drawJoint(const JointConstraint &constraint = JointConstraint(), float radius = 0.04f) const;
+    void drawAABB(const AABB &box) const;
 
     wxPoint _mousePosAtClick;
     bool _lClicked;
@@ -110,11 +126,27 @@ class GLCanvas : public wxGLCanvas
     Quaternion _sensorOrientation;
     std::map<int, GLImage*> _labels;
 
+    JointConstraint* _constraint;
     unsigned int _style;
 
-    const int _numButtons = 6;
+    GLUquadric* _sphereQuad;
+
+    const int _numButtons = 8;
     const int _buttonSize = 20;
     const int _buttonSizeHalf = _buttonSize/2;
+
+    const GLubyte red[4] = {255, 0, 0, 255};
+    const GLubyte green[4] = {0, 255, 0, 255};
+    const GLubyte blue[4] = {0, 0, 255, 255};
+    const GLubyte yellow[4] = {255, 255, 0, 255};
+    const GLubyte white[4] = {255, 255, 255, 255};
+    const GLubyte black[4] = {0, 0, 0, 255};
+
+    const GLubyte pointColor[4] = {5, 15, 160, 255};
+    const GLubyte boneStandardColor1[4] = {128, 128, 128, 255};
+    const GLubyte boneStandardColor2[4] = {180, 180, 180, 255};
+    const GLubyte boneHighlightedColor1[4] = {100, 200, 100, 255};
+    const GLubyte boneHighlightedColor2[4] = {160, 255, 160, 255};
 
 	DECLARE_EVENT_TABLE()
 };

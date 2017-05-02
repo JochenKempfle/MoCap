@@ -101,14 +101,14 @@ void GLImage::render() const
       glTexCoord2f(0.0f, 0.0f);
       glVertex2f(0.0f, 0.0f);
 
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex2f(_width, 0.0f);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex2f(0.0f, -_height);
 
       glTexCoord2f(1.0f, 1.0f);
       glVertex2f(_width, -_height);
 
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex2f(0.0f, -_height);
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex2f(_width, 0.0f);
     glEnd();
 
     glPopMatrix();

@@ -36,6 +36,7 @@ OF SUCH DAMAGE.
 #include <wx/dcbuffer.h>
 #include <wx/richtext/richtextbuffer.h>
 #include <algorithm>
+#include "ConstraintDialog.h"
 
 #ifndef WX_PRECOMP
 	//(*InternalHeadersPCH(TimelinePanel)
@@ -50,6 +51,7 @@ OF SUCH DAMAGE.
 const long TimelinePanel::ID_BUTTONCLEAR = wxNewId();
 const long TimelinePanel::ID_BUTTONREMOVE = wxNewId();
 const long TimelinePanel::ID_BUTTONCUT = wxNewId();
+const long TimelinePanel::ID_BUTTONDECOMPOSE = wxNewId();
 const long TimelinePanel::ID_TOGGLEBUTTONSTICKYENDS = wxNewId();
 const long TimelinePanel::ID_BUTTONZOOMIN = wxNewId();
 const long TimelinePanel::ID_BUTTONZOOMOUT = wxNewId();
@@ -62,6 +64,7 @@ END_EVENT_TABLE()
 
 TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
+    // important for double buffered paint dc
     SetBackgroundStyle(wxBG_STYLE_PAINT);
 	//(*Initialize(TimelinePanel)
 	wxBoxSizer* BoxSizer1;
@@ -77,6 +80,8 @@ TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,c
 	ButtonCut = new wxButton(this, ID_BUTTONCUT, _("Cut"), wxDefaultPosition, wxSize(-1,26), 0, wxDefaultValidator, _T("ID_BUTTONCUT"));
 	BoxSizer1->Add(ButtonCut, 0, wxALL|wxALIGN_TOP, 2);
 	BoxSizer1->Add(-1,-1,1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonDecompose = new wxButton(this, ID_BUTTONDECOMPOSE, _("Decompose"), wxDefaultPosition, wxSize(-1,26), 0, wxDefaultValidator, _T("ID_BUTTONDECOMPOSE"));
+	BoxSizer1->Add(ButtonDecompose, 0, wxALL|wxALIGN_TOP, 2);
 	ToggleButtonStickyEnds = new wxToggleButton(this, ID_TOGGLEBUTTONSTICKYENDS, _("Sticky Ends"), wxDefaultPosition, wxSize(-1,26), 0, wxDefaultValidator, _T("ID_TOGGLEBUTTONSTICKYENDS"));
 	ToggleButtonStickyEnds->SetValue(true);
 	BoxSizer1->Add(ToggleButtonStickyEnds, 0, wxALL|wxALIGN_TOP, 2);
@@ -91,6 +96,7 @@ TimelinePanel::TimelinePanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,c
 	Connect(ID_BUTTONCLEAR,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonClearClick);
 	Connect(ID_BUTTONREMOVE,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonRemoveClick);
 	Connect(ID_BUTTONCUT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonCutClick);
+	Connect(ID_BUTTONDECOMPOSE,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonDecomposeClick);
 	Connect(ID_TOGGLEBUTTONSTICKYENDS,wxEVT_COMMAND_TOGGLEBUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnToggleButtonStickyEndsToggle);
 	Connect(ID_BUTTONZOOMIN,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonZoomInClick);
 	Connect(ID_BUTTONZOOMOUT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&TimelinePanel::OnButtonZoomOutClick);
@@ -1754,6 +1760,31 @@ void TimelinePanel::OnButtonZoomOutClick(wxCommandEvent& event)
     }
 
     _ysPerTimeUnit = NewYsPerTimeUnit;
+    Refresh();
+}
+
+void TimelinePanel::OnButtonDecomposeClick(wxCommandEvent& event)
+{
+    ConstraintDialog dialog(this);
+    dialog.ShowModal();
+    if (_selectedTrack < 0)
+    {
+        return;
+    }
+    Timeline* timeline = theAnimationManager.getTimeline();
+    TimelineTrack* track = timeline->getTrack(_selectedTrack);
+    TimelineTrack trackTwist;
+    trackTwist.setFrameTime(track->getFrameTime());
+
+    for (size_t i = 0; i < track->getNumFrames(); ++i)
+    {
+        Quaternion quat = track->getFrame(i).getOrientation();
+        Quaternion swing, twist;
+        quat.decomposeSwingTwist(Vector3(1.0f, 0.0f, 0.0f), &swing, &twist);
+        track->setFrame(i, MotionSequenceFrame(swing));
+        trackTwist.appendFrame(MotionSequenceFrame(twist));
+    }
+    timeline->insert(trackTwist, track->getChannel() + 1, track->getStartTime());
     Refresh();
 }
 

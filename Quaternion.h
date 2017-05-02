@@ -87,6 +87,9 @@ class Quaternion
     // construct a Quaternion from shortest angle between to vectors
     Quaternion(const Vector3 &from, const Vector3 &to);
 
+    // construct a quaternion from the real part u and the imaginary vector part (x y z)
+    Quaternion(float realPart, const Vector3 vectorPart);
+
     /*!
      * \brief Constructor from Euler angles
      *
@@ -124,6 +127,10 @@ class Quaternion
 
     double dot(const Quaternion &other) const;
     float getShortestAngleTo(const Quaternion &other) const;
+
+    Vector3 getImag() const;
+    Vector3 getRotationAxis() const;
+    float getRotationAngle() const;
 
     Quaternion lerp(const Quaternion &other, float t) const;
     Quaternion slerp(const Quaternion &other, double t) const;

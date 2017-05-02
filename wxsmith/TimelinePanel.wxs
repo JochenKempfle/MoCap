@@ -53,6 +53,15 @@
 				<option>1</option>
 			</object>
 			<object class="sizeritem">
+				<object class="wxButton" name="ID_BUTTONDECOMPOSE" variable="ButtonDecompose" member="yes">
+					<label>Decompose</label>
+					<size>-1,26</size>
+					<handler function="OnButtonDecomposeClick" entry="EVT_BUTTON" />
+				</object>
+				<flag>wxALL|wxALIGN_TOP</flag>
+				<border>2</border>
+			</object>
+			<object class="sizeritem">
 				<object class="wxToggleButton" name="ID_TOGGLEBUTTONSTICKYENDS" variable="ToggleButtonStickyEnds" member="yes">
 					<label>Sticky Ends</label>
 					<checked>1</checked>

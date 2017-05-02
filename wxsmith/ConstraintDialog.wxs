@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxDialog" name="ConstraintDialog">
+		<id_arg>0</id_arg>
+		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
+			<orient>wxVERTICAL</orient>
+			<object class="sizeritem">
+				<object class="wxPanel" name="ID_PANEL1" variable="Panel1" member="yes">
+					<object class="wxBoxSizer" variable="BoxSizer5" member="no">
+						<orient>wxVERTICAL</orient>
+						<object class="sizeritem">
+							<object class="wxBoxSizer" variable="BoxSizer2" member="no">
+								<object class="sizeritem">
+									<object class="Custom" name="ID_GLCANVAS" subclass="GLCanvas" variable="glCanvas" member="yes">
+										<creating_code>$(THIS) = new $(CLASS)(static__cast&lt;wxWindow*&gt;($(PARENT)),$(ID),$(POS),$(SIZE),$(STYLE),$(NAME));</creating_code>
+										<include_file>GLCanvas.h</include_file>
+										<local_include>1</local_include>
+										<size>400,300</size>
+									</object>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+								</object>
+								<object class="sizeritem">
+									<object class="wxBoxSizer" variable="BoxSizer4" member="no">
+										<orient>wxVERTICAL</orient>
+										<object class="sizeritem">
+											<object class="wxButton" name="ID_BUTTON1" variable="Button1" member="yes">
+												<label>Label</label>
+											</object>
+											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<border>5</border>
+										</object>
+										<object class="sizeritem">
+											<object class="wxButton" name="ID_BUTTON2" variable="Button2" member="yes">
+												<label>Label</label>
+											</object>
+											<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+											<border>5</border>
+										</object>
+									</object>
+									<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+									<border>5</border>
+								</object>
+							</object>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+							<option>1</option>
+						</object>
+						<object class="sizeritem">
+							<object class="wxBoxSizer" variable="BoxSizer3" member="no">
+								<object class="sizeritem">
+									<object class="wxPanel" name="ID_PANELSETCONSTRAINT" variable="PanelSetConstraint" member="yes">
+										<size>723,363</size>
+										<style>wxSIMPLE_BORDER</style>
+										<handler function="OnPanelSetConstraintPaint" entry="EVT_PAINT" />
+										<handler function="OnPanelSetConstraintLeftDown" entry="EVT_LEFT_DOWN" />
+										<handler function="OnPanelSetConstraintLeftUp" entry="EVT_LEFT_UP" />
+										<handler function="OnPanelSetConstraintRightDown" entry="EVT_RIGHT_DOWN" />
+										<handler function="OnPanelSetConstraintMouseMove" entry="EVT_MOTION" />
+									</object>
+									<flag>wxALL|wxEXPAND</flag>
+									<border>5</border>
+									<option>1</option>
+								</object>
+							</object>
+							<flag>wxALL|wxEXPAND</flag>
+							<border>5</border>
+						</object>
+					</object>
+				</object>
+				<flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<border>5</border>
+				<option>1</option>
+			</object>
+		</object>
+	</object>
+</wxsmith>

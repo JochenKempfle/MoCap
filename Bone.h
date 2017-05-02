@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include "Quaternion.h"
 #include "Vector3.h"
+#include "JointConstraint.h"
 #include <vector>
 #include <string>
 
@@ -41,13 +42,13 @@ class Bone
     Bone();
     ~Bone();
 
-    int getId() const { return _id; }
+    inline int getId() const { return _id; }
 
-    void setName(std::string name) { _name = name; }
-    std::string getName() const { return _name; }
+    inline void setName(std::string name) { _name = name; }
+    inline std::string getName() const { return _name; }
 
-    void setLength(float length) { _length = length; }
-    float getLength() const { return _length; }
+    inline void setLength(float length) { _length = length; }
+    inline float getLength() const { return _length; }
     // TODO(JK#2#): make bone orientation dependent on relative default orientation, add new set***Orientation method
     void setAbsOrientation(const Quaternion &orientation);
     void setRelOrientation(const Quaternion &orientation);
@@ -63,27 +64,29 @@ class Bone
     void rotate(double roll, double pitch, double yaw);
 
 
-    void setStartPos(const Vector3 &pos) { _startPos = pos; }
-    void setStartPos(float x, float y, float z) { _startPos = Vector3(x, y, z); }
+    inline void setStartPos(const Vector3 &pos) { _startPos = pos; }
+    inline void setStartPos(float x, float y, float z) { _startPos = Vector3(x, y, z); }
+    inline void setEndPos(const Vector3 &pos) { _endPos = pos; }
 
-    void setEndPos(const Vector3 &pos) { _endPos = pos; }
+    inline Vector3 getStartPos() const { return _startPos; }
+    inline Vector3 getEndPos() const { return _endPos; }
+
+    inline void setJointConstraint(const JointConstraint &constraint) { _constraint = constraint; }
+    inline JointConstraint getJointConstraint() const { return _constraint; }
 
     bool reparent(Bone* parent, bool keepChildren = true);
 
     void setToDefault() { setRelOrientation(Quaternion()); }
 
-    Quaternion getChainedOrientation() const { return _chainedOrientation; }
-    Quaternion getAbsOrientation() const { return _chainedOrientation * _defaultOrientation; }
-    Quaternion getRelOrientation() const { return _relOrientation; }
-    Quaternion getDefaultOrientation() const { return _defaultOrientation; }
+    inline Quaternion getChainedOrientation() const { return _chainedOrientation; }
+    inline Quaternion getAbsOrientation() const { return _chainedOrientation * _defaultOrientation; }
+    inline Quaternion getRelOrientation() const { return _relOrientation; }
+    inline Quaternion getDefaultOrientation() const { return _defaultOrientation; }
 
-    Vector3 getStartPos() const { return _startPos; }
-    Vector3 getEndPos() const { return _endPos; }
-
-    Bone* getParent() { return _parent; }
-    int getParentId() const { return _parent == nullptr ? -1 : _parent->getId(); }
-    size_t getNumChildren() const { return _children.size(); }
-    std::vector<Bone*> getChildren() { return _children; }
+    inline Bone* getParent() { return _parent; }
+    inline int getParentId() const { return _parent == nullptr ? -1 : _parent->getId(); }
+    inline size_t getNumChildren() const { return _children.size(); }
+    inline std::vector<Bone*> getChildren() { return _children; }
     // Returns all direct and indirect children breadth first sorted
     std::vector<Bone*> getAllChildren();
     std::vector<Bone*> getAllChildrenDFS();
@@ -132,7 +135,11 @@ class Bone
 
     Vector3 _startPos;
     Vector3 _endPos;
+
     bool _useAbsOrientation;
+
+    JointConstraint _constraint;
+
     Bone* _parent;
     std::vector<Bone*> _children;
 };

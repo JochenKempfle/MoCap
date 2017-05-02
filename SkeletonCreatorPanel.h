@@ -160,6 +160,7 @@ class SkeletonCreatorPanel: public wxPanel
 		void OnTextCtrlPositionTextEnter(wxCommandEvent& event);
 		void OnglCanvasMouseMove(wxMouseEvent& event);
 		void OnglCanvasLeftUp(wxMouseEvent& event);
+		void OnButton1Click(wxCommandEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
 

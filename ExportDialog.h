@@ -34,7 +34,6 @@ OF SUCH DAMAGE.
 	//(*HeadersPCH(ExportDialog)
 	#include <wx/sizer.h>
 	#include <wx/stattext.h>
-	#include <wx/checkbox.h>
 	#include <wx/button.h>
 	#include <wx/dialog.h>
 	//*)
@@ -52,23 +51,29 @@ class ExportDialog: public wxDialog
 		ExportDialog(wxWindow* parent,wxWindowID id=wxID_ANY,const wxPoint& pos=wxDefaultPosition,const wxSize& size=wxDefaultSize);
 		virtual ~ExportDialog();
 
+		void setValues(uint64_t startMarkerTime, uint64_t endMarkerTime, uint64_t cursorTime, uint64_t endTime);
+		float getFrameTime() const;
+		uint64_t getStartTime() const;
+		uint64_t getEndTime() const;
+
+		wxString getPath() const { return FilePickerCtrlExport->GetPath(); }
+
 		//(*Declarations(ExportDialog)
+		wxSpinCtrl* SpinCtrlStartTimeMS;
 		wxButton* ButtonEndTimeMarker;
-		wxSpinCtrl* SpinCtrl4;
 		wxButton* ButtonEndTimeDefault;
 		wxButton* ButtonStartTimeCursor;
-		wxSpinCtrl* SpinCtrl1;
 		wxStaticText* StaticText2;
-		wxCheckBox* CheckBoxInterpolate;
+		wxSpinCtrl* SpinCtrlStartTimeSec;
 		wxStaticText* StaticText1;
 		wxStaticText* StaticText3;
 		wxButton* ButtonStartTimeDefault;
 		wxButton* ButtonCancel;
 		wxFilePickerCtrl* FilePickerCtrlExport;
-		wxSpinCtrl* SpinCtrl3;
+		wxSpinCtrl* SpinCtrlEndTimeMS;
+		wxSpinCtrl* SpinCtrlEndTimeSec;
 		wxButton* ButtonEndTimeCursor;
 		wxStaticLine* StaticLine1;
-		wxSpinCtrl* SpinCtrl2;
 		wxButton* ButtonOk;
 		wxButton* ButtonStartTimeMarker;
 		wxSpinCtrl* SpinCtrlFrameTime;
@@ -77,22 +82,21 @@ class ExportDialog: public wxDialog
 	protected:
 
 		//(*Identifiers(ExportDialog)
-		static const long ID_SPINCTRL1;
+		static const long ID_SPINCTRLSTARTTIMESEC;
 		static const long ID_STATICTEXT1;
-		static const long ID_SPINCTRL3;
+		static const long ID_SPINCTRLSTARTTIMEMS;
 		static const long ID_BUTTONSTARTTIMECURSOR;
 		static const long ID_BUTTONSTARTTIMEMARKER;
 		static const long ID_BUTTONSTARTTIMEDEFAULT;
-		static const long ID_SPINCTRL2;
+		static const long ID_SPINCTRLENDTIMESEC;
 		static const long ID_STATICTEXT2;
-		static const long ID_SPINCTRL4;
+		static const long ID_SPINCTRLENDTIMEMS;
 		static const long ID_BUTTONENDTIMECURSOR;
 		static const long ID_BUTTONENDTIMEMARKER;
 		static const long ID_BUTTONENDTIMEDEFAULT;
 		static const long ID_STATICLINE1;
 		static const long ID_STATICTEXT3;
 		static const long ID_SPINCTRLFRAMETIME;
-		static const long ID_CHECKBOXINTERPOLATE;
 		static const long ID_FILEPICKERCTRLEXPORT;
 		static const long ID_BUTTONOK;
 		static const long ID_BUTTONCANCEL;
@@ -103,12 +107,18 @@ class ExportDialog: public wxDialog
 		//(*Handlers(ExportDialog)
 		void OnButtonOkClick(wxCommandEvent& event);
 		void OnButtonCancelClick(wxCommandEvent& event);
+		void OnButtonStartTimeCursorClick(wxCommandEvent& event);
+		void OnButtonStartTimeMarkerClick(wxCommandEvent& event);
+		void OnButtonStartTimeDefaultClick(wxCommandEvent& event);
+		void OnButtonEndTimeCursorClick(wxCommandEvent& event);
+		void OnButtonEndTimeMarkerClick(wxCommandEvent& event);
+		void OnButtonEndTimeDefaultClick(wxCommandEvent& event);
 		//*)
 
+		uint64_t _startMarkerTime;
+		uint64_t _endMarkerTime;
 		uint64_t _cursorTime;
-		uint64_t _startTime;
 		uint64_t _endTime;
-
 
 		DECLARE_EVENT_TABLE()
 };

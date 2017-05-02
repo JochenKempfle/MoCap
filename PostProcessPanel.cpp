@@ -347,22 +347,22 @@ void PostProcessPanel::OnButtonExportClick(wxCommandEvent& event)
 {
     // show the export dialog
     ExportDialog* exportDialog = new ExportDialog(this);
+    exportDialog->setValues(timelinePanel->getStartMarkerTime(), timelinePanel->getEndMarkerTime(), timelinePanel->getCursorPosition(), timelinePanel->getEndTime());
     exportDialog->ShowModal();
-    delete exportDialog;
-    wxFileDialog* fileDialog = new wxFileDialog(this, _("Export bvh file"), _(""), _(""), _("motion files|*.bvh;*.htr|bvh files (*.bvh)|*.bvh|htr files (*.htr)|*.htr"), wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-    if (fileDialog->ShowModal() == wxID_CANCEL)
+    if (exportDialog->ShowModal() == wxID_CANCEL)
     {
-        fileDialog->Destroy();
+        exportDialog->Destroy();
         return;
     }
     SetCursor(wxCURSOR_ARROWWAIT);
-    // TODO(JK#2#): prompt the user for frame time when exporting a sequence
+
     MotionSequence* sequence = new MotionSequence();
-    theAnimationManager.getTimeline()->createMotionSequence(sequence, 0.04f);
+    // create the motion sequence
+    theAnimationManager.getTimeline()->createMotionSequence(sequence, exportDialog->getFrameTime());
 
-    FileHandler::write(fileDialog->GetPath(), sequence);
+    FileHandler::write(exportDialog->getPath(), sequence);
 
-    fileDialog->Destroy();
+    exportDialog->Destroy();
     delete sequence;
     sequence = nullptr;
 

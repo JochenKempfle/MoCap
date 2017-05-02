@@ -32,6 +32,7 @@ OF SUCH DAMAGE.
 
 #include <vector>
 #include "TimelineTrack.h"
+#include "AnimationManager.h"
 #include "GLCanvas.h"
 
 #ifndef WX_PRECOMP
@@ -59,6 +60,7 @@ class TimelinePanel: public wxPanel
 		wxToggleButton* ToggleButtonStickyEnds;
 		wxButton* ButtonClear;
 		wxButton* ButtonCut;
+		wxButton* ButtonDecompose;
 		//*)
 
 		// TODO(JK#8#2017-02-24): Maybe add moveToCursor/navigation (front, back) function in timeline panel
@@ -67,7 +69,11 @@ class TimelinePanel: public wxPanel
 		void prepareAddingFrame(const MotionSequenceFrame &frame, float frameTime);
 
 		void setCursorPosition(uint64_t time);
-		int getCursorPosition() const { return _cursorPosition; }
+		uint64_t getCursorPosition() const { return _cursorPosition; }
+
+		uint64_t getStartMarkerTime() const { return _startMarkerTime; }
+		uint64_t getEndMarkerTime() const { return _endMarkerTime; }
+		uint64_t getEndTime() const { return theAnimationManager.getTimeline()->getMaxTime(); }
 
 		void update();
 
@@ -80,6 +86,7 @@ class TimelinePanel: public wxPanel
 		static const long ID_BUTTONCLEAR;
 		static const long ID_BUTTONREMOVE;
 		static const long ID_BUTTONCUT;
+		static const long ID_BUTTONDECOMPOSE;
 		static const long ID_TOGGLEBUTTONSTICKYENDS;
 		static const long ID_BUTTONZOOMIN;
 		static const long ID_BUTTONZOOMOUT;
@@ -104,6 +111,7 @@ class TimelinePanel: public wxPanel
 		void OnToggleButtonStickyEndsToggle(wxCommandEvent& event);
 		void OnButtonClearClick(wxCommandEvent& event);
 		void OnButtonRemoveClick(wxCommandEvent& event);
+		void OnButtonDecomposeClick(wxCommandEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
         void OnPopupBonesClick(wxCommandEvent& event);

@@ -84,6 +84,8 @@ class TimelineTrack
     MotionSequenceFrame getFrameFromRelTime(uint64_t time, bool weighted = false) const;
     MotionSequenceFrame getFrame(unsigned int pos, bool weighted = false) const;
 
+    void setFrame(unsigned int pos, const MotionSequenceFrame &frame);
+
     MotionSequenceFrame getFirstFrame(bool weighted = false) const;
     MotionSequenceFrame getLastFrame(bool weighted = false) const;
 

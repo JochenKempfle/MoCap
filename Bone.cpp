@@ -33,12 +33,20 @@ Bone::Bone() : _id(-1)
 {
     _parent = nullptr;
     _useAbsOrientation = false;
+	_constraint.addConstraint(0, 90);
+	_constraint.addConstraint(90, 90);
+	_constraint.addConstraint(180, 90);
+	_constraint.addConstraint(270, 90);
 }
 
 Bone::Bone(int id) : _id(id)
 {
     _parent = nullptr;
     _useAbsOrientation = false;
+	_constraint.addConstraint(0, 90);
+	_constraint.addConstraint(90, 90);
+	_constraint.addConstraint(180, 90);
+	_constraint.addConstraint(270, 90);
 }
 
 Bone::Bone(int id, const Bone &other) : _id(id)
@@ -52,6 +60,7 @@ Bone::Bone(int id, const Bone &other) : _id(id)
     _endPos = other._endPos;
     _useAbsOrientation = other._useAbsOrientation;
     _parent = nullptr;
+    _constraint = other._constraint;
 }
 
 Bone::~Bone()

@@ -14,10 +14,10 @@
 							<object class="sizeritem">
 								<object class="wxBoxSizer" variable="BoxSizer6" member="no">
 									<object class="sizeritem">
-										<object class="wxSpinCtrl" name="ID_SPINCTRL1" variable="SpinCtrl1" member="yes">
+										<object class="wxSpinCtrl" name="ID_SPINCTRLSTARTTIMESEC" variable="SpinCtrlStartTimeSec" member="yes">
 											<value>0</value>
 											<max>100000</max>
-											<style>wxSP_ARROW_KEYS</style>
+											<style>wxSP_ARROW_KEYS|wxTAB_TRAVERSAL</style>
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -30,10 +30,10 @@
 										<border>5</border>
 									</object>
 									<object class="sizeritem">
-										<object class="wxSpinCtrl" name="ID_SPINCTRL3" variable="SpinCtrl3" member="yes">
+										<object class="wxSpinCtrl" name="ID_SPINCTRLSTARTTIMEMS" variable="SpinCtrlStartTimeMS" member="yes">
 											<value>0</value>
 											<max>999</max>
-											<style>wxSP_ARROW_KEYS</style>
+											<style>wxSP_ARROW_KEYS|wxTAB_TRAVERSAL</style>
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -48,6 +48,7 @@
 									<object class="sizeritem">
 										<object class="wxButton" name="ID_BUTTONSTARTTIMECURSOR" variable="ButtonStartTimeCursor" member="yes">
 											<label>Cursor</label>
+											<handler function="OnButtonStartTimeCursorClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -55,6 +56,7 @@
 									<object class="sizeritem">
 										<object class="wxButton" name="ID_BUTTONSTARTTIMEMARKER" variable="ButtonStartTimeMarker" member="yes">
 											<label>Start Marker</label>
+											<handler function="OnButtonStartTimeMarkerClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -63,6 +65,7 @@
 									<object class="sizeritem">
 										<object class="wxButton" name="ID_BUTTONSTARTTIMEDEFAULT" variable="ButtonStartTimeDefault" member="yes">
 											<label> Default</label>
+											<handler function="OnButtonStartTimeDefaultClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -84,10 +87,10 @@
 							<object class="sizeritem">
 								<object class="wxBoxSizer" variable="BoxSizer9" member="no">
 									<object class="sizeritem">
-										<object class="wxSpinCtrl" name="ID_SPINCTRL2" variable="SpinCtrl2" member="yes">
+										<object class="wxSpinCtrl" name="ID_SPINCTRLENDTIMESEC" variable="SpinCtrlEndTimeSec" member="yes">
 											<value>0</value>
 											<max>100000</max>
-											<style>wxSP_ARROW_KEYS</style>
+											<style>wxSP_ARROW_KEYS|wxTAB_TRAVERSAL</style>
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -100,10 +103,10 @@
 										<border>5</border>
 									</object>
 									<object class="sizeritem">
-										<object class="wxSpinCtrl" name="ID_SPINCTRL4" variable="SpinCtrl4" member="yes">
+										<object class="wxSpinCtrl" name="ID_SPINCTRLENDTIMEMS" variable="SpinCtrlEndTimeMS" member="yes">
 											<value>0</value>
 											<max>999</max>
-											<style>wxSP_ARROW_KEYS</style>
+											<style>wxSP_ARROW_KEYS|wxTAB_TRAVERSAL</style>
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -118,6 +121,7 @@
 									<object class="sizeritem">
 										<object class="wxButton" name="ID_BUTTONENDTIMECURSOR" variable="ButtonEndTimeCursor" member="yes">
 											<label>Cursor</label>
+											<handler function="OnButtonEndTimeCursorClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -125,6 +129,7 @@
 									<object class="sizeritem">
 										<object class="wxButton" name="ID_BUTTONENDTIMEMARKER" variable="ButtonEndTimeMarker" member="yes">
 											<label>End Marker</label>
+											<handler function="OnButtonEndTimeMarkerClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -132,6 +137,7 @@
 									<object class="sizeritem">
 										<object class="wxButton" name="ID_BUTTONENDTIMEDEFAULT" variable="ButtonEndTimeDefault" member="yes">
 											<label>Default</label>
+											<handler function="OnButtonEndTimeDefaultClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -187,19 +193,14 @@
 								<flag>wxALL|wxALIGN_LEFT</flag>
 								<border>5</border>
 							</object>
-							<object class="sizeritem">
-								<object class="wxCheckBox" name="ID_CHECKBOXINTERPOLATE" variable="CheckBoxInterpolate" member="yes">
-									<label>Interpolate Frames</label>
-								</object>
-								<flag>wxALL|wxALIGN_LEFT</flag>
-								<border>5</border>
-							</object>
 						</object>
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 						<border>5</border>
 					</object>
 					<object class="sizeritem">
 						<object class="wxFilePickerCtrl" name="ID_FILEPICKERCTRLEXPORT" variable="FilePickerCtrlExport" member="yes">
+							<message></message>
+							<wildcard></wildcard>
 							<style>wxFLP_OVERWRITE_PROMPT|wxFLP_SAVE|wxFLP_USE_TEXTCTRL</style>
 						</object>
 						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>

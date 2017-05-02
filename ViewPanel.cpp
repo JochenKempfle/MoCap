@@ -30,6 +30,7 @@ OF SUCH DAMAGE.
 #include "wx_pch.h"
 #include <gl/glu.h>
 #include "ViewPanel.h"
+#include "MoCapMain.h"
 #include "SensorDataPanel.h"
 #include "SensorManager.h"
 #include "MoCapManager.h"
@@ -201,6 +202,11 @@ SensorDataPanel* ViewPanel::addSensor(int id)
 
 void ViewPanel::OnButtonSimulateClick(wxCommandEvent& event)
 {
+    if (!static_cast<MoCapFrame*>(GetParent())->isConnected())
+    {
+        wxMessageBox(_("Currently there is no connection to the sensors!\nEnsure you have established a connection, otherwise restart the connection."), _("Warning!"), wxICON_EXCLAMATION);
+        return;
+    }
     Freeze();
     ButtonSimulate->Hide();
     ButtonCalibrate->Hide();
@@ -215,7 +221,11 @@ void ViewPanel::OnButtonSimulateClick(wxCommandEvent& event)
 
 void ViewPanel::OnButtonRecordClick(wxCommandEvent& event)
 {
-    // TODO(JK#2#): check if connected before starting recording!
+    if (!static_cast<MoCapFrame*>(GetParent())->isConnected())
+    {
+        wxMessageBox(_("Currently there is no connection to the sensors!\nEnsure you have established a connection, otherwise restart the connection."), _("Warning!"), wxICON_EXCLAMATION);
+        return;
+    }
     FilterDialog* dialog = new FilterDialog(this);
     dialog->setFilter(theMoCapManager.getFilters(), theMoCapManager.getSelectedFilter());
     if (dialog->ShowModal() != wxID_OK)
@@ -280,7 +290,12 @@ void ViewPanel::OnButtonStopClick(wxCommandEvent& event)
 
 void ViewPanel::OnButtonAutoAssignClick(wxCommandEvent& event)
 {
-    // TODO(JK#3#): check if connected, otherwise this will cause problems, also notice the user that auto assign is in progress
+    if (!static_cast<MoCapFrame*>(GetParent())->isConnected())
+    {
+        wxMessageBox(_("Currently there is no connection to the sensors!\nEnsure you have established a connection, otherwise restart the connection."), _("Warning!"), wxICON_EXCLAMATION);
+        return;
+    }
+    // TODO(JK#3#): Notice the user that auto assign is in progress and have a timeout for it
     auto bones = theMoCapManager.getBoneIdsWithName();
     wxMenu menu;
     menu.Append(-1, _("no bone"));

@@ -78,13 +78,16 @@ GLCanvas::GLCanvas(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wx
     _lClicked = false;
     _rClicked = false;
     _skeleton = nullptr;
+    _constraint = nullptr;
     _style = STANDARD;
 	SetFocus();
 	// _image.loadImage(_("C:/Users/Jochen/Desktop/Katana.png"));
+	_sphereQuad = gluNewQuadric();
 }
 
 GLCanvas::~GLCanvas()
 {
+    gluDeleteQuadric(_sphereQuad);
     delete _GLRC;
 }
 
@@ -105,6 +108,10 @@ void GLCanvas::OnPaint(wxPaintEvent &event)
 	if (_style & SINGLE_SENSOR_MODE)
     {
         renderSingleSensor();
+    }
+    else if (_style & SINGLE_JOINT_MODE)
+    {
+        renderSingleJoint();
     }
     else
     {
@@ -181,14 +188,29 @@ void GLCanvas::OnLeftDown(wxMouseEvent &event)
                 break;
 
             case 3:
-                _style = _style & DRAW_LABEL ? _style & ~DRAW_LABEL : _style | DRAW_LABEL;
+                _style = _style & DRAW_JOINT_CONSTRAINTS ? _style & ~DRAW_JOINT_CONSTRAINTS : _style | DRAW_JOINT_CONSTRAINTS;
                 break;
 
             case 4:
-                _cameraPosition = _skeleton->getPosition() - 2*_cameraFront;
+                _style = _style & DRAW_ROTATION_AXIS ? _style & ~DRAW_ROTATION_AXIS : _style | DRAW_ROTATION_AXIS;
                 break;
 
             case 5:
+                _style = _style & DRAW_LABEL ? _style & ~DRAW_LABEL : _style | DRAW_LABEL;
+                break;
+
+            case 6:
+                if (_skeleton != nullptr)
+                {
+                    _cameraPosition = _skeleton->getPosition() - 3.0f*_cameraFront;
+                }
+                else
+                {
+                    _cameraPosition = Vector3(0.0f, 1.0f, 3.0f);
+                }
+                break;
+
+            case 7:
                 wxMessageBox(_("not yet implemented!"), _("Error"), wxICON_ERROR);
                 break;
 
@@ -271,14 +293,22 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
                 break;
 
             case 3:
-                tooltip = _("Show label");
+                tooltip = _("Show joint constraints");
                 break;
 
             case 4:
-                tooltip = _("Move to skeleton");
+                tooltip = _("Show rotation axis");
                 break;
 
             case 5:
+                tooltip = _("Show label");
+                break;
+
+            case 6:
+                tooltip = _("Move to skeleton");
+                break;
+
+            case 7:
                 tooltip = _("Settings");
                 break;
 
@@ -299,6 +329,7 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
     {
         UnsetToolTip();
     }
+
     if (_style & SINGLE_SENSOR_MODE)
     {
         return;
@@ -382,6 +413,7 @@ void GLCanvas::renderSkeleton() const
 
     for (auto it = _skeleton->beginBones(); it != _skeleton->endBones(); ++it)
     {
+        glPushMatrix();
         Bone bone = *(it->second);
 
         int boneId = bone.getId();
@@ -391,17 +423,6 @@ void GLCanvas::renderSkeleton() const
         {
             continue;
         }
-
-        GLubyte red[4] = {255, 0, 0, 255};
-        GLubyte green[4] = {0, 255, 0, 255};
-        GLubyte blue[4] = {0, 0, 255, 255};
-        GLubyte black[4] = {0, 0, 0, 255};
-
-        GLubyte pointColor[4] = {5, 15, 160, 255};
-        GLubyte boneStandardColor1[4] = {128, 128, 128, 255};
-        GLubyte boneStandardColor2[4] = {180, 180, 180, 255};
-        GLubyte boneHighlightedColor1[4] = {100, 200, 100, 255};
-        GLubyte boneHighlightedColor2[4] = {160, 255, 160, 255};
 
         // get the bone id as color for SELECTION_MODE
         GLubyte boneIdColor[4] = {GLubyte((boneId >> 8) & 255), GLubyte((boneId >> 8) & 255), GLubyte(boneId & 255), 255};
@@ -421,7 +442,8 @@ void GLCanvas::renderSkeleton() const
         }
 
         Vector3 startPos = bone.getStartPos();
-        Vector3 endPos = bone.getEndPos();
+
+        glTranslatef(startPos.x(), startPos.y(), startPos.z());
 
         float length = bone.getLength();
 
@@ -429,10 +451,17 @@ void GLCanvas::renderSkeleton() const
         Vector3 up = bone.getUpDirection();
         Vector3 right = bone.getRightDirection();
 
-        Vector3 upPoint = startPos + up*length*0.1 + dir*length*0.1;
-        Vector3 downPoint = startPos - up*length*0.1 + dir*length*0.1;
-        Vector3 rightPoint = startPos + right*length*0.1 + dir*length*0.1;
-        Vector3 leftPoint = startPos - right*length*0.1 + dir*length*0.1;
+        Vector3 endPos = dir*length;
+
+        startPos = Vector3(0, 0, 0);
+
+        float length_10 = length * 0.1f;
+        Vector3 endPos_10 = endPos * 0.1f;
+
+        Vector3 upPoint = up*length_10 + endPos_10;
+        Vector3 downPoint = - up*length_10 + endPos_10;
+        Vector3 rightPoint = right*length_10 + endPos_10;
+        Vector3 leftPoint = - right*length_10 + endPos_10;
 
         if (!(_style & SELECTION_MODE))
         {
@@ -451,33 +480,45 @@ void GLCanvas::renderSkeleton() const
         {
             glBegin(GL_LINES);
                 glColor4ubv(red);
-                // glVertex3f(startPos.x(), startPos.y(), startPos.z());
+
                 glVertex3f(endPos.x(), endPos.y(), endPos.z());
-                glVertex3f(endPos.x() + dir.x()*0.1, endPos.y() + dir.y()*0.1, endPos.z() + dir.z()*0.1);
+                glVertex3f(endPos.x() + dir.x()*0.1f, endPos.y() + dir.y()*0.1f, endPos.z() + dir.z()*0.1f);
 
                 glColor4ubv(green);
 
                 glVertex3f(endPos.x(), endPos.y(), endPos.z());
-                glVertex3f(endPos.x() + up.x()*0.1, endPos.y() + up.y()*0.1, endPos.z() + up.z()*0.1);
+                glVertex3f(endPos.x() + up.x()*0.1f, endPos.y() + up.y()*0.1f, endPos.z() + up.z()*0.1f);
 
                 glColor4ubv(blue);
 
                 glVertex3f(endPos.x(), endPos.y(), endPos.z());
-                glVertex3f(endPos.x() + right.x()*0.1, endPos.y() + right.y()*0.1, endPos.z() + right.z()*0.1);
+                glVertex3f(endPos.x() + right.x()*0.1f, endPos.y() + right.y()*0.1f, endPos.z() + right.z()*0.1f);
+            glEnd();
+        }
+
+        if (_style & DRAW_ROTATION_AXIS)
+        {
+            Vector3 rotAxis = bone.getRelOrientation().getRotationAxis();
+
+            glBegin(GL_LINES);
+                glColor4ubv(yellow);
+
+                glVertex3f(- rotAxis.x()*0.2f, - rotAxis.y()*0.2f, - rotAxis.z()*0.2f);
+                glVertex3f(rotAxis.x()*0.2f, rotAxis.y()*0.2f, rotAxis.z()*0.2f);
             glEnd();
         }
 
         // draw bone
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glPolygonMode(GL_FRONT, GL_FILL);
 
         glColor4ubv(boneColor1);
 
         glBegin(GL_TRIANGLE_FAN);
-            glVertex3f(startPos.x(), startPos.y(), startPos.z());
+            glVertex3f(0.0f, 0.0f, 0.0f);
             glVertex3f(upPoint.x(), upPoint.y(), upPoint.z());
-            glVertex3f(rightPoint.x(), rightPoint.y(), rightPoint.z());
-            glVertex3f(downPoint.x(), downPoint.y(), downPoint.z());
             glVertex3f(leftPoint.x(), leftPoint.y(), leftPoint.z());
+            glVertex3f(downPoint.x(), downPoint.y(), downPoint.z());
+            glVertex3f(rightPoint.x(), rightPoint.y(), rightPoint.z());
             glVertex3f(upPoint.x(), upPoint.y(), upPoint.z());
         glEnd();
 
@@ -500,11 +541,11 @@ void GLCanvas::renderSkeleton() const
             glColor4ubv(black);
 
             glBegin(GL_TRIANGLE_FAN);
-                glVertex3f(startPos.x(), startPos.y(), startPos.z());
+                glVertex3f(0.0f, 0.0f, 0.0f);
                 glVertex3f(upPoint.x(), upPoint.y(), upPoint.z());
-                glVertex3f(rightPoint.x(), rightPoint.y(), rightPoint.z());
-                glVertex3f(downPoint.x(), downPoint.y(), downPoint.z());
                 glVertex3f(leftPoint.x(), leftPoint.y(), leftPoint.z());
+                glVertex3f(downPoint.x(), downPoint.y(), downPoint.z());
+                glVertex3f(rightPoint.x(), rightPoint.y(), rightPoint.z());
                 glVertex3f(upPoint.x(), upPoint.y(), upPoint.z());
             glEnd();
 
@@ -522,7 +563,7 @@ void GLCanvas::renderSkeleton() const
             {
                 // glDisable(GL_DEPTH_TEST);
                 GLImage* image = _labels.find(boneId)->second;
-                image->setPosition(startPos + 0.5f * bone.getLength() * dir - 0.06f * bone.getLength() * _cameraFront);
+                image->setPosition(0.5f * bone.getLength() * dir - 0.06f * bone.getLength() * _cameraFront);
                 image->render();
                 // glEnable(GL_DEPTH_TEST);
             }
@@ -532,6 +573,31 @@ void GLCanvas::renderSkeleton() const
         {
             drawSpinArrows(endPos - 0.2 * bone.getLength() * dir, dir, up, right);
         }
+        glPopMatrix();
+    }
+
+    // draw joints (after everything else, as they are transparent and need everything else be rendered)
+    if (_style & DRAW_JOINT_CONSTRAINTS)
+    {
+        for (auto it = _skeleton->beginBones(); it != _skeleton->endBones(); ++it)
+        {
+            glPushMatrix();
+            Bone bone = *(it->second);
+
+            Vector3 startPos = bone.getStartPos();
+            glTranslatef(startPos.x(), startPos.y(), startPos.z());
+
+            JointConstraint constraint = bone.getJointConstraint();
+
+            drawJoint(constraint);
+
+            glPopMatrix();
+        }
+    }
+
+    if (!(_style & SELECTION_MODE) && _style & DRAW_AABB)
+    {
+        drawAABB(_skeleton->getAABB());
     }
 }
 
@@ -862,6 +928,34 @@ void GLCanvas::renderSingleSensor() const
     glLineWidth(1.0f);
 }
 
+
+void GLCanvas::renderSingleJoint() const
+{
+    Vector3 lookAt = _cameraPosition + _cameraFront;
+    gluLookAt(_cameraPosition.x(), _cameraPosition.y(), _cameraPosition.z(),
+              lookAt.x()         , lookAt.y()         , lookAt.z(),
+              _cameraUp.x()      , _cameraUp.y()      , _cameraUp.z());
+
+    glBegin(GL_LINES);
+        glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(1.0f, 0.0f, 0.0f);
+
+        glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, 1.0f, 0.0f);
+
+        glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, 0.0f, 1.0f);
+    glEnd();
+
+    if (_constraint != nullptr)
+    {
+        drawJoint(*_constraint, 1.0f);
+    }
+}
+
 // Initialization of all OpenGL specific parameters.
 void GLCanvas::InitGL()
 {
@@ -871,6 +965,7 @@ void GLCanvas::InitGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_BLEND);
+    glEnable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glShadeModel(GL_SMOOTH);
 }
@@ -923,6 +1018,12 @@ void GLCanvas::setSkeleton(Skeleton* skeleton)
     }
     _labels.clear();
 
+    if (_skeleton == nullptr)
+    {
+        return;
+    }
+
+    // create labels
     wxMemoryDC dc;
     dc.SetPen(*wxWHITE_PEN);
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
@@ -956,12 +1057,12 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
 
     wxSize buttonSize(_buttonSize, _buttonSize);
 
-    wxPen pen;
+    wxPen whitePen(wxColour(255, 255, 255));
+    wxPen blackPen(wxColour(0, 0, 0));
+    wxPen greenPen(wxColour(0, 255, 0));
     wxBrush brush;
 
-    pen.SetColour(wxColour(0, 0, 0));
-    pen.SetWidth(1);
-	dc.SetPen(pen);
+	dc.SetPen(blackPen);
 
     brush.SetColour(wxColour(0, 0, 0));
 	dc.SetBrush(brush);
@@ -969,10 +1070,16 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
 	// draw black background behind all buttons
 	dc.DrawRectangle(pos.x, pos.y, _buttonSize, _numButtons * _buttonSize);
 
-    pen.SetColour(wxColour(255, 255, 255));
-	dc.SetPen(pen);
-
 	// draw grit
+	if (_style & DRAW_GRID)
+    {
+        dc.SetPen(greenPen);
+    }
+    else
+    {
+        dc.SetPen(whitePen);
+    }
+
 	dc.DrawRectangle(pos.x + 1, pos.y + 1, _buttonSize - 2, _buttonSize - 2);
 
 	dc.DrawLine(pos.x + _buttonSizeHalf, pos.y + 1, pos.x + _buttonSizeHalf, pos.y + _buttonSize - 1);
@@ -981,6 +1088,15 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
 	pos.y += _buttonSize;
 
 	// draw a cube for showing AABB
+	if (_style & DRAW_AABB)
+    {
+        dc.SetPen(greenPen);
+    }
+    else
+    {
+        dc.SetPen(whitePen);
+    }
+
 	dc.DrawRectangle(pos.x + _buttonSizeHalf - 3, pos.y + 3, _buttonSizeHalf, _buttonSizeHalf);
 	dc.DrawRectangle(pos.x + 2, pos.y + _buttonSizeHalf - 2, _buttonSizeHalf, _buttonSizeHalf);
 
@@ -991,6 +1107,15 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
 	pos.y += _buttonSize;
 
 	// draw coordinate system
+	if (_style & DRAW_LOCAL_COORDINATE_SYSTEM)
+    {
+        dc.SetPen(greenPen);
+    }
+    else
+    {
+        dc.SetPen(whitePen);
+    }
+
 	dc.DrawLine(pos.x + 2, pos.y + 3, pos.x + 2, pos.y + _buttonSize - 2);
 	dc.DrawLine(pos.x + 2, pos.y + _buttonSize - 2, size.x - 3, pos.y + _buttonSize - 2);
 
@@ -998,13 +1123,60 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
 
 	pos.y += _buttonSize;
 
+	// draw joint constraints
+	if (_style & DRAW_JOINT_CONSTRAINTS)
+    {
+        dc.SetPen(greenPen);
+    }
+    else
+    {
+        dc.SetPen(whitePen);
+    }
+	//dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf, _buttonSizeHalf - 3);
+    //dc.DrawArc(pos.x + 4, pos.y + 5, pos.x + 4, pos.y + _buttonSize - 5, pos.x + _buttonSizeHalf + 2, pos.y + _buttonSizeHalf);
+	//dc.DrawCircle(pos.x + 6, pos.y + _buttonSizeHalf, 3);
+	dc.DrawEllipse(pos.x + 4, pos.y + 3, _buttonSizeHalf - 5, _buttonSizeHalf + 4);
+	dc.DrawLine(pos.x + 8, pos.y + 3, pos.x + _buttonSizeHalf + 5, pos.y + _buttonSizeHalf);
+	dc.DrawLine(pos.x + 8, pos.y + _buttonSizeHalf + 7, pos.x + _buttonSizeHalf + 5, pos.y + _buttonSizeHalf);
+
+	pos.y += _buttonSize;
+
+	// draw rotation axis
+	if (_style & DRAW_ROTATION_AXIS)
+    {
+        dc.SetPen(greenPen);
+    }
+    else
+    {
+        dc.SetPen(whitePen);
+    }
+
+    dc.DrawArc(pos.x + _buttonSizeHalf + 2, pos.y + _buttonSize - 2, pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf + 1, pos.x + 2, pos.y + _buttonSize - 2);
+    //dc.DrawEllipse(pos.x + 6, pos.y + 5, _buttonSize - 12, _buttonSize - 10);
+    //dc.DrawCircle(pos.x + _buttonSizeHalf + 2, pos.y + _buttonSizeHalf - 2, 3);
+	dc.DrawLine(pos.x + 2, pos.y + _buttonSize - 2, pos.x + _buttonSize - 2, pos.y + 2);
+	dc.DrawLine(pos.x + 2, pos.y + _buttonSize - 2, pos.x + _buttonSize - 2, pos.y + _buttonSize - 2);
+
+	pos.y += _buttonSize;
+
 	// draw label
+	if (_style & DRAW_LABEL)
+    {
+        dc.SetPen(greenPen);
+    }
+    else
+    {
+        dc.SetPen(whitePen);
+    }
+
 	dc.DrawRoundedRectangle(pos.x + 4, pos.y + 3, _buttonSize - 5, _buttonSizeHalf, 3.0);
 	dc.DrawSpline(pos.x + 4, pos.y + _buttonSizeHalf - 3, pos.x + 1, pos.y + _buttonSizeHalf + 4, pos.x + _buttonSizeHalf + 4, pos.y + _buttonSizeHalf + 6);
 
 	pos.y += _buttonSize;
 
 	// draw locate skeleton button
+    dc.SetPen(whitePen);
+
 	dc.DrawLine(pos.x + _buttonSizeHalf, pos.y + 2, pos.x + _buttonSizeHalf, pos.y + _buttonSize - 1);
 	dc.DrawLine(pos.x + 2, pos.y + _buttonSizeHalf, size.x - 1, pos.y + _buttonSizeHalf);
 
@@ -1019,8 +1191,7 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
 	// draw settings button
 	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf, _buttonSizeHalf - 3);
 
-    pen.SetColour(wxColour(0, 0, 0));
-	dc.SetPen(pen);
+	dc.SetPen(blackPen);
 
 	brush.SetColour(wxColour(0, 0, 0));
 	dc.SetBrush(brush);
@@ -1031,8 +1202,7 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
 	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf + 6, 2);
 	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf - 6, 2);
 
-    pen.SetColour(wxColour(255, 255, 255));
-	dc.SetPen(pen);
+	dc.SetPen(whitePen);
 
 	dc.DrawCircle(pos.x + _buttonSizeHalf, pos.y + _buttonSizeHalf, _buttonSizeHalf - 7);
 }
@@ -1055,3 +1225,143 @@ void GLCanvas::drawGrid() const
         }
     glEnd();
 }
+
+void GLCanvas::drawJoint(const JointConstraint &constraint, float radius) const
+{
+    // auto points = constraint.getAxisAngleToAngleKeyPoints();
+    std::vector<Vector3> vectors = constraint.getKeyPointsInterpolated(radius, 2.0f);
+
+    glBegin(GL_LINE_LOOP);
+        glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+        for (size_t i = 0; i < vectors.size(); ++i)
+        {
+            glVertex3f(vectors[i].x(), vectors[i].y(), vectors[i].z());
+        }
+    glEnd();
+
+    vectors = constraint.getKeyPoints(radius);
+
+    glBegin(GL_LINE_LOOP);
+        glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+        for (size_t i = 0; i < vectors.size(); ++i)
+        {
+            glVertex3f(vectors[i].x(), vectors[i].y(), vectors[i].z());
+        }
+    glEnd();
+
+    glBegin(GL_LINE_LOOP);
+        glColor4f(1.0f, 0, 0, 1.0f);
+        for (size_t i = 0; i < 360; ++i)
+        {
+            float angle = constraint.getMaxAngleAt(i);
+            glVertex3f(float(i)/60.0f - 2, angle/60.0f + 1.5, 1.0f);
+        }
+    glEnd();
+
+    glRenderMode(GL_SMOOTH);
+    glPolygonMode(GL_FRONT, GL_FILL);
+    //glColor3f(0.5f, 0.5f, 0.5f);
+    glColor4f(0.5f, 0.5f, 0.5f, 0.5f);
+
+    gluSphere(_sphereQuad, radius, 10, 8);
+}
+
+void GLCanvas::drawAABB(const AABB &box) const
+{
+    float minX = box.minX();
+    float minY = box.minY();
+    float minZ = box.minZ();
+
+    float maxX = box.maxX();
+    float maxY = box.maxY();
+    float maxZ = box.maxZ();
+
+    /* Uncomment if always a real cube shall be displayed
+    const float delta = 0.002f;
+
+    if (std::abs(maxX - minX) < 2.0f*delta)
+    {
+        minX -= delta;
+        maxX += delta;
+    }
+    if (std::abs(maxY - minY) < delta)
+    {
+        minY -= delta;
+        maxY += delta;
+    }
+    if (std::abs(maxZ - minZ) < delta)
+    {
+        minZ -= delta;
+        maxZ += delta;
+    }
+    */
+
+    glColor4ubv(white);
+
+    glBegin(GL_LINES);
+        glVertex3f(minX, minY, minZ);
+        glVertex3f(maxX, minY, minZ);
+
+        glVertex3f(minX, minY, minZ);
+        glVertex3f(minX, maxY, minZ);
+
+        glVertex3f(minX, minY, minZ);
+        glVertex3f(minX, minY, maxZ);
+
+        glVertex3f(maxX, maxY, maxZ);
+        glVertex3f(minX, maxY, maxZ);
+
+        glVertex3f(maxX, maxY, maxZ);
+        glVertex3f(maxX, minY, maxZ);
+
+        glVertex3f(maxX, maxY, maxZ);
+        glVertex3f(maxX, maxY, minZ);
+
+        glVertex3f(maxX, minY, minZ);
+        glVertex3f(maxX, maxY, minZ);
+
+        glVertex3f(maxX, minY, minZ);
+        glVertex3f(maxX, minY, maxZ);
+
+        glVertex3f(minX, maxY, minZ);
+        glVertex3f(maxX, maxY, minZ);
+
+        glVertex3f(minX, maxY, minZ);
+        glVertex3f(minX, maxY, maxZ);
+
+        glVertex3f(minX, minY, maxZ);
+        glVertex3f(maxX, minY, maxZ);
+
+        glVertex3f(minX, minY, maxZ);
+        glVertex3f(minX, maxY, maxZ);
+    glEnd();
+}
+
+/* void drawSphere(double r, int lats, int longs)
+{
+    for(int i = 0; i <= lats; ++i)
+    {
+        double lat0 = M_PI * (-0.5 + double(i - 1) / lats);
+        double z0 = std::sin(lat0);
+        double zr0 = std::cos(lat0);
+
+        double lat1 = M_PI * (-0.5 + double(i) / lats);
+        double z1 = std::sin(lat1);
+        double zr1 = std::cos(lat1);
+
+        glBegin(GL_QUAD_STRIP);
+        for(int j = 0; j <= longs; ++j)
+        {
+            double lng = 2 * M_PI * (double) (j - 1) / longs;
+            double x = std::cos(lng);
+            double y = std::sin(lng);
+
+            glNormal3f(x * zr0, y * zr0, z0);
+            glVertex3f(x * zr0, y * zr0, z0);
+            glNormal3f(x * zr1, y * zr1, z1);
+            glVertex3f(x * zr1, y * zr1, z1);
+        }
+        glEnd();
+    }
+}
+*/

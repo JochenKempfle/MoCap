@@ -57,6 +57,8 @@ class MoCapFrame: public wxFrame
         void ViewMode();
         void startTimer(int ms) { _timer->Start(ms); }
 
+        bool isConnected() const { return _socket != nullptr && _socket->IsOk(); }
+
         std::map<wxString, unsigned int> _receivedPackets;
         std::map<wxString, uint64_t> _receiveStartTime;
 

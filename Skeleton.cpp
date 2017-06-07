@@ -283,11 +283,18 @@ void Skeleton::scale(float scaleFactor)
 
 void Skeleton::setPosition(float x, float y, float z)
 {
+    setPosition(Vector3(x, y, z));
+}
+
+void Skeleton::setPosition(Vector3 pos)
+{
     if (_root == nullptr)
     {
         return;
     }
-    _root->setStartPos(x, y, z);
+    // set the skeleton position such that the root end point is located at the new global skeleton position
+    Vector3 rootDirection = _root->getEndPos() - _root->getStartPos();
+    _root->setStartPos(pos - rootDirection);
     _root->update();
 }
 

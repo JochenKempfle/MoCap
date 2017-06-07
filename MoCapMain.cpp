@@ -43,6 +43,9 @@ OF SUCH DAMAGE.
 #include "SensorData.h"
 #include "CustomEvents.h"
 
+#include "ReceiverUDP.h"
+#include "ReceiverKinect.h"
+
 //(*InternalHeaders(MoCapFrame)
 #include <wx/intl.h>
 #include <wx/string.h>
@@ -197,19 +200,20 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&MoCapFrame::OnAbout);
     Connect(wxEVT_KEY_DOWN,(wxObjectEventFunction)&MoCapFrame::OnKeyDown);
     //*)
-    Connect(ID_SOCKET, wxEVT_SOCKET, wxSocketEventHandler(MoCapFrame::OnSocketEvent));
+    // Connect(ID_SOCKET, wxEVT_SOCKET, wxSocketEventHandler(MoCapFrame::OnSocketEvent));
     Connect(ID_TIMER, wxEVT_TIMER, wxTimerEventHandler(MoCapFrame::OnTimerEvent));
 
     Maximize(true);
 
+
+    _logger = new wxLogWindow(this, _("Log"));
+
+
     _addressPeer.BroadcastAddress();
-    _addressPeer.Service(5050);
+    _addressPeer.Service(5040);
     _addressLocal.Hostname(_("192.168.0.102"));//wxGetFullHostName());
-    _addressLocal.Service(5050);
+    _addressLocal.Service(5040);
 
-    _socket = nullptr;
-
-    // _logger = new wxLogWindow(this, _("Log"));
 
     // TODO(JK#3#): maybe directly start the timer, allows GUI to react to whatever even when not connected
     _timer = new wxTimer(this, ID_TIMER);
@@ -236,11 +240,6 @@ MoCapFrame::~MoCapFrame()
     //(*Destroy(MoCapFrame)
     //*)
     _timer->Stop();
-    if (_socket != nullptr)
-    {
-        _socket->Destroy();
-        _socket = nullptr;
-    }
 }
 
 void MoCapFrame::OnQuit(wxCommandEvent& event)
@@ -254,6 +253,18 @@ void MoCapFrame::OnAbout(wxCommandEvent& event)
     wxMessageBox(msg, _("Welcome to the motion capturing GUI"));
 }
 
+bool MoCapFrame::isConnected() const
+{
+    // TODO(JK#9#2017-06-01): MoCapFrame::isConnected can be more efficient with a variable
+    for (size_t i = 0; i < _receivers.size(); ++i)
+    {
+        if (_receivers[i]->isConnected())
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 {
@@ -271,6 +282,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
             {
                 _socket->Destroy();
                 _socket = nullptr;
+                ButtonDisconnect->Disable();
             }
             return;
 
@@ -389,15 +401,23 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
     // msg << name << _("   Timestamp: ") << data.timestamp << _("   receive Time: ") << receiveTime - _receiveStartTime[name];
     // wxLogDebug(msg);
 
-        theSensorManager.updateSensor(name.ToStdString(), data);
-        // theSensorManager.updateSensor(sensorAddress.IPAddress().ToStdString(), data);
+        // theSensorManager.updateSensor(name.ToStdString(), data);
     }
 }
 
 void MoCapFrame::OnTimerEvent(wxTimerEvent& event)
 {
+    for (size_t i = 0; i < _receivers.size(); ++i)
+    {
+        if (!_receivers[i]->update())
+        {
+            // TODO(JK#2#2017-06-01): what to do if update in receivers fails?
+            // _receivers[i]->disconnect();
+        }
+    }
     // send a dummy over the socket every second. Somehow this is needed to ensure we get socket events.
     ++_counter;
+    /*
     if (_counter >= 40 && _socket != nullptr && _socket->IsOk())
     {
         _counter = 0;
@@ -417,6 +437,7 @@ void MoCapFrame::OnTimerEvent(wxTimerEvent& event)
         wxString msg = _("\n-----------------------------\n");
         //wxLogDebug(msg);
     }
+    */
     // send an update event to update the GUI
     wxCommandEvent updateEvent(UpdateEvent);
     wxPostEvent(DataPanel, updateEvent);
@@ -523,7 +544,17 @@ void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
             _socket->Destroy();
             _socket = nullptr;
         }
+        _receivers.push_back(new ReceiverUDP(dialog->getIP(), dialog->getPort()));
+
+        dialog->Destroy();
+
+        if (!_receivers.back()->connect())
+        {
+            wxMessageBox(_("Failed to create UDP socket at ") + _addressLocal.IPAddress(), _("Error"), wxICON_ERROR);
+            return;
+        }
         // Create the socket
+        /*
         _socket = new wxDatagramSocket(_addressLocal, wxSOCKET_BROADCAST | wxSOCKET_NOWAIT | wxSOCKET_REUSEADDR);
         if (!_socket->IsOk())
         {
@@ -536,13 +567,26 @@ void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
         _socket->SetEventHandler(*this, ID_SOCKET);
         _socket->SetNotify(wxSOCKET_CONNECTION_FLAG | wxSOCKET_INPUT_FLAG | wxSOCKET_LOST_FLAG);
         _socket->Notify(true);
+        */
     }
     else
     {
+        dialog->Destroy();
         return;
     }
 
-    dialog->Destroy();
+
+    ReceiverKinect* recv = new ReceiverKinect();
+    if (!recv->connect())
+    {
+        recv->disconnect();
+        delete recv;
+        wxMessageBox(_("unable to connect kinect"));
+    }
+    else
+    {
+        _receivers.push_back(recv);
+    }
 
     ButtonDisconnect->Enable();
     Refresh();
@@ -567,6 +611,11 @@ void MoCapFrame::OnButtonDisconnectClick(wxCommandEvent& event)
     {
         _socket->Destroy();
         _socket = nullptr;
+    }
+
+    for (size_t i = 0; i < _receivers.size(); ++i)
+    {
+        _receivers[i]->disconnect();
     }
 
     ButtonDisconnect->Disable();

@@ -82,7 +82,7 @@ bool FileHandler::write(wxString filename, MotionSequence* sequence)
 
 bool FileHandler::write(wxString filename, Timeline* timeline)
 {
-    // TODO(JK#3#): save timeline
+    // save timeline
     if (timeline == nullptr)
     {
         return false;

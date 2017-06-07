@@ -27,28 +27,38 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef UDPRECEIVER_H
+#define UDPRECEIVER_H
 
-#include <wx/wx.h>
+#include "ReceiverBase.h"
+#include "wx/socket.h"
 
-class Timer : public wxThreadHelper
+class ReceiverUDP : public ReceiverBase
 {
   public:
-    Timer(wxWindow* parent);
-    virtual ~Timer();
+    ReceiverUDP() = delete;
+    ReceiverUDP(wxString hostname, unsigned short service);
+    virtual ~ReceiverUDP();
 
-    void start(unsigned int ms);
-    void stop();
-    bool isRunning() const { return _running; }
+    virtual std::string getName() const;
+
+    virtual bool update();
+
+    virtual bool connect();
+    virtual void disconnect();
+    virtual bool isConnected();
+
+    // set the address of the socket, when currently connected, this will take only effect after disconnecting and connecting again
+    void setAddress(wxString hostname, unsigned short service);
+    wxString getHostname() const;
+    unsigned short getService() const;
 
   protected:
-    virtual wxThread::ExitCode Entry();
 
   private:
-    wxWindow* _parent;
-    bool _running;
-    unsigned int _ms;
+    wxIPV4address _addressLocal;
+    wxIPV4address _addressPeer;
+    wxDatagramSocket* _socket;
 };
 
-#endif // TIMER_H
+#endif // UDPRECEIVER_H

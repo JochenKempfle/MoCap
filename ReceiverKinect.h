@@ -27,28 +27,46 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef KINECTRECEIVER_H
+#define KINECTRECEIVER_H
 
-#include <wx/wx.h>
+#include "ReceiverBase.h"
+#include "Skeleton.h"
+#include "KinectHack.h"
+#include <Kinect.h>
+#include <string>
 
-class Timer : public wxThreadHelper
+class ReceiverKinect : public ReceiverBase
 {
   public:
-    Timer(wxWindow* parent);
-    virtual ~Timer();
+    ReceiverKinect();
+    virtual ~ReceiverKinect();
 
-    void start(unsigned int ms);
-    void stop();
-    bool isRunning() const { return _running; }
+    virtual std::string getName() const;
 
+    virtual bool update();
+
+    virtual bool connect();
+    virtual void disconnect();
+    virtual bool isConnected();
   protected:
-    virtual wxThread::ExitCode Entry();
 
   private:
-    wxWindow* _parent;
-    bool _running;
-    unsigned int _ms;
+
+    std::string getJointName(unsigned int id) const;
+    int getJointParentId(unsigned int id) const;
+    const Bone getJointDefaultBoneData(unsigned int id) const;
+
+    void createKinectSkeleton();
+
+    // Current Kinect
+    IKinectSensor* _kinectSensor;
+    ICoordinateMapper* _coordinateMapper;
+
+    // Body reader
+    IBodyFrameReader* _bodyFrameReader;
+
+    Skeleton _kinectSkeleton;
 };
 
-#endif // TIMER_H
+#endif // KINECTRECEIVER_H

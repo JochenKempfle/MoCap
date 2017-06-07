@@ -62,7 +62,7 @@ class MotionSequence
 
     void createFromSkeleton(const Skeleton &skeleton);
 
-    size_t getNumChannels() const { return _channels.size(); }
+    unsigned int getNumChannels() const { return static_cast<unsigned int>(_channels.size()); }
     int createChannel(int parent = -1);
     int createChannel(const MotionSequenceChannel &channelData, int parent = -1);
     bool eraseChannel(int id, bool eraseChildren = false);

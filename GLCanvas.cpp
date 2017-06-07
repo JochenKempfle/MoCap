@@ -150,7 +150,7 @@ void GLCanvas::OnEraseBackground(wxEraseEvent &event)
 
 void GLCanvas::OnEnterWindow(wxMouseEvent &event)
 {
-	SetFocus();
+	//SetFocus();
 	_showUI = true;
 	event.Skip();
 	Refresh();
@@ -225,7 +225,7 @@ void GLCanvas::OnLeftDown(wxMouseEvent &event)
         CaptureMouse();
     }
     _lClicked = true;
-    _mousePosAtClick = pos;
+    _prevMousePos = pos;
 
     SetCursor(wxCURSOR_BLANK);
 
@@ -234,7 +234,8 @@ void GLCanvas::OnLeftDown(wxMouseEvent &event)
 
 void GLCanvas::OnLeftUp(wxMouseEvent &event)
 {
-    if (HasCapture())
+    // release mouse (only if not also captured by right click)
+    if (HasCapture() && !_rClicked)
     {
         ReleaseMouse();
     }
@@ -251,7 +252,7 @@ void GLCanvas::OnRightDown(wxMouseEvent &event)
         CaptureMouse();
     }
     _rClicked = true;
-    _mousePosAtClick = event.GetPosition();
+    _prevMousePos = event.GetPosition();
 
     SetCursor(wxCURSOR_BLANK);
 
@@ -260,7 +261,8 @@ void GLCanvas::OnRightDown(wxMouseEvent &event)
 
 void GLCanvas::OnRightUp(wxMouseEvent &event)
 {
-    if (HasCapture())
+    // release mouse (only if not also captured by left click)
+    if (HasCapture() && !_lClicked)
     {
         ReleaseMouse();
     }
@@ -316,16 +318,13 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
                 tooltip = _("");
                 break;
         }
-        if (!HasToolTips())
-        {
-            SetToolTip(tooltip);
-        }
-        else if (GetToolTip()->GetTip() != tooltip)
+        wxToolTip* prevToolTip = GetToolTip();
+        if (prevToolTip == nullptr || prevToolTip->GetTip() != tooltip)
         {
             SetToolTip(tooltip);
         }
     }
-    else if (HasToolTips())
+    else if (GetToolTip() != nullptr)
     {
         UnsetToolTip();
     }
@@ -334,9 +333,13 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
     {
         return;
     }
+
+    // get the delta of the mouse movement
+    wxPoint delta = pos - _prevMousePos;
+    _prevMousePos = pos;
+
     if (_rClicked)
     {
-        wxPoint delta = pos - _mousePosAtClick;
         _xRotation -= 0.1f * M_PI/180.0f * float(delta.y);
         if (_xRotation > M_PI/2.0)
         {
@@ -350,20 +353,21 @@ void GLCanvas::OnMouseMove(wxMouseEvent &event)
         _cameraFront = Vector3(cos(_xRotation) * sin(_yRotation), sin(_xRotation), cos(_xRotation) * cos(_yRotation)).normalized();
         _cameraUp = Vector3(sin(_yRotation - M_PI/2.0f), 0.0f, cos(_yRotation - M_PI/2.0f)).cross(_cameraFront).normalized();
         _cameraRight = _cameraFront.cross(_cameraUp).normalized();
-        //_mousePosAtClick = event.GetPosition();
-        //wxPoint cursorPos = ClientToScreen(_mousePosAtClick);
-        WarpPointer(_mousePosAtClick.x, _mousePosAtClick.y);
+        //_prevMousePos = event.GetPosition();
+        // wxPoint cursorPos = ClientToScreen(_prevMousePos);
+        // WarpPointer(_prevMousePos.x, _prevMousePos.y);
         // SetCursorPos(cursorPos.x, cursorPos.y);
         Refresh();
     }
     if (_lClicked)
     {
-        wxPoint delta = event.GetPosition() - _mousePosAtClick;
         _cameraPosition -= _cameraSpeed * float(delta.x) * _cameraRight;
         _cameraPosition += _cameraSpeed * float(delta.y) * _cameraUp;
         //_cameraPosition.y() += _cameraSpeed * float(delta.y);
-        // _mousePosAtClick = event.GetPosition();
-        WarpPointer(_mousePosAtClick.x, _mousePosAtClick.y);
+        // _prevMousePos = event.GetPosition();
+
+        // warp pointer causes glcanvas to freeze (under linux). Consider not hiding the cursor
+        // WarpPointer(_prevMousePos.x, _prevMousePos.y);
         Refresh();
     }
 }
@@ -1068,7 +1072,7 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
 	dc.SetBrush(brush);
 
 	// draw black background behind all buttons
-	dc.DrawRectangle(pos.x, pos.y, _buttonSize, _numButtons * _buttonSize);
+	dc.DrawRectangle(pos.x - 1, pos.y, _buttonSize + 1, _numButtons * _buttonSize + 1);
 
 	// draw grit
 	if (_style & DRAW_GRID)

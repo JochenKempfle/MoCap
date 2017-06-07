@@ -109,7 +109,7 @@ class GLCanvas : public wxGLCanvas
     void drawJoint(const JointConstraint &constraint = JointConstraint(), float radius = 0.04f) const;
     void drawAABB(const AABB &box) const;
 
-    wxPoint _mousePosAtClick;
+    wxPoint _prevMousePos;
     bool _lClicked;
     bool _rClicked;
     float _xRotation;

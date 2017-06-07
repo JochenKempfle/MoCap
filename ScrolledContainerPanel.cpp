@@ -54,16 +54,17 @@ ScrolledContainerPanel::ScrolledContainerPanel(wxWindow* parent,wxWindowID id,co
 	Create(parent, id, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("id"));
 	SetBackgroundColour(wxColour(87,87,87));
 	BoxSizer1 = new wxBoxSizer(wxVERTICAL);
-	ScrolledWindow = new wxScrolledWindow(this, ID_SCROLLEDWINDOW, wxDefaultPosition, wxDefaultSize, wxVSCROLL, _T("ID_SCROLLEDWINDOW"));
+	ScrolledWindow = new wxScrolledWindow(this, ID_SCROLLEDWINDOW, wxDefaultPosition, wxDefaultSize, wxVSCROLL|wxALWAYS_SHOW_SB, _T("ID_SCROLLEDWINDOW"));
 	BoxSizer2 = new wxBoxSizer(wxVERTICAL);
 	ScrolledWindow->SetSizer(BoxSizer2);
 	BoxSizer2->Fit(ScrolledWindow);
 	BoxSizer2->SetSizeHints(ScrolledWindow);
-	BoxSizer1->Add(ScrolledWindow, 1, wxALL|wxEXPAND, 5);
+	BoxSizer1->Add(ScrolledWindow, 1, wxEXPAND, 5);
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
 	//*)
+	ScrolledWindow->SetScrollRate(0, 10);
 }
 
 ScrolledContainerPanel::~ScrolledContainerPanel()
@@ -74,22 +75,21 @@ ScrolledContainerPanel::~ScrolledContainerPanel()
 
 void ScrolledContainerPanel::add(wxPanel* panel)
 {
-    BoxSizer2->Add(panel, 0, wxALL|wxEXPAND|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
+    BoxSizer2->Add(panel, 0, wxALL|wxEXPAND, 5);
 	BoxSizer2->Fit(ScrolledWindow);
 	BoxSizer2->SetSizeHints(ScrolledWindow);
+
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
 	Refresh();
-	// TODO(JK#5#): ScrolledContainerPanel does not show scroll bars
 	// ScrolledWindow->AdjustScrollbars();
-	// ScrolledWindow->CanScroll(wxUP);
 }
 
 void ScrolledContainerPanel::add(std::vector<wxPanel*> panels)
 {
     for (size_t i = 0; i < panels.size(); ++i)
     {
-        BoxSizer2->Add(panels[i], 0, wxALL|wxEXPAND|wxALIGN_TOP|wxALIGN_CENTER_HORIZONTAL, 5);
+        BoxSizer2->Add(panels[i], 0, wxALL|wxEXPAND, 5);
     }
 	BoxSizer2->Fit(ScrolledWindow);
 	BoxSizer2->SetSizeHints(ScrolledWindow);

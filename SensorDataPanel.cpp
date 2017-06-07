@@ -128,8 +128,9 @@ void SensorDataPanel::OnPaint(wxPaintEvent& event)
         }
     }
 
-    wxString name = _("Sensor ");
-    name << _sensorId;
+    wxString name;// = _("Sensor ");
+    //name << _sensorId;
+    name << theSensorManager.getSensor(_sensorId)->getIPAddress();
     wxString affiliation;
 
     int boneId = theMoCapManager.getBoneIdFromSensorId(_sensorId);

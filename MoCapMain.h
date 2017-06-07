@@ -42,6 +42,9 @@ OF SUCH DAMAGE.
 #include "wx/socket.h"
 #include "wx/timer.h"
 #include "ViewPanel.h"
+#include "ReceiverBase.h"
+#include "KinectHack.h"
+#include <Kinect.h>
 
 
 //wxDECLARE_EVENT(UpdateEvent, wxEvent);
@@ -57,7 +60,8 @@ class MoCapFrame: public wxFrame
         void ViewMode();
         void startTimer(int ms) { _timer->Start(ms); }
 
-        bool isConnected() const { return _socket != nullptr && _socket->IsOk(); }
+        // TODO(JK#1#2017-05-31): isConnected no longer working - rewrite!
+        bool isConnected() const;
 
         std::map<wxString, unsigned int> _receivedPackets;
         std::map<wxString, uint64_t> _receiveStartTime;
@@ -127,12 +131,16 @@ class MoCapFrame: public wxFrame
         wxButton* ButtonMotionPlayer;
         //*)
 
-        wxIPV4address _addressLocal;
-        wxIPV4address _addressPeer;
-        wxDatagramSocket* _socket;
         wxLogWindow* _logger;
         wxTimer* _timer;
         int _counter;
+
+        wxIPV4address _addressPeer;
+        wxIPV4address _addressLocal;
+        wxDatagramSocket* _socket;
+
+
+        std::vector<ReceiverBase*> _receivers;
 
         DECLARE_EVENT_TABLE()
 };

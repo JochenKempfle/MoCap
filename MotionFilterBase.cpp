@@ -28,6 +28,7 @@ OF SUCH DAMAGE.
 
 
 #include "MotionFilterBase.h"
+#include <wx/msgdlg.h>
 
 MotionFilterBase::MotionFilterBase()
 {

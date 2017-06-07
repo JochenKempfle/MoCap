@@ -307,6 +307,34 @@ void JointConstraint::ConstraintKey::interpolateAngle(const ConstraintKey &key1,
     //_sinConstraintAngleHalf = std::sqrt(1.0f - _cosConstraintAngleHalf * _cosConstraintAngleHalf);
 
     setAngle(b*key2.getAngle() + (1.0f-b)*key1.getAngle());
+
+    // slerp:
+    double d = dot(other);
+    double absD = std::abs(d);
+
+    double scale0;
+    double scale1;
+
+    if (absD == 1.0)
+    {
+        scale0 = 1.0 - t;
+        scale1 = t;
+    }
+    else
+    {
+        double theta = std::acos(absD);
+        double sinThetaInv = 1.0/std::sin(theta);
+
+        scale0 = std::sin((1.0 - t) * theta) * sinThetaInv;
+        scale1 = std::sin((t * theta)) * sinThetaInv;
+    }
+    if (d < 0)
+    {
+        scale1 = -scale1;
+    }
+
+    return Quaternion(*this * scale0 + other * scale1);
+
     */
 }
 

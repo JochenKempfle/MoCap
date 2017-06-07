@@ -30,6 +30,7 @@ OF SUCH DAMAGE.
 #ifndef MOTIONFILTERBASE_H
 #define MOTIONFILTERBASE_H
 
+#include <string>
 #include "Skeleton.h"
 #include "MotionSequence.h"
 #include "SensorNode.h"
@@ -44,7 +45,6 @@ class MotionFilterBase : public wxThreadHelper
 
     virtual std::string getName() const = 0;
     virtual void update() = 0;
-
     void setSensors(std::vector<SensorNode*> sensors);
     void setSkeleton(Skeleton* skeleton);
     void setFrameTime(float frameTime);
@@ -59,6 +59,7 @@ class MotionFilterBase : public wxThreadHelper
     void setRecording(bool recording = true);
     bool isRecording() const;
     MotionSequence getSequence();
+
 
   protected:
     virtual void onStartRecording() = 0;

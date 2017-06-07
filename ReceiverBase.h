@@ -27,28 +27,28 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef RECEIVERBASE_H
+#define RECEIVERBASE_H
 
-#include <wx/wx.h>
+#include <string>
 
-class Timer : public wxThreadHelper
+class ReceiverBase
 {
   public:
-    Timer(wxWindow* parent);
-    virtual ~Timer();
+    ReceiverBase();
+    virtual ~ReceiverBase();
 
-    void start(unsigned int ms);
-    void stop();
-    bool isRunning() const { return _running; }
+    virtual std::string getName() const = 0;
+
+    virtual bool update() = 0;
+
+    virtual bool connect() = 0;
+    virtual void disconnect() = 0;
+    virtual bool isConnected() = 0;
 
   protected:
-    virtual wxThread::ExitCode Entry();
 
   private:
-    wxWindow* _parent;
-    bool _running;
-    unsigned int _ms;
 };
 
-#endif // TIMER_H
+#endif // RECEIVERBASE_H

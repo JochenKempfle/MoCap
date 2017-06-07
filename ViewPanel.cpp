@@ -28,7 +28,7 @@ OF SUCH DAMAGE.
 
 
 #include "wx_pch.h"
-#include <gl/glu.h>
+// #include <GL/glu.h>
 #include "ViewPanel.h"
 #include "MoCapMain.h"
 #include "SensorDataPanel.h"
@@ -107,7 +107,7 @@ ViewPanel::ViewPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxS
 	BoxSizerSensors = new wxBoxSizer(wxVERTICAL);
 	sensorContainerPanel = new ScrolledContainerPanel(this,ID_SENSORCONTAINERPANEL,wxDefaultPosition,wxDefaultSize);
 	BoxSizerSensors->Add(sensorContainerPanel, 1, wxALL|wxEXPAND, 5);
-	BoxSizerSensors->Add(100,0,0, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizerSensors->Add(110,0,0, wxLEFT|wxRIGHT|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer1->Add(BoxSizerSensors, 0, wxEXPAND, 5);
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
@@ -185,7 +185,9 @@ void ViewPanel::OnUpdateEvent(wxEvent& event)
     // tell the mocap manager to update itself
     if (_simulationStarted)
     {
+        // TODO(JK#5#2017-05-24): theMocapManager.update() does nothing, so remove it?
         theMoCapManager.update();
+        glCanvas->Refresh();
     }
     ++_counter;
 }
@@ -202,11 +204,13 @@ SensorDataPanel* ViewPanel::addSensor(int id)
 
 void ViewPanel::OnButtonSimulateClick(wxCommandEvent& event)
 {
-    if (!static_cast<MoCapFrame*>(GetParent())->isConnected())
+    // TODO(JK#1#2017-05-24): reenable after kinect is established!
+    /*
+    if (!static_cast<MoCapFrame*>(GetParent()->GetParent())->isConnected())
     {
         wxMessageBox(_("Currently there is no connection to the sensors!\nEnsure you have established a connection, otherwise restart the connection."), _("Warning!"), wxICON_EXCLAMATION);
         return;
-    }
+    }*/
     Freeze();
     ButtonSimulate->Hide();
     ButtonCalibrate->Hide();
@@ -216,15 +220,16 @@ void ViewPanel::OnButtonSimulateClick(wxCommandEvent& event)
     Refresh();
     // TODO(JK#3#): check if connection is not lost while started
     _simulationStarted = true;
+    // TODO(JK#1#2017-05-24): disable while kinect debugging, reenable after kinect is established!
     theMoCapManager.startSimulation();
 }
 
 void ViewPanel::OnButtonRecordClick(wxCommandEvent& event)
 {
-    if (!static_cast<MoCapFrame*>(GetParent())->isConnected())
+    if (!static_cast<MoCapFrame*>(GetParent()->GetParent())->isConnected())
     {
-        wxMessageBox(_("Currently there is no connection to the sensors!\nEnsure you have established a connection, otherwise restart the connection."), _("Warning!"), wxICON_EXCLAMATION);
-        return;
+        // wxMessageBox(_("Currently there is no connection to the sensors!\nEnsure you have established a connection, otherwise restart the connection."), _("Warning!"), wxICON_EXCLAMATION);
+        // return;
     }
     FilterDialog* dialog = new FilterDialog(this);
     dialog->setFilter(theMoCapManager.getFilters(), theMoCapManager.getSelectedFilter());
@@ -285,6 +290,7 @@ void ViewPanel::OnButtonStopClick(wxCommandEvent& event)
         FileHandler fileHandler;
         fileHandler.writeBVH(path, sequence);
     }
+    // TODO(JK#1#2017-05-24): disable while kinect debugging, reenable after kinect is established!
     theMoCapManager.stopSimulation();
 }
 

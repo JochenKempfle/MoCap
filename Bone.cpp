@@ -32,7 +32,7 @@ OF SUCH DAMAGE.
 Bone::Bone() : _id(-1)
 {
     _parent = nullptr;
-    _useAbsOrientation = false;
+    _boneUpdateType = UPDATE_REL_ORIENTATION;
 	_constraint.addConstraint(0, 90);
 	_constraint.addConstraint(90, 90);
 	_constraint.addConstraint(180, 90);
@@ -42,7 +42,7 @@ Bone::Bone() : _id(-1)
 Bone::Bone(int id) : _id(id)
 {
     _parent = nullptr;
-    _useAbsOrientation = false;
+    _boneUpdateType = UPDATE_REL_ORIENTATION;
 	_constraint.addConstraint(0, 90);
 	_constraint.addConstraint(90, 90);
 	_constraint.addConstraint(180, 90);
@@ -58,7 +58,7 @@ Bone::Bone(int id, const Bone &other) : _id(id)
     _defaultOrientation = other._defaultOrientation;
     _startPos = other._startPos;
     _endPos = other._endPos;
-    _useAbsOrientation = other._useAbsOrientation;
+    _boneUpdateType = other._boneUpdateType;
     _parent = nullptr;
     _constraint = other._constraint;
 }
@@ -201,22 +201,22 @@ Bone& Bone::copyContent(const Bone &other)
     _defaultOrientation = other._defaultOrientation;
     _startPos = other._startPos;
     _endPos = other._endPos;
-    _useAbsOrientation = other._useAbsOrientation;
+    _boneUpdateType = other._boneUpdateType;
     return *this;
 }
 
 void Bone::setAbsOrientation(const Quaternion &orientation)
 {
     // setting the bone to an absolute orientation implies having a specific orientation in the chain,
-    // so set _chainedOrientation accordingly and find the relative orientation in the update() routine (by setting _useAbsOrientation)
+    // so set _chainedOrientation accordingly and find the relative orientation in the update() routine (by setting _boneUpdateType)
     _chainedOrientation = orientation.normalized() * _defaultOrientation.inv();
-    _useAbsOrientation = true;
+    _boneUpdateType = UPDATE_ABS_ORIENTATION;
 }
 
 void Bone::setRelOrientation(const Quaternion &orientation)
 {
     _relOrientation = orientation.normalized();
-    _useAbsOrientation = false;
+    _boneUpdateType = UPDATE_REL_ORIENTATION;
 }
 
 void Bone::setRelDefaultOrientation(const Quaternion &orientation)
@@ -273,31 +273,53 @@ void Bone::update()
 {
     if (_parent == nullptr)
     {
+        if (_boneUpdateType == UPDATE_POSITION)
+        {
+            // just compute the absolute Orientation, the flag UPDATE_ABS_ORIENTATION is set automatically
+            setAbsOrientation(Quaternion(Vector3(1.0f, 0.0f, 0.0f), _endPos - _startPos));
+        }
         // the orientation is an absolute orientation in the global coordinate system
-        if (_useAbsOrientation)
+        if (_boneUpdateType == UPDATE_ABS_ORIENTATION)
         {
             // _chained orientation waa set before by setting the bone to an absolute orientation
             _relOrientation = _chainedOrientation;
-            _useAbsOrientation = false;
+            _boneUpdateType = UPDATE_REL_ORIENTATION;
+        }
+        else if (_boneUpdateType == UPDATE_REL_ORIENTATION)
+        {
+            _chainedOrientation = _relOrientation;
         }
         else
         {
-            _chainedOrientation = _relOrientation;
+            // should not happen
         }
     }
     else
     {
+        // first update the start position
         _startPos = _parent->getEndPos();
-        if (_useAbsOrientation)
+
+        // check if the update comes from position
+        if (_boneUpdateType == UPDATE_POSITION)
         {
-            // _chainedOrientation waa set before by setting the bone to an absolute orientation, now find the new relative orientation
+            // just compute the absolute Orientation, the flag UPDATE_ABS_ORIENTATION is set automatically
+            setAbsOrientation(Quaternion(Vector3(1.0f, 0.0f, 0.0f), _endPos - _startPos));
+        }
+
+        if (_boneUpdateType == UPDATE_ABS_ORIENTATION)
+        {
+            // _chainedOrientation was set before by setting the bone to an absolute orientation, now find the new relative orientation
             // of the bone with respect to its parent
             _relOrientation = _parent->getChainedOrientation().inv() * _chainedOrientation;
-            _useAbsOrientation = false;
+            _boneUpdateType = UPDATE_REL_ORIENTATION;
+        }
+        else if (_boneUpdateType == UPDATE_REL_ORIENTATION)
+        {
+            _chainedOrientation = _parent->getChainedOrientation() * _relOrientation;
         }
         else
         {
-            _chainedOrientation = _parent->getChainedOrientation() * _relOrientation;
+            // should not happen
         }
     }
     _endPos = getDirection() * _length + _startPos;

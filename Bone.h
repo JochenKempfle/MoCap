@@ -36,6 +36,13 @@ OF SUCH DAMAGE.
 #include <vector>
 #include <string>
 
+enum BONE_UPDATE_TYPE
+{
+    UPDATE_ABS_ORIENTATION,
+    UPDATE_REL_ORIENTATION,
+    UPDATE_POSITION,
+};
+
 class Bone
 {
   public:
@@ -66,7 +73,9 @@ class Bone
 
     inline void setStartPos(const Vector3 &pos) { _startPos = pos; }
     inline void setStartPos(float x, float y, float z) { _startPos = Vector3(x, y, z); }
-    inline void setEndPos(const Vector3 &pos) { _endPos = pos; }
+
+    inline void setEndPos(const Vector3 &pos) { _endPos = pos; _boneUpdateType = UPDATE_POSITION; }
+    inline void setEndPos(float x, float y, float z) { setEndPos(Vector3(x, y, z)); }
 
     inline Vector3 getStartPos() const { return _startPos; }
     inline Vector3 getEndPos() const { return _endPos; }
@@ -136,7 +145,7 @@ class Bone
     Vector3 _startPos;
     Vector3 _endPos;
 
-    bool _useAbsOrientation;
+    unsigned char _boneUpdateType;
 
     JointConstraint _constraint;
 

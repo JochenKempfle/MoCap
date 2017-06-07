@@ -28,7 +28,7 @@ OF SUCH DAMAGE.
 
 
 #include "wx_pch.h"
-#include <gl/glu.h>
+//#include <GL/glu.h>
 #include "SkeletonCreatorPanel.h"
 #include "FileHandler.h"
 #include "MotionSequence.h"

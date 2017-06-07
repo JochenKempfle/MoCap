@@ -16,6 +16,7 @@
 					<Add option="-g" />
 					<Add option="-D__WXDEBUG__" />
 					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswud" />
+					<Add directory="C:/Program Files/Microsoft SDKs/Kinect/v2.0_1409/inc" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswud" />
@@ -25,7 +26,9 @@
 					<Add library="libwxmsw31ud.a" />
 					<Add library="opengl32" />
 					<Add library="glu32" />
+					<Add library="C:/Program Files/Microsoft SDKs/Kinect/v2.0_1409/Lib/x86/Kinect20.lib" />
 					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll" />
+					<Add directory="C:/Program Files/Microsoft SDKs/Kinect/v2.0_1409/Lib/x86" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -37,6 +40,7 @@
 					<Add option="-O2" />
 					<Add option="-std=c++11" />
 					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswu" />
+					<Add directory="C:/Program Files/Microsoft SDKs/Kinect/v2.0_1409/inc" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll/mswu" />
@@ -47,7 +51,9 @@
 					<Add library="libwxmsw31u.a" />
 					<Add library="opengl32" />
 					<Add library="glu32" />
+					<Add library="C:/Program Files/Microsoft SDKs/Kinect/v2.0_1409/Lib/x86/Kinect20.lib" />
 					<Add directory="C:/Engines/wxWidgets-3.1.0/lib/gcc_dll" />
+					<Add directory="C:/Program Files/Microsoft SDKs/Kinect/v2.0_1409/Lib/x86" />
 				</Linker>
 			</Target>
 		</Build>
@@ -64,6 +70,7 @@
 			<Add option="-DwxUSE_UNICODE" />
 			<Add option="-DWX_PRECOMP" />
 			<Add directory="C:/Engines/wxWidgets-3.1.0/include" />
+			<Add directory="C:/Program Files/Microsoft SDKs/Kinect/v2.0_1409/inc" />
 		</Compiler>
 		<ResourceCompiler>
 			<Add directory="C:/Engines/wxWidgets-3.1.0/include" />
@@ -79,6 +86,8 @@
 		<Unit filename="Bone.h" />
 		<Unit filename="ConnectionDialog.cpp" />
 		<Unit filename="ConnectionDialog.h" />
+		<Unit filename="ConstraintDialog.cpp" />
+		<Unit filename="ConstraintDialog.h" />
 		<Unit filename="CustomEvents.h" />
 		<Unit filename="ExportDialog.cpp" />
 		<Unit filename="ExportDialog.h" />
@@ -90,6 +99,9 @@
 		<Unit filename="GLCanvas.h" />
 		<Unit filename="GLImage.cpp" />
 		<Unit filename="GLImage.h" />
+		<Unit filename="JointConstraint.cpp" />
+		<Unit filename="JointConstraint.h" />
+		<Unit filename="KinectHack.h" />
 		<Unit filename="MoCapApp.cpp" />
 		<Unit filename="MoCapApp.h" />
 		<Unit filename="MoCapMain.cpp" />
@@ -114,6 +126,12 @@
 		<Unit filename="PostProcessPanel.h" />
 		<Unit filename="Quaternion.cpp" />
 		<Unit filename="Quaternion.h" />
+		<Unit filename="ReceiverBase.cpp" />
+		<Unit filename="ReceiverBase.h" />
+		<Unit filename="ReceiverKinect.cpp" />
+		<Unit filename="ReceiverKinect.h" />
+		<Unit filename="ReceiverUDP.cpp" />
+		<Unit filename="ReceiverUDP.h" />
 		<Unit filename="ScrolledContainerPanel.cpp" />
 		<Unit filename="ScrolledContainerPanel.h" />
 		<Unit filename="SensorBuffer.cpp" />
@@ -188,6 +206,7 @@
 					<wxPanel wxs="wxsmith/MotionPlayerPanel.wxs" src="MotionPlayerPanel.cpp" hdr="MotionPlayerPanel.h" fwddecl="0" i18n="1" name="MotionPlayerPanel" language="CPP" />
 					<wxDialog wxs="wxsmith/FilterDialog.wxs" src="FilterDialog.cpp" hdr="FilterDialog.h" fwddecl="0" i18n="1" name="FilterDialog" language="CPP" />
 					<wxDialog wxs="wxsmith/ExportDialog.wxs" src="ExportDialog.cpp" hdr="ExportDialog.h" fwddecl="0" i18n="1" name="ExportDialog" language="CPP" />
+					<wxDialog wxs="wxsmith/ConstraintDialog.wxs" src="ConstraintDialog.cpp" hdr="ConstraintDialog.h" fwddecl="0" i18n="1" name="ConstraintDialog" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

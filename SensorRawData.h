@@ -30,6 +30,8 @@ OF SUCH DAMAGE.
 #ifndef SENSORRAWDATA_H
 #define SENSORRAWDATA_H
 
+#include <cstdint>
+
 // POD type
 struct SensorRawData
 {

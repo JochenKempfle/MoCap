@@ -30,6 +30,9 @@ OF SUCH DAMAGE.
 #ifndef TIMELINEOVERLAY_H
 #define TIMELINEOVERLAY_H
 
+#include <cstdint>
+#include <iostream>
+
 
 enum class OverlayType : unsigned char
 {

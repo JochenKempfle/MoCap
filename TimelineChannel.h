@@ -31,6 +31,8 @@ OF SUCH DAMAGE.
 #define TIMELINECHANNEL_H
 
 #include "TimelineTrack.h"
+#include <cstdint>
+#include <limits>
 
 class TimelineChannel
 {

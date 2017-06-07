@@ -69,6 +69,7 @@ class Skeleton
 
     void scale(float scaleFactor);
     void setPosition(float x, float y, float z);
+    void setPosition(Vector3 pos);
     Vector3 getPosition() const;
 
     std::vector<int> getBoneIds() const;

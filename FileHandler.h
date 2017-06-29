@@ -48,7 +48,7 @@ class FileHandler
     static MotionSequence* readBVH(wxString filename);
     static bool writeBVH(wxString filename, MotionSequence* sequence);
 
-    // TODO(JK#2#): implement HTR read and write
+    // TODO(JK#4#): implement HTR read and write
     static Skeleton* readHTRSkeleton(wxString filename);
     static MotionSequence* readHTR(wxString filename);
     static bool writeHTR(wxString filename, MotionSequence* sequence);

@@ -49,6 +49,7 @@ OF SUCH DAMAGE.
 //(*Headers(SkeletonCreatorPanel)
 #include <wx/treectrl.h>
 #include <wx/glcanvas.h>
+#include <wx/clrpicker.h>
 //*)
 
 class SkeletonCreatorPanel: public wxPanel
@@ -61,12 +62,14 @@ class SkeletonCreatorPanel: public wxPanel
 		//(*Declarations(SkeletonCreatorPanel)
 		wxStaticText* StaticText10;
 		wxStaticText* StaticText9;
-		wxTextCtrl* TextCtrl4;
 		wxButton* ButtonExport;
+		wxButton* ButtonConstraint;
 		wxTextCtrl* TextCtrlLength;
+		wxColourPickerCtrl* ColourPickerCtrl;
 		wxTextCtrl* TextCtrlZ;
 		wxStaticText* StaticText13;
 		wxStaticText* StaticText2;
+		wxStaticText* StaticText14;
 		wxStaticText* StaticText6;
 		wxButton* ButtonLoadDefault;
 		wxStaticText* StaticText8;
@@ -77,22 +80,15 @@ class SkeletonCreatorPanel: public wxPanel
 		wxStaticText* StaticText3;
 		wxTreeCtrl* TreeCtrlSkeleton;
 		wxTextCtrl* TextCtrlRoll;
-		wxStaticText* StaticText5;
 		wxStaticText* StaticText7;
 		wxChoice* ChoiceParent;
-		wxTextCtrl* TextCtrl8;
 		wxButton* ButtonRemoveBone;
-		wxTextCtrl* TextCtrl7;
 		wxTextCtrl* TextCtrlName;
 		wxTextCtrl* TextCtrlPitch;
 		wxStaticText* StaticText12;
-		wxTextCtrl* TextCtrl5;
 		wxTextCtrl* TextCtrlY;
 		wxButton* ButtonAddBone;
-		wxStaticText* StaticText4;
-		wxTextCtrl* TextCtrl10;
 		GLCanvas* glCanvas;
-		wxTextCtrl* TextCtrl11;
 		wxTextCtrl* TextCtrlX;
 		//*)
 
@@ -114,6 +110,8 @@ class SkeletonCreatorPanel: public wxPanel
 		static const long ID_CHOICEPARENT;
 		static const long ID_STATICTEXT9;
 		static const long ID_TEXTCTRLLENGTH;
+		static const long ID_STATICTEXT14;
+		static const long ID_COLOURPICKERCTRL;
 		static const long ID_STATICTEXT8;
 		static const long ID_STATICTEXT7;
 		static const long ID_STATICTEXT6;
@@ -121,14 +119,7 @@ class SkeletonCreatorPanel: public wxPanel
 		static const long ID_TEXTCTRLROLL;
 		static const long ID_TEXTCTRLPITCH;
 		static const long ID_TEXTCTRLYAW;
-		static const long ID_STATICTEXT4;
-		static const long ID_TEXTCTRL4;
-		static const long ID_TEXTCTRL7;
-		static const long ID_TEXTCTRL10;
-		static const long ID_STATICTEXT5;
-		static const long ID_TEXTCTRL5;
-		static const long ID_TEXTCTRL8;
-		static const long ID_TEXTCTRL11;
+		static const long ID_BUTTONCONSTRAINT;
 		static const long ID_BUTTONADDBONE;
 		static const long ID_BUTTONREMOVEBONE;
 		static const long ID_STATICTEXT10;
@@ -161,6 +152,7 @@ class SkeletonCreatorPanel: public wxPanel
 		void OnglCanvasMouseMove(wxMouseEvent& event);
 		void OnglCanvasLeftUp(wxMouseEvent& event);
 		void OnButton1Click(wxCommandEvent& event);
+		void OnButtonConstraintClick(wxCommandEvent& event);
 		//*)
         void OnMouseCaptureLost(wxMouseCaptureLostEvent& event);
 
@@ -170,6 +162,7 @@ class SkeletonCreatorPanel: public wxPanel
 		wxPoint _mousePos;
 		// Skeleton* _skeleton;
 		std::map<int, wxTreeItemId> _treeItemIdFromBoneId;
+		// TODO(JK#2#2017-06-29): application crashes when recording (or simulating?) a motion with a custom skeleton
 };
 
 #endif

@@ -95,6 +95,7 @@
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
+										<option>1</option>
 									</object>
 									<object class="sizeritem">
 										<object class="wxTextCtrl" name="ID_TEXTCTRLNAME" variable="TextCtrlName" member="yes">
@@ -103,7 +104,7 @@
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
-										<option>1</option>
+										<option>3</option>
 									</object>
 								</object>
 								<flag>wxEXPAND</flag>
@@ -117,6 +118,7 @@
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
+										<option>1</option>
 									</object>
 									<object class="sizeritem">
 										<object class="wxChoice" name="ID_CHOICEPARENT" variable="ChoiceParent" member="yes">
@@ -125,7 +127,7 @@
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
-										<option>1</option>
+										<option>3</option>
 									</object>
 								</object>
 								<flag>wxEXPAND</flag>
@@ -139,6 +141,7 @@
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
+										<option>1</option>
 									</object>
 									<object class="sizeritem">
 										<object class="wxTextCtrl" name="ID_TEXTCTRLLENGTH" variable="TextCtrlLength" member="yes">
@@ -148,7 +151,30 @@
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
+										<option>3</option>
+									</object>
+								</object>
+								<flag>wxEXPAND</flag>
+								<border>5</border>
+							</object>
+							<object class="sizeritem">
+								<object class="wxBoxSizer" variable="BoxSizer10" member="no">
+									<object class="sizeritem">
+										<object class="wxStaticText" name="ID_STATICTEXT14" variable="StaticText14" member="yes">
+											<label>Color</label>
+										</object>
+										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+										<border>5</border>
 										<option>1</option>
+									</object>
+									<object class="sizeritem">
+										<object class="wxColourPickerCtrl" name="ID_COLOURPICKERCTRL" variable="ColourPickerCtrl" member="yes">
+											<colour>#B4B4B4</colour>
+											<style>wxCLRP_USE_TEXTCTRL</style>
+										</object>
+										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+										<border>5</border>
+										<option>3</option>
 									</object>
 								</object>
 								<flag>wxEXPAND</flag>
@@ -157,7 +183,7 @@
 							<object class="sizeritem">
 								<object class="wxGridSizer" variable="GridSizer1" member="no">
 									<cols>4</cols>
-									<rows>4</rows>
+									<rows>2</rows>
 									<object class="spacer">
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -185,7 +211,7 @@
 									</object>
 									<object class="sizeritem">
 										<object class="wxStaticText" name="ID_STATICTEXT3" variable="StaticText3" member="yes">
-											<label>Default</label>
+											<label>Orientation</label>
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -223,70 +249,17 @@
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
 									</object>
+								</object>
+								<flag>wxEXPAND</flag>
+								<border>5</border>
+							</object>
+							<object class="sizeritem">
+								<object class="wxBoxSizer" variable="BoxSizer11" member="no">
+									<orient>wxVERTICAL</orient>
 									<object class="sizeritem">
-										<object class="wxStaticText" name="ID_STATICTEXT4" variable="StaticText4" member="yes">
-											<label>Min</label>
-										</object>
-										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-										<border>5</border>
-									</object>
-									<object class="sizeritem">
-										<object class="wxTextCtrl" name="ID_TEXTCTRL4" variable="TextCtrl4" member="yes">
-											<value>0</value>
-											<size>60,20</size>
-											<validator>wxFloatingPointValidator&lt;float&gt;()</validator>
-										</object>
-										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-										<border>5</border>
-									</object>
-									<object class="sizeritem">
-										<object class="wxTextCtrl" name="ID_TEXTCTRL7" variable="TextCtrl7" member="yes">
-											<value>0</value>
-											<size>60,20</size>
-											<validator>wxFloatingPointValidator&lt;float&gt;()</validator>
-										</object>
-										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-										<border>5</border>
-									</object>
-									<object class="sizeritem">
-										<object class="wxTextCtrl" name="ID_TEXTCTRL10" variable="TextCtrl10" member="yes">
-											<value>0</value>
-											<size>60,20</size>
-											<validator>wxFloatingPointValidator&lt;float&gt;()</validator>
-										</object>
-										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-										<border>5</border>
-									</object>
-									<object class="sizeritem">
-										<object class="wxStaticText" name="ID_STATICTEXT5" variable="StaticText5" member="yes">
-											<label>Max</label>
-										</object>
-										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-										<border>5</border>
-									</object>
-									<object class="sizeritem">
-										<object class="wxTextCtrl" name="ID_TEXTCTRL5" variable="TextCtrl5" member="yes">
-											<value>0</value>
-											<size>60,20</size>
-											<validator>wxFloatingPointValidator&lt;float&gt;()</validator>
-										</object>
-										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-										<border>5</border>
-									</object>
-									<object class="sizeritem">
-										<object class="wxTextCtrl" name="ID_TEXTCTRL8" variable="TextCtrl8" member="yes">
-											<value>0</value>
-											<size>60,20</size>
-											<validator>wxFloatingPointValidator&lt;float&gt;()</validator>
-										</object>
-										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
-										<border>5</border>
-									</object>
-									<object class="sizeritem">
-										<object class="wxTextCtrl" name="ID_TEXTCTRL11" variable="TextCtrl11" member="yes">
-											<value>0</value>
-											<size>60,20</size>
-											<validator>wxFloatingPointValidator&lt;float&gt;()</validator>
+										<object class="wxButton" name="ID_BUTTONCONSTRAINT" variable="ButtonConstraint" member="yes">
+											<label>Set Constraint</label>
+											<handler function="OnButtonConstraintClick" entry="EVT_BUTTON" />
 										</object>
 										<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
 										<border>5</border>
@@ -294,6 +267,7 @@
 								</object>
 								<flag>wxEXPAND</flag>
 								<border>5</border>
+								<option>1</option>
 							</object>
 						</object>
 						<flag>wxALL|wxEXPAND</flag>

@@ -7,8 +7,6 @@
 		<style>wxNO_BORDER|wxTAB_TRAVERSAL</style>
 		<handler function="OnPaint" entry="EVT_PAINT" />
 		<handler function="OnLeftDown" entry="EVT_LEFT_DOWN" />
-		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
-			<orient>wxVERTICAL</orient>
-		</object>
+		<handler function="OnRightDown" entry="EVT_RIGHT_DOWN" />
 	</object>
 </wxsmith>

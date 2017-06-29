@@ -49,7 +49,7 @@ Quaternion::Quaternion(const Quaternion &other)
     data[3] = other(3);
 }
 
-Quaternion::Quaternion(float uu, float xx, float yy, float zz)
+Quaternion::Quaternion(double uu, double xx, double yy, double zz)
 {
     u() = uu;
     x() = xx;
@@ -64,8 +64,8 @@ Quaternion::Quaternion(const Vector3 &other)
 
 Quaternion::Quaternion(const Vector3 &from, const Vector3 &to)
 {
-    float norm = sqrt(from.norm_sq() * to.norm_sq());
-    float realPart = norm + from.dot(to);
+    double norm = sqrt(from.norm_sq() * to.norm_sq());
+    double realPart = norm + from.dot(to);
     Vector3 vec;
 
     if (realPart < 1.e-6f * norm)
@@ -86,7 +86,7 @@ Quaternion::Quaternion(const Vector3 &from, const Vector3 &to)
     normalize();
 }
 
-Quaternion::Quaternion(float realPart, const Vector3 vectorPart)
+Quaternion::Quaternion(double realPart, const Vector3 vectorPart)
 {
     u() = realPart;
     x() = vectorPart.x();
@@ -110,10 +110,10 @@ Quaternion::Quaternion(double roll, double pitch, double yaw)
         {    -spitch,                  cpitch*sroll,                  cpitch*croll}
     };
 
-    float _u = (float) (sqrt(std::max(0., 1 + m[0][0] + m[1][1] + m[2][2]))/2.0);
-    float _x = (float) (sqrt(std::max(0., 1 + m[0][0] - m[1][1] - m[2][2]))/2.0);
-    float _y = (float) (sqrt(std::max(0., 1 - m[0][0] + m[1][1] - m[2][2]))/2.0);
-    float _z = (float) (sqrt(std::max(0., 1 - m[0][0] - m[1][1] + m[2][2]))/2.0);
+    double _u = sqrt(std::max(0., 1 + m[0][0] + m[1][1] + m[2][2]))/2.0;
+    double _x = sqrt(std::max(0., 1 + m[0][0] - m[1][1] - m[2][2]))/2.0;
+    double _y = sqrt(std::max(0., 1 - m[0][0] + m[1][1] - m[2][2]))/2.0;
+    double _z = sqrt(std::max(0., 1 - m[0][0] - m[1][1] + m[2][2]))/2.0;
     u() = _u;
     x() = (m[2][1] - m[1][2])>=0?fabs(_x):-fabs(_x);
     y() = (m[0][2] - m[2][0])>=0?fabs(_y):-fabs(_y);
@@ -122,22 +122,22 @@ Quaternion::Quaternion(double roll, double pitch, double yaw)
 
 Quaternion::Quaternion(const Vector3& axis, double angle)
 {
-    double sa = std::sin(angle/2);
-    double ca = std::cos(angle/2);
-    x() = float(axis.x()*sa);
-    y() = float(axis.y()*sa);
-    z() = float(axis.z()*sa);
-    u() = float(ca);
+    double sa = std::sin(angle/2.0);
+    double ca = std::cos(angle/2.0);
+    x() = axis.x()*sa;
+    y() = axis.y()*sa;
+    z() = axis.z()*sa;
+    u() = ca;
 }
 
-float Quaternion::norm() const
+double Quaternion::norm() const
 {
     double n = 0;
     for (unsigned int i = 0; i < 4; ++i)
     {
         n += operator()(i) * operator()(i);
     }
-    return (float) std::sqrt(n);
+    return std::sqrt(n);
 }
 
 void Quaternion::operator*=(const Quaternion &other)
@@ -145,7 +145,7 @@ void Quaternion::operator*=(const Quaternion &other)
     *this = *this * other;
 }
 
-void Quaternion::operator/=(float x)
+void Quaternion::operator/=(double x)
 {
     for (unsigned int i = 0; i < 4; ++i)
     {
@@ -202,15 +202,15 @@ Vector3 Quaternion::toEuler() const
     m[2][1] = yz + ux;
     m[1][2] = yz - ux;
 
-    float roll  = (float) atan2(m[2][1], m[2][2]);
-    float pitch = (float) atan2(-m[2][0], sqrt(m[2][1]*m[2][1] + m[2][2]*m[2][2]));
-    float yaw   = (float) atan2(m[1][0], m[0][0]);
+    float roll  = float(atan2(m[2][1], m[2][2]));
+    float pitch = float(atan2(-m[2][0], sqrt(m[2][1]*m[2][1] + m[2][2]*m[2][2])));
+    float yaw   = float(atan2(m[1][0], m[0][0]));
 
     return Vector3(roll, pitch, yaw);
 }
 
 
-void Quaternion::toRotMatrix(std::vector <double>& rot_matrix_3_3) const
+void Quaternion::toRotMatrix(std::vector<double> &rot_matrix_3_3) const
 {
     // create rotational matrix
     double n = norm ();
@@ -272,14 +272,14 @@ Quaternion Quaternion::operator*(const Quaternion& other) const
 		      x()*other.y() - other.x()*y() + u()*other.z() + other.u()*z());
 }
 
-Quaternion Quaternion::operator*(const Vector3& v) const
+Quaternion Quaternion::operator*(const Vector3 &v) const
 {
     return *this * Quaternion(0, v(0), v(1), v(2));
 }
 
-Quaternion operator*(const Vector3& v, const Quaternion& q)
+Quaternion operator*(const Vector3 &v, const Quaternion &q)
 {
-    return Quaternion(0, v(0), v(1), v(2)) * q;
+    return Quaternion(0.0, v(0), v(1), v(2)) * q;
 }
 
 Quaternion& Quaternion::normalize()
@@ -303,9 +303,9 @@ double Quaternion::dot(const Quaternion &other) const
     return n < -1.0 ? -1.0 : (n > 1.0 ? 1.0 : n);
 }
 
-float Quaternion::getShortestAngleTo(const Quaternion &other) const
+double Quaternion::getShortestAngleTo(const Quaternion &other) const
 {
-    return 2.0f * std::acos(std::fabs(dot(other)));
+    return 2.0 * std::acos(std::fabs(dot(other)));
 }
 
 Vector3 Quaternion::getImag() const
@@ -318,18 +318,18 @@ Vector3 Quaternion::getRotationAxis() const
     return Vector3(x(), y(), z()).normalize();
 }
 
-float Quaternion::getRotationAngle() const
+double Quaternion::getRotationAngle() const
 {
     return 2.0f * std::acos(u());
 }
 
-Quaternion Quaternion::lerp(const Quaternion &other, float t) const
+Quaternion Quaternion::lerp(const Quaternion &other, double t) const
 {
     Quaternion quat;
-    quat.u() = (1.0f - t) * u() + t * other.u();
-    quat.x() = (1.0f - t) * x() + t * other.x();
-    quat.y() = (1.0f - t) * y() + t * other.y();
-    quat.z() = (1.0f - t) * z() + t * other.z();
+    quat.u() = (1.0 - t) * u() + t * other.u();
+    quat.x() = (1.0 - t) * x() + t * other.x();
+    quat.y() = (1.0 - t) * y() + t * other.y();
+    quat.z() = (1.0 - t) * z() + t * other.z();
     return quat;
 }
 
@@ -399,7 +399,7 @@ Quaternion Quaternion::exp() const
 Quaternion Quaternion::log() const
 {
     double vecNorm = std::sqrt(x() * x() + y() * y() + z() * z());
-    float quatNorm = norm();
+    double quatNorm = norm();
     double theta = std::atan2(vecNorm, u());
     double thetaOverVecNorm;
     if (vecNorm < 0.0001)
@@ -414,7 +414,7 @@ Quaternion Quaternion::log() const
     return Quaternion(std::log(quatNorm), thetaOverVecNorm * x(), thetaOverVecNorm * y(), thetaOverVecNorm * z());
 }
 
-Quaternion Quaternion::pow(float value) const
+Quaternion Quaternion::pow(double value) const
 {
     return (log() * value).exp();
 }
@@ -425,7 +425,7 @@ Quaternion Quaternion::getRotationAround(const Vector3 &direction) const
     return Quaternion(u(), p.x(), p.y(), p.z()).normalize();
 }
 
-Quaternion Quaternion::operator*(float val) const
+Quaternion Quaternion::operator*(double val) const
 {
     return Quaternion(u() * val, x() * val, y() * val, z() * val);
 }
@@ -476,7 +476,7 @@ std::istream& Quaternion::readBinary(std::istream &s)
     for (unsigned int i = 0; i < 4; ++i)
     {
         s.read((char*)&val, sizeof(val));
-        operator()(i) = (float) val;
+        operator()(i) = (double) val;
     }
     return s;
 }

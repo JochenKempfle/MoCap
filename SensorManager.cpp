@@ -102,7 +102,7 @@ bool SensorManager::setSensorOffset(int id, const Quaternion &rotation)
 std::vector<int> SensorManager::getMoving(double minDegree)
 {
     std::vector<int> moving;
-    float rotationThreshold = fabs(M_PI * minDegree/180.0);
+    double rotationThreshold = fabs(M_PI * minDegree/180.0);
     for (size_t i = 0; i < _previousSensorData.size(); ++i)
     {
         int id = _previousSensorData[i].getId();
@@ -114,7 +114,7 @@ std::vector<int> SensorManager::getMoving(double minDegree)
         //Vector3 difference = _previousSensorData[i].getRotation().toEuler() - it->second.getRotation().toEuler();
         // difference.normalize();
         //float angle = difference.norm();
-        float angle = _previousSensorData[i].getRotation().getShortestAngleTo(it->second->getRotation());
+        double angle = _previousSensorData[i].getRotation().getShortestAngleTo(it->second->getRotation());
         if (angle >= rotationThreshold)
         {
             moving.push_back(id);

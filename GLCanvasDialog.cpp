@@ -1,0 +1,72 @@
+#include "wx_pch.h"
+#include "GLCanvasDialog.h"
+
+#ifndef WX_PRECOMP
+	//(*InternalHeadersPCH(GLCanvasDialog)
+	#include <wx/intl.h>
+	#include <wx/string.h>
+	//*)
+#endif
+//(*InternalHeaders(GLCanvasDialog)
+//*)
+
+//(*IdInit(GLCanvasDialog)
+const long GLCanvasDialog::ID_COLOURPICKERCTRL = wxNewId();
+const long GLCanvasDialog::ID_BUTTONOK = wxNewId();
+const long GLCanvasDialog::ID_BUTTONABORT = wxNewId();
+//*)
+
+BEGIN_EVENT_TABLE(GLCanvasDialog,wxDialog)
+	//(*EventTable(GLCanvasDialog)
+	//*)
+END_EVENT_TABLE()
+
+GLCanvasDialog::GLCanvasDialog(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
+{
+	//(*Initialize(GLCanvasDialog)
+	wxBoxSizer* BoxSizer2;
+	wxBoxSizer* BoxSizer1;
+	wxStaticBoxSizer* StaticBoxSizer1;
+
+	Create(parent, id, _("Canvas Settings"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE, _T("id"));
+	SetClientSize(wxDefaultSize);
+	Move(wxDefaultPosition);
+	BoxSizer1 = new wxBoxSizer(wxVERTICAL);
+	StaticBoxSizer1 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Background Color"));
+	ColourPickerCtrl = new wxColourPickerCtrl(this, ID_COLOURPICKERCTRL, wxColour(0,0,0), wxDefaultPosition, wxDefaultSize, wxCLRP_USE_TEXTCTRL, wxDefaultValidator, _T("ID_COLOURPICKERCTRL"));
+	ColourPickerCtrl->SetToolTip(_("Click or enter text to change background color"));
+	StaticBoxSizer1->Add(ColourPickerCtrl, 1, wxALL, 5);
+	BoxSizer1->Add(StaticBoxSizer1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
+	ButtonOK = new wxButton(this, ID_BUTTONOK, _("OK"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONOK"));
+	ButtonOK->SetDefault();
+	BoxSizer2->Add(ButtonOK, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	ButtonAbort = new wxButton(this, ID_BUTTONABORT, _("Abort"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONABORT"));
+	BoxSizer2->Add(ButtonAbort, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer1->Add(BoxSizer2, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	SetSizer(BoxSizer1);
+	BoxSizer1->Fit(this);
+	BoxSizer1->SetSizeHints(this);
+	Center();
+
+	Connect(ID_BUTTONOK,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&GLCanvasDialog::OnButtonOKClick);
+	Connect(ID_BUTTONABORT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&GLCanvasDialog::OnButtonAbortClick);
+	//*)
+}
+
+GLCanvasDialog::~GLCanvasDialog()
+{
+	//(*Destroy(GLCanvasDialog)
+	//*)
+}
+
+
+void GLCanvasDialog::OnButtonOKClick(wxCommandEvent& event)
+{
+    EndModal(wxID_OK);
+}
+
+void GLCanvasDialog::OnButtonAbortClick(wxCommandEvent& event)
+{
+    EndModal(wxID_ABORT);
+}

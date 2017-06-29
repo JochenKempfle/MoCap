@@ -35,6 +35,7 @@ ReceiverKinect::ReceiverKinect()
     _bodyFrameReader = nullptr;
     _coordinateMapper = nullptr;
     _kinectSensor = nullptr;
+    _startTime = -1;
 }
 
 ReceiverKinect::~ReceiverKinect()
@@ -84,6 +85,16 @@ bool ReceiverKinect::update()
 
         hr = pBodyFrame->get_RelativeTime(&nTime);
 
+
+        // get time point at which the data arrived
+        wxLongLong time = wxGetUTCTimeMillis();
+        uint64_t receiveTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
+
+        if (_startTime < 0)
+        {
+            _startTime = receiveTime;
+        }
+
         IBody* ppBodies[BODY_COUNT] = {0};
 
         if (SUCCEEDED(hr))
@@ -105,7 +116,7 @@ bool ReceiverKinect::update()
                     if (SUCCEEDED(hr) && bTracked)
                     {
                         Joint joints[JointType_Count];
-                        // JointOrientation jointOrientations[JointType_Count];
+                        JointOrientation jointOrientations[JointType_Count];
 
                         // TODO(JK#9#2017-06-07): use kinect hand state for something useful
                         /*
@@ -118,7 +129,7 @@ bool ReceiverKinect::update()
 
                         hr = pBody->GetJoints(JointType_Count, joints);
                         // TODO(JK#3#2017-06-07): get more kinect streams and incorporate them in the mocap process
-                        // hr = pBody->GetJointOrientations(JointType_Count, jointOrientations);
+                        hr = pBody->GetJointOrientations(JointType_Count, jointOrientations);
 
                         if (SUCCEEDED(hr))
                         {
@@ -127,6 +138,10 @@ bool ReceiverKinect::update()
                                 // handle setting of id for sensor node (and data) (solved by setting IP + id as name)
                                 std::string name = "K-";
                                 name += getJointName(i);
+
+                                //wxString msg;
+                                //msg << name << _(" - ") << jointOrientations[i].Orientation.w << _(" ") << jointOrientations[i].Orientation.x << _(" ") << jointOrientations[i].Orientation.y << _(" ") << jointOrientations[i].Orientation.z;
+                                //wxLogDebug(msg);
 
                                 Vector3 posJoint = Vector3(joints[i].Position.X, joints[i].Position.Y, joints[i].Position.Z);
                                 Vector3 posParent;
@@ -144,21 +159,46 @@ bool ReceiverKinect::update()
                                 }
 
                                 Vector3 dir = posJoint - posParent;
+                                Quaternion orientationFromPosition(Vector3(1.0f, 0.0f, 0.0f), dir);
 
-                                // Vector3 to(jointOrientations[i].Orientation.x - jointOrientations[getJointParentId(i)], jointOrientations[i].Orientation.y, jointOrientations[i].Orientation.z);
-                                Quaternion quat(Vector3(1.0f, 0.0f, 0.0f), dir);
 
-                                // TODO(JK#2#2017-06-07): coordinate mapping hack to circumvent wrong coordinate mapping in SensorNode::update
-                                Quaternion coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+                                Quaternion orientationFromKinect(jointOrientations[i].Orientation.w, jointOrientations[i].Orientation.x, jointOrientations[i].Orientation.y, jointOrientations[i].Orientation.z);
 
-                                quat = coordinateMapping.inv() * quat * coordinateMapping;
-                                quat.normalize();
+                                // kinect bones always rotate around y-axis (i.e. their direction is the positive y-axis), so as in this case
+                                // the bones always rotate around the positive x-axis (i.e. their direction is the positive x-axis), the kinect
+                                // quaternions have to be mapped to the local coordinate system.
+                                Quaternion coordinateMapping = Quaternion(Vector3(0.0, 0.0, 1.0), M_PI*90.0/180.0) * Quaternion(Vector3(1.0, 0.0, 0.0), M_PI*90.0/180.0);
+
+                                orientationFromKinect = orientationFromKinect * coordinateMapping;
+                                orientationFromKinect.normalize();
+
+
+
+                                // TODO(JK#2#2017-06-07): coordinate mapping hack to circumvent wrong coordinate mapping in SensorNode::update. Correct this.
+                                coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+
+                                orientationFromPosition = coordinateMapping.inv() * orientationFromPosition * coordinateMapping;
+                                orientationFromPosition.normalize();
+
+                                orientationFromKinect = coordinateMapping.inv() * orientationFromKinect * coordinateMapping;
+                                orientationFromKinect.normalize();
 
                                 SensorRawData data;
-                                data.rotation[0] = quat.u();
-                                data.rotation[1] = quat.x();
-                                data.rotation[2] = quat.y();
-                                data.rotation[3] = quat.z();
+/*
+                                data.rotation[0] = orientationFromPosition.u();
+                                data.rotation[1] = orientationFromPosition.x();
+                                data.rotation[2] = orientationFromPosition.y();
+                                data.rotation[3] = orientationFromPosition.z();
+*/
+                                // uncomment to get kinect orientations
+
+                                data.rotation[0] = orientationFromKinect.u();
+                                data.rotation[1] = orientationFromKinect.x();
+                                data.rotation[2] = orientationFromKinect.y();
+                                data.rotation[3] = orientationFromKinect.z();
+
+                                data.timestamp = static_cast<unsigned int>(receiveTime - _startTime);
+                                data.receiveTime = receiveTime;
 
                                 theSensorManager.updateSensor(name, data);
                             }

@@ -97,6 +97,8 @@
 		<Unit filename="FilterDialog.h" />
 		<Unit filename="GLCanvas.cpp" />
 		<Unit filename="GLCanvas.h" />
+		<Unit filename="GLCanvasDialog.cpp" />
+		<Unit filename="GLCanvasDialog.h" />
 		<Unit filename="GLImage.cpp" />
 		<Unit filename="GLImage.h" />
 		<Unit filename="JointConstraint.cpp" />
@@ -122,6 +124,8 @@
 		<Unit filename="MotionSequenceChannel.h" />
 		<Unit filename="MotionSequenceFrame.cpp" />
 		<Unit filename="MotionSequenceFrame.h" />
+		<Unit filename="PopupWindow.cpp" />
+		<Unit filename="PopupWindow.h" />
 		<Unit filename="PostProcessPanel.cpp" />
 		<Unit filename="PostProcessPanel.h" />
 		<Unit filename="Quaternion.cpp" />
@@ -207,6 +211,7 @@
 					<wxDialog wxs="wxsmith/FilterDialog.wxs" src="FilterDialog.cpp" hdr="FilterDialog.h" fwddecl="0" i18n="1" name="FilterDialog" language="CPP" />
 					<wxDialog wxs="wxsmith/ExportDialog.wxs" src="ExportDialog.cpp" hdr="ExportDialog.h" fwddecl="0" i18n="1" name="ExportDialog" language="CPP" />
 					<wxDialog wxs="wxsmith/ConstraintDialog.wxs" src="ConstraintDialog.cpp" hdr="ConstraintDialog.h" fwddecl="0" i18n="1" name="ConstraintDialog" language="CPP" />
+					<wxDialog wxs="wxsmith/GLCanvasDialog.wxs" src="GLCanvasDialog.cpp" hdr="GLCanvasDialog.h" fwddecl="0" i18n="1" name="GLCanvasDialog" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

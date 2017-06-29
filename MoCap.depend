@@ -8703,14 +8703,14 @@
 	<vector>
 	<map>
 
-1496848882 c:\projekte\mocap\bone.h
+1498653244 c:\projekte\mocap\bone.h
 	"Quaternion.h"
 	"Vector3.h"
 	"JointConstraint.h"
 	<vector>
 	<string>
 
-1490706518 c:\projekte\mocap\quaternion.h
+1498691549 c:\projekte\mocap\quaternion.h
 	"Vector3.h"
 	<iostream>
 	<vector>
@@ -8946,17 +8946,18 @@
 	<atomic>
 	<list>
 
-1496069640 source:c:\projekte\mocap\glcanvas.cpp
+1498695495 source:c:\projekte\mocap\glcanvas.cpp
 	"wx_pch.h"
 	"GLCanvas.h"
 	"MoCapManager.h"
+	"GLCanvasDialog.h"
 	<OpenGL/gl.h>
 	<OpenGL/glu.h>
 	<GL/gl.h>
 	<GL/glu.h>
 	<wx/wx.h>
 
-1494249733 c:\projekte\mocap\glcanvas.h
+1498655279 c:\projekte\mocap\glcanvas.h
 	<wx/glcanvas.h>
 	"GLImage.h"
 	"Skeleton.h"
@@ -9016,7 +9017,7 @@
 1487761777 c:\projekte\mocap\mocapapp.h
 	<wx/app.h>
 
-1496419586 c:\projekte\mocap\mocapmain.h
+1497890500 c:\projekte\mocap\mocapmain.h
 	<wx/sizer.h>
 	<wx/menu.h>
 	<wx/panel.h>
@@ -9040,10 +9041,11 @@
 	"ScrolledContainerPanel.h"
 	<wx/glcanvas.h>
 
-1487761777 c:\projekte\mocap\sensordatapanel.h
-	<wx/sizer.h>
+1497891804 c:\projekte\mocap\sensordatapanel.h
 	<wx/panel.h>
 	"SensorNode.h"
+	"PopupWindow.h"
+	"SensorDataExtPanel.h"
 
 1493912980 c:\projekte\mocap\timer.h
 	<wx/wx.h>
@@ -9054,7 +9056,7 @@
 	<wx/sizer.h>
 	<wx/panel.h>
 
-1496858992 source:c:\projekte\mocap\mocapmain.cpp
+1497891372 source:c:\projekte\mocap\mocapmain.cpp
 	"wx_pch.h"
 	"MoCapMain.h"
 	<wx/msgdlg.h>
@@ -9113,7 +9115,7 @@
 1456698816 c:\engines\wxwidgets-3.1.0\include\wx\qt\tglbtn.h
 	"wx/tglbtn.h"
 
-1493383230 c:\projekte\mocap\skeletoncreatorpanel.h
+1498658178 c:\projekte\mocap\skeletoncreatorpanel.h
 	"GLCanvas.h"
 	"TreeItemBoneData.h"
 	<map>
@@ -9126,6 +9128,7 @@
 	<wx/button.h>
 	<wx/treectrl.h>
 	<wx/glcanvas.h>
+	<wx/clrpicker.h>
 
 1487761777 c:\projekte\mocap\treeitembonedata.h
 	<wx/treebase.h>
@@ -9222,7 +9225,7 @@
 1487761777 c:\projekte\mocap\customevents.h
 	<wx/event.h>
 
-1488464178 source:c:\projekte\mocap\mocapmanager.cpp
+1498740466 source:c:\projekte\mocap\mocapmanager.cpp
 	"MoCapManager.h"
 	"SensorManager.h"
 	"MotionFilterNone.h"
@@ -9244,7 +9247,7 @@
 	"MotionFilterNone.h"
 	<list>
 
-1487761777 source:c:\projekte\mocap\motionfilterslerp.cpp
+1498690632 source:c:\projekte\mocap\motionfilterslerp.cpp
 	"MotionFilterSlerp.h"
 
 1488380608 source:c:\projekte\mocap\motionplayerpanel.cpp
@@ -9277,7 +9280,7 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1490706518 source:c:\projekte\mocap\quaternion.cpp
+1498691495 source:c:\projekte\mocap\quaternion.cpp
 	"Vector3.h"
 	"Quaternion.h"
 	<cassert>
@@ -9305,7 +9308,7 @@
 1487761777 source:c:\projekte\mocap\sensordata.cpp
 	"SensorData.h"
 
-1487761777 source:c:\projekte\mocap\sensordataextpanel.cpp
+1497885466 source:c:\projekte\mocap\sensordataextpanel.cpp
 	"wx_pch.h"
 	"SensorDataExtPanel.h"
 	"SensorManager.h"
@@ -9314,7 +9317,7 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1496762481 source:c:\projekte\mocap\sensordatapanel.cpp
+1498750806 source:c:\projekte\mocap\sensordatapanel.cpp
 	"wx_pch.h"
 	"SensorDataPanel.h"
 	"MoCapManager.h"
@@ -9346,7 +9349,7 @@
 1496848542 source:c:\projekte\mocap\skeleton.cpp
 	"Skeleton.h"
 
-1493742193 source:c:\projekte\mocap\skeletoncreatorpanel.cpp
+1498658400 source:c:\projekte\mocap\skeletoncreatorpanel.cpp
 	"wx_pch.h"
 	"SkeletonCreatorPanel.h"
 	"FileHandler.h"
@@ -9387,7 +9390,7 @@
 	<wx/spinctrl.h>
 	"TimelineOverlay.h"
 
-1491493632 source:c:\projekte\mocap\timelinepanel.cpp
+1498658400 source:c:\projekte\mocap\timelinepanel.cpp
 	"wx_pch.h"
 	"TimelinePanel.h"
 	"AnimationManager.h"
@@ -9437,7 +9440,7 @@
 	<math.h>
 	<string.h>
 
-1496854899 source:c:\projekte\mocap\viewpanel.cpp
+1497887713 source:c:\projekte\mocap\viewpanel.cpp
 	"wx_pch.h"
 	"ViewPanel.h"
 	"MoCapMain.h"
@@ -9511,10 +9514,10 @@
 
 1456698816 c:\engines\wxwidgets-3.1.0\include\wx\generic\statline.h
 
-1495534288 source:c:\projekte\mocap\jointconstraint.cpp
+1497349019 source:c:\projekte\mocap\jointconstraint.cpp
 	"JointConstraint.h"
 
-1491238380 c:\projekte\mocap\jointconstraint.h
+1497349023 c:\projekte\mocap\jointconstraint.h
 	"Quaternion.h"
 	<set>
 	<vector>
@@ -9586,7 +9589,7 @@
 	"ReceiverBase.h"
 	"wx/socket.h"
 
-1496858992 c:\projekte\mocap\receiverkinect.h
+1498744677 c:\projekte\mocap\receiverkinect.h
 	"ReceiverBase.h"
 	"Skeleton.h"
 	"KinectHack.h"
@@ -9598,7 +9601,61 @@
 	"SensorData.h"
 	"SensorManager.h"
 
-1496859613 source:c:\projekte\mocap\receiverkinect.cpp
+1498750828 source:c:\projekte\mocap\receiverkinect.cpp
 	"ReceiverKinect.h"
 	"SensorManager.h"
+
+1497891804 source:c:\projekte\mocap\popupwindow.cpp
+	"PopupWindow.h"
+
+1497891804 c:\projekte\mocap\popupwindow.h
+	<wx/panel.h>
+	<wx/popupwin.h>
+	<type_traits>
+
+1456698816 c:\engines\wxwidgets-3.1.0\include\wx\popupwin.h
+	"wx/defs.h"
+	"wx/nonownedwnd.h"
+	"wx/msw/popupwin.h"
+	"wx/gtk/popupwin.h"
+	"wx/gtk1/popupwin.h"
+	"wx/x11/popupwin.h"
+	"wx/motif/popupwin.h"
+	"wx/dfb/popupwin.h"
+	"wx/osx/popupwin.h"
+	"wx/qt/popupwin.h"
+
+1456698816 c:\engines\wxwidgets-3.1.0\include\wx\msw\popupwin.h
+
+1456698816 c:\engines\wxwidgets-3.1.0\include\wx\qt\popupwin.h
+
+1498655279 c:\projekte\mocap\glcanvasdialog.h
+	<wx/sizer.h>
+	<wx/button.h>
+	<wx/dialog.h>
+	<wx/clrpicker.h>
+
+1456698816 c:\engines\wxwidgets-3.1.0\include\wx\clrpicker.h
+	"wx/defs.h"
+	"wx/pickerbase.h"
+	"wx/gtk/clrpicker.h"
+	"wx/qt/clrpicker.h"
+	"wx/generic/clrpickerg.h"
+
+1456698816 c:\engines\wxwidgets-3.1.0\include\wx\qt\clrpicker.h
+	"wx/generic/clrpickerg.h"
+
+1456698816 c:\engines\wxwidgets-3.1.0\include\wx\generic\clrpickerg.h
+	"wx/button.h"
+	"wx/bmpbuttn.h"
+	"wx/colourdata.h"
+
+1456698816 c:\engines\wxwidgets-3.1.0\include\wx\colourdata.h
+	"wx/colour.h"
+
+1498657501 source:c:\projekte\mocap\glcanvasdialog.cpp
+	"wx_pch.h"
+	"GLCanvasDialog.h"
+	<wx/intl.h>
+	<wx/string.h>
 

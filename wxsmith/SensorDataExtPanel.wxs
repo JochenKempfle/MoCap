@@ -156,6 +156,7 @@
 			</object>
 			<object class="sizeritem">
 				<object class="wxPanel" name="ID_PANELPLOT" variable="PanelPlot" member="yes">
+					<size>300,-1</size>
 					<bg>#FFFFFF</bg>
 					<style>wxSIMPLE_BORDER</style>
 					<handler function="OnPanelPlotPaint" entry="EVT_PAINT" />

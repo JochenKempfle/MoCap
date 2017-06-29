@@ -81,6 +81,7 @@ class MoCapFrame: public wxFrame
         void OnKeyDown(wxKeyEvent& event);
         void OnMainPanelKeyDown(wxKeyEvent& event);
         void OnButtonMotionPlayerClick(wxCommandEvent& event);
+        void OnButtonLogClick(wxCommandEvent& event);
         //*)
 
         // socket event handler
@@ -97,6 +98,7 @@ class MoCapFrame: public wxFrame
         static const long ID_BUTTONFULLSCREEN;
         static const long ID_PANEL1;
         static const long ID_DATAPANEL;
+        static const long ID_BUTTONLOG;
         static const long ID_BUTTONCONNECTION;
         static const long ID_BUTTONDISCONNECT;
         static const long ID_PANEL2;
@@ -116,6 +118,7 @@ class MoCapFrame: public wxFrame
         //(*Declarations(MoCapFrame)
         wxButton* ButtonSkeleton;
         wxBoxSizer* MainSizer;
+        wxButton* ButtonLog;
         wxBoxSizer* FrameSizer;
         wxButton* ButtonConnection;
         wxButton* ButtonPostProcess;

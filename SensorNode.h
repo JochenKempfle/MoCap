@@ -86,17 +86,20 @@ class SensorNode
     void setRotation(const Quaternion &rotation) { _rotation = rotation; }
     // void setRotation(float u, float x, float y, float z) { _rotation = Quaternionf(u, x, y, z); }
 
-    void setMapping(const Quaternion &mapping) { _coordinateMapping = mapping; }
     Quaternion getMapping() const { return _coordinateMapping; }
+    void setMapping(const Quaternion &mapping) { _coordinateMapping = mapping; }
+    void resetMapping() { _coordinateMapping = Quaternion(); }
 
-    void setBoneMapping(const Quaternion &mapping) { _boneMapping = mapping; }
     Quaternion getBoneMapping() const { return _boneMapping; }
+    void setBoneMapping(const Quaternion &mapping) { _boneMapping = mapping; }
+    void resetBoneMapping() { _boneMapping = Quaternion(); }
 
     // returns the relative rotation to the offset
     Quaternion getCalRotation() const;// { return _rotationOffset * _rotation; }
 
     Quaternion getRotationOffset() const { return _rotationOffset; }
     void setRotationOffset(const Quaternion &offset) { _rotationOffset = offset; }
+    void resetRotationOffset() { _rotationOffset = Quaternion(); }
 
     uint64_t getStartTime() const { return _startTime; }
     uint64_t getLastReceiveTime() const { return _lastReceiveTime; }
@@ -119,6 +122,8 @@ class SensorNode
     void addBuffer(SensorBuffer* buffer);
     void removeBuffer(SensorBuffer* buffer);
 
+    // TODO(JK#2#2017-06-29): allow a sensor node to reset its calibration values and to set it individually
+    // TODO(JK#2#2017-06-29): allow a sensor node to use one sensor for whole coordinate mapping
   private:
     int _id;
     int _boneId;

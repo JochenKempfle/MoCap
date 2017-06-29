@@ -122,6 +122,8 @@ class GLCanvas : public wxGLCanvas
 
     bool _showUI;
 
+    wxColour _backgroundColor;
+
     Skeleton* _skeleton;
     Quaternion _sensorOrientation;
     std::map<int, GLImage*> _labels;

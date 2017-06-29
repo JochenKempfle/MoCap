@@ -122,7 +122,7 @@ SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPo
 	ToggleButtonOffset = new wxToggleButton(this, ID_TOGGLEBUTTONOFFSET, _("Set Offset"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TOGGLEBUTTONOFFSET"));
 	BoxSizer3->Add(ToggleButtonOffset, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer1->Add(BoxSizer3, 0, wxALL|wxEXPAND, 5);
-	PanelPlot = new wxPanel(this, ID_PANELPLOT, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER, _T("ID_PANELPLOT"));
+	PanelPlot = new wxPanel(this, ID_PANELPLOT, wxDefaultPosition, wxSize(300,-1), wxSIMPLE_BORDER, _T("ID_PANELPLOT"));
 	PanelPlot->SetBackgroundColour(wxColour(255,255,255));
 	BoxSizer1->Add(PanelPlot, 1, wxALL|wxEXPAND, 5);
 	BoxSizer1->Add(-1,-1,0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -295,7 +295,7 @@ void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
     size -= wxSize(2, 2);
     int x = 0;
     int y = size.y/2;
-    int step = size.x/_numPlotPoints;
+    float step = float(size.x - 10)/_numPlotPoints;
 
     dc.DrawText(_("180"), wxPoint(size.x - dc.GetTextExtent(_("180")).x, 0));
     dc.DrawText(_("0"), wxPoint(size.x - dc.GetTextExtent(_("0")).x, y - dc.GetTextExtent(_("0")).y/2));
@@ -306,6 +306,8 @@ void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
 
     dc.SetPen(wxPen(wxColour(255, 0, 0)));
     wxPoint last = wxPoint(0, y + _plotData.front().x()/M_PI * y + 1);
+
+    int n = 0;
     for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
     {
         wxPoint next(x, y + it->x()/M_PI * y);
@@ -314,10 +316,11 @@ void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
             dc.DrawLine(last, next);
         }
         last = next;
-        x += step;
+        x = step * n++;
     }
 
     x = 0;
+    n = 0;
     dc.SetPen(wxPen(wxColour(0, 255, 0)));
     last = wxPoint(0, y + _plotData.front().y()/M_PI * y + 1);
     for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
@@ -328,10 +331,11 @@ void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
             dc.DrawLine(last, next);
         }
         last = next;
-        x += step;
+        x = step * n++;
     }
 
     x = 0;
+    n = 0;
     dc.SetPen(wxPen(wxColour(0, 0, 255)));
     last = wxPoint(0, y + _plotData.front().z()/M_PI * y + 1);
     for (auto it = _plotData.begin(); it != _plotData.end(); ++it)
@@ -342,6 +346,6 @@ void SensorDataExtPanel::OnPanelPlotPaint(wxPaintEvent& event)
             dc.DrawLine(last, next);
         }
         last = next;
-        x += step;
+        x = step * n++;
     }
 }

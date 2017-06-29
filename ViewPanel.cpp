@@ -163,6 +163,7 @@ void ViewPanel::OnUpdateEvent(wxEvent& event)
         }
         // update sensor states displayed in the GUI
         std::vector<SensorNode*> sensors = theSensorManager.getSensors();
+
         for (size_t i = 0; i < sensors.size(); ++i)
         {
             int id = sensors[i]->getId();
@@ -176,8 +177,10 @@ void ViewPanel::OnUpdateEvent(wxEvent& event)
                 addSensor(id)->update(sensors[i]);
             }
         }
-        BoxSizerSensors->Layout();
-        Refresh();
+        if (sensors.size() > 0)
+        {
+            Refresh();
+        }
         // set sensor state to not updated, such that they have to receive a update first before having the updated flag set again
         // this way not updated sensors can be detected
         theSensorManager.resetAllSensorStatesUpdated();
@@ -198,6 +201,7 @@ SensorDataPanel* ViewPanel::addSensor(int id)
     sensorPanel->setSensorId(id);
     sensorContainerPanel->add(sensorPanel);
     _dataPanelFromId[id] = sensorPanel;
+    BoxSizerSensors->Layout();
     return sensorPanel;
 }
 
@@ -302,6 +306,7 @@ void ViewPanel::OnButtonAutoAssignClick(wxCommandEvent& event)
         return;
     }
     // TODO(JK#3#): Notice the user that auto assign is in progress and have a timeout for it
+    // TODO(JK#2#2017-06-29): application crashes when auto assign is started
     auto bones = theMoCapManager.getBoneIdsWithName();
     wxMenu menu;
     menu.Append(-1, _("no bone"));

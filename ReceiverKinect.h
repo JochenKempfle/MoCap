@@ -66,6 +66,8 @@ class ReceiverKinect : public ReceiverBase
     // Body reader
     IBodyFrameReader* _bodyFrameReader;
 
+    int64_t _startTime;
+
     Skeleton _kinectSkeleton;
 };
 

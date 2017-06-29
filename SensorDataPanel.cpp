@@ -52,17 +52,17 @@ END_EVENT_TABLE()
 SensorDataPanel::SensorDataPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
 	//(*Initialize(SensorDataPanel)
-	wxBoxSizer* BoxSizer1;
-
 	Create(parent, id, wxDefaultPosition, wxSize(80,40), wxNO_BORDER|wxTAB_TRAVERSAL, _T("id"));
-	BoxSizer1 = new wxBoxSizer(wxVERTICAL);
-	SetSizer(BoxSizer1);
-	SetSizer(BoxSizer1);
-	Layout();
 
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&SensorDataPanel::OnPaint);
 	Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&SensorDataPanel::OnLeftDown);
+	Connect(wxEVT_RIGHT_DOWN,(wxObjectEventFunction)&SensorDataPanel::OnRightDown);
 	//*)
+	_sensorId = -1;
+	_isUpdated = false;
+	_hasBone = false;
+	_isCalibrated = false;
+	_dataExtPopup = nullptr;
 }
 
 SensorDataPanel::~SensorDataPanel()
@@ -76,6 +76,7 @@ void SensorDataPanel::update(const SensorNode* sensor)
     wxLongLong time = wxGetUTCTimeMillis();
     uint64_t currentTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
 
+    // TODO(JK#4#2017-06-19): make the sensorDataPanel "is updated" - test more flexible (own function to set delay time)
     if (sensor->getLastReceiveTime() < currentTime - 1000)
     {
         _isUpdated = false;
@@ -86,6 +87,11 @@ void SensorDataPanel::update(const SensorNode* sensor)
     }
     _hasBone = sensor->hasBone();
     _isCalibrated = sensor->isCalibrated();
+
+    if (_dataExtPopup != nullptr && _dataExtPopup->IsShownOnScreen())
+    {
+        _dataExtPopup->getPanel()->update();
+    }
 }
 
 void SensorDataPanel::setSensorId(int id)
@@ -130,7 +136,11 @@ void SensorDataPanel::OnPaint(wxPaintEvent& event)
 
     wxString name;// = _("Sensor ");
     //name << _sensorId;
-    name << theSensorManager.getSensor(_sensorId)->getIPAddress();
+
+    if (_sensorId >= 0)
+    {
+        name << theSensorManager.getSensor(_sensorId)->getIPAddress();
+    }
     wxString affiliation;
 
     int boneId = theMoCapManager.getBoneIdFromSensorId(_sensorId);
@@ -176,6 +186,19 @@ void SensorDataPanel::OnPopupClick(wxCommandEvent &event)
     int boneId = event.GetId();
     theMoCapManager.assignSensorToBone(_sensorId, boneId);
     GetParent()->Refresh();
+}
+
+void SensorDataPanel::OnRightDown(wxMouseEvent& event)
+{
+    SetFocus();
+    if (_dataExtPopup == nullptr)//) || !_dataExtPopup->IsOK())
+    {
+        _dataExtPopup = new PopupWindow<SensorDataExtPanel>(this);
+        _dataExtPopup->getPanel()->setSensor(theSensorManager.getSensor(_sensorId));
+    }
+    _dataExtPopup->Position(ClientToScreen(event.GetPosition()), wxSize(0, 0));
+    _dataExtPopup->getPanel()->update();
+    _dataExtPopup->Popup(this);
 }
 
 

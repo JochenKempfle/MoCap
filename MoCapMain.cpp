@@ -89,6 +89,7 @@ const long MoCapFrame::ID_BUTTONPOSTPROCESS = wxNewId();
 const long MoCapFrame::ID_BUTTONFULLSCREEN = wxNewId();
 const long MoCapFrame::ID_PANEL1 = wxNewId();
 const long MoCapFrame::ID_DATAPANEL = wxNewId();
+const long MoCapFrame::ID_BUTTONLOG = wxNewId();
 const long MoCapFrame::ID_BUTTONCONNECTION = wxNewId();
 const long MoCapFrame::ID_BUTTONDISCONNECT = wxNewId();
 const long MoCapFrame::ID_PANEL2 = wxNewId();
@@ -157,6 +158,8 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     BoxSizer3 = new wxBoxSizer(wxHORIZONTAL);
     Panel2 = new wxPanel(MainPanel, ID_PANEL2, wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER|wxTAB_TRAVERSAL, _T("ID_PANEL2"));
     BoxSizer4 = new wxBoxSizer(wxHORIZONTAL);
+    ButtonLog = new wxButton(Panel2, ID_BUTTONLOG, _("Show Log"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONLOG"));
+    BoxSizer4->Add(ButtonLog, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonConnection = new wxButton(Panel2, ID_BUTTONCONNECTION, _("Connection"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONCONNECTION"));
     BoxSizer4->Add(ButtonConnection, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonDisconnect = new wxButton(Panel2, ID_BUTTONDISCONNECT, _("Disconnect"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONDISCONNECT"));
@@ -193,6 +196,7 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     Connect(ID_BUTTONMOTIONPLAYER,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonMotionPlayerClick);
     Connect(ID_BUTTONPOSTPROCESS,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonPostProcessClick);
     Connect(ID_BUTTONFULLSCREEN,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonFullScreenClick);
+    Connect(ID_BUTTONLOG,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonLogClick);
     Connect(ID_BUTTONCONNECTION,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonConnectionClick);
     Connect(ID_BUTTONDISCONNECT,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonDisconnectClick);
     MainPanel->Connect(wxEVT_KEY_DOWN,(wxObjectEventFunction)&MoCapFrame::OnMainPanelKeyDown,0,this);
@@ -206,12 +210,12 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     Maximize(true);
 
 
-    _logger = new wxLogWindow(this, _("Log"));
+    _logger = new wxLogWindow(this, _("Log"), false);
 
 
     _addressPeer.BroadcastAddress();
     _addressPeer.Service(5040);
-    _addressLocal.Hostname(_("192.168.0.102"));//wxGetFullHostName());
+    _addressLocal.Hostname(_("192.168.0.101"));//wxGetFullHostName());
     _addressLocal.Service(5040);
 
 
@@ -572,7 +576,7 @@ void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
     else
     {
         dialog->Destroy();
-        return;
+        // return;
     }
 
 
@@ -648,6 +652,15 @@ void MoCapFrame::OnKeyDown(wxKeyEvent& event)
 void MoCapFrame::OnMainPanelKeyDown(wxKeyEvent& event)
 {
     event.Skip();
+}
+
+void MoCapFrame::OnButtonLogClick(wxCommandEvent& event)
+{
+    if (_logger == nullptr)
+    {
+        _logger = new wxLogWindow(this, _("Log"));
+    }
+    _logger->Show();
 }
 
 

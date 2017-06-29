@@ -102,6 +102,14 @@
 										<style>wxSIMPLE_BORDER|wxTAB_TRAVERSAL</style>
 										<object class="wxBoxSizer" variable="BoxSizer4" member="no">
 											<object class="sizeritem">
+												<object class="wxButton" name="ID_BUTTONLOG" variable="ButtonLog" member="yes">
+													<label>Show Log</label>
+													<handler function="OnButtonLogClick" entry="EVT_BUTTON" />
+												</object>
+												<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+												<border>5</border>
+											</object>
+											<object class="sizeritem">
 												<object class="wxButton" name="ID_BUTTONCONNECTION" variable="ButtonConnection" member="yes">
 													<label>Connection</label>
 													<handler function="OnButtonConnectionClick" entry="EVT_BUTTON" />

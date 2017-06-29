@@ -30,6 +30,7 @@ OF SUCH DAMAGE.
 #include "wx_pch.h"
 #include "GLCanvas.h"
 #include "MoCapManager.h"
+#include "GLCanvasDialog.h"
 
 #if defined(__WXMAC__) || defined(__WXCOCOA__)
     #include <OpenGL/gl.h>
@@ -75,6 +76,7 @@ GLCanvas::GLCanvas(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wx
     _cameraUp = Vector3(0.0f, 1.0f, 0.0f);
     _cameraRight = Vector3(1.0f, 0.0f, 0.0f);
     _showUI = false;
+    _backgroundColor = wxColour(0, 0, 0);
     _lClicked = false;
     _rClicked = false;
     _skeleton = nullptr;
@@ -151,7 +153,14 @@ void GLCanvas::OnEraseBackground(wxEraseEvent &event)
 void GLCanvas::OnEnterWindow(wxMouseEvent &event)
 {
 	//SetFocus();
-	_showUI = true;
+	if (_style & (SINGLE_JOINT_MODE|SINGLE_SENSOR_MODE))
+    {
+        _showUI = false;
+    }
+    else
+    {
+        _showUI = true;
+    }
 	event.Skip();
 	Refresh();
 }
@@ -169,6 +178,8 @@ void GLCanvas::OnLeftDown(wxMouseEvent &event)
 
     wxSize size = GetSize();
     wxPoint pos = event.GetPosition();
+
+    bool showMenu = false;
 
     if (pos.x > size.x - _buttonSize && pos.y < _numButtons * _buttonSize)
     {
@@ -211,12 +222,25 @@ void GLCanvas::OnLeftDown(wxMouseEvent &event)
                 break;
 
             case 7:
-                wxMessageBox(_("not yet implemented!"), _("Error"), wxICON_ERROR);
+                showMenu = true;
                 break;
 
             default:
                 break;
         }
+
+        if (showMenu)
+        {
+            GLCanvasDialog dialog(this);
+            dialog.setBackgroundColor(_backgroundColor);
+            if (dialog.ShowModal() == wxID_OK)
+            {
+                _backgroundColor = dialog.getBackgroundColor();
+                glClearColor(float(_backgroundColor.Red())/255.0f, float(_backgroundColor.Green())/255.0f, float(_backgroundColor.Blue())/255.0f, 0.0);
+                Refresh();
+            }
+        }
+
         return;
     }
 
@@ -834,10 +858,10 @@ void GLCanvas::renderSingleSensor() const
 
     glBegin(GL_QUADS);
         glColor3f(0.8, 0.5, 0.5);
-        glVertex3f(frontUpRight.x(), frontUpRight.y(), frontUpRight.z());
         glVertex3f(frontUpLeft.x(), frontUpLeft.y(), frontUpLeft.z());
-        glVertex3f(frontDownLeft.x(), frontDownLeft.y(), frontDownLeft.z());
+        glVertex3f(frontUpRight.x(), frontUpRight.y(), frontUpRight.z());
         glVertex3f(frontDownRight.x(), frontDownRight.y(), frontDownRight.z());
+        glVertex3f(frontDownLeft.x(), frontDownLeft.y(), frontDownLeft.z());
 
         glColor3f(0.5, 0.7, 0.5);
         glVertex3f(backUpRight.x(), backUpRight.y(), backUpRight.z());
@@ -1062,7 +1086,9 @@ void GLCanvas::drawUserInterface(wxDC &dc) const
     wxSize buttonSize(_buttonSize, _buttonSize);
 
     wxPen whitePen(wxColour(255, 255, 255));
+    whitePen.SetWidth(1);
     wxPen blackPen(wxColour(0, 0, 0));
+    blackPen.SetWidth(1);
     wxPen greenPen(wxColour(0, 255, 0));
     wxBrush brush;
 

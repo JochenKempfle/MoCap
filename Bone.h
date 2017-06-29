@@ -54,6 +54,14 @@ class Bone
     inline void setName(std::string name) { _name = name; }
     inline std::string getName() const { return _name; }
 
+    /*
+    // TODO(JK#8#2017-06-28): add color to bones (just add required render routines, color is supported)
+    inline void setColor(const Vector3 &color) { _color = color; }
+    inline void setColor(float r, float g, float b) { _color = Vector3(r, g, b); }
+    inline void setColor(char r, char g, char b) { setColor(float(r)/255.0f, float(g)/255.0f, float(b)/255.0f); }
+    inline Vector3 getColor() const { return _color; }
+    */
+
     inline void setLength(float length) { _length = length; }
     inline float getLength() const { return _length; }
     // TODO(JK#2#): make bone orientation dependent on relative default orientation, add new set***Orientation method
@@ -134,6 +142,7 @@ class Bone
   private:
     int _id;
     std::string _name;
+    // Vector3 _color;
     float _length;
     // the orientation of this bone after chaining all parents' orientations
     Quaternion _chainedOrientation;

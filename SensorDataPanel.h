@@ -32,7 +32,6 @@ OF SUCH DAMAGE.
 
 #ifndef WX_PRECOMP
 	//(*HeadersPCH(SensorDataPanel)
-	#include <wx/sizer.h>
 	#include <wx/panel.h>
 	//*)
 #endif
@@ -40,6 +39,8 @@ OF SUCH DAMAGE.
 //*)
 
 #include "SensorNode.h"
+#include "PopupWindow.h"
+#include "SensorDataExtPanel.h"
 
 
 class SensorDataPanel: public wxPanel
@@ -64,6 +65,7 @@ class SensorDataPanel: public wxPanel
     //(*Handlers(SensorDataPanel)
     void OnPaint(wxPaintEvent& event);
     void OnLeftDown(wxMouseEvent& event);
+    void OnRightDown(wxMouseEvent& event);
     //*)
     void OnPopupClick(wxCommandEvent &event);
 
@@ -71,6 +73,8 @@ class SensorDataPanel: public wxPanel
     bool _isUpdated;
     bool _hasBone;
     bool _isCalibrated;
+
+    PopupWindow<SensorDataExtPanel>* _dataExtPopup;
 
     DECLARE_EVENT_TABLE()
 };

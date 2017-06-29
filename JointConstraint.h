@@ -131,6 +131,9 @@ class JointConstraint
         float _cosAxisAngle;
         // sinAxisAngle refers to the length of the z axis (of the normalized rotation axis vector)
         float _sinAxisAngle;
+
+        float _constraintAngle;
+        float _axisAngle;
     };
 
     float getAxisAngleFromAngle(float angle) const;
@@ -138,6 +141,7 @@ class JointConstraint
 
     ConstraintKey getInterpolatedKeyAt(float axisAngle) const;
 
+    // TODO(JK#5#2017-06-13): in JointConstraint, rotation axis is not needed (?)
     Vector3 _axis;
     // std::vector<Quaternion> _quats;
     // std::vector<float> _LUT;

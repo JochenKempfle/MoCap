@@ -171,9 +171,9 @@ void MoCapManager::setSensorBoneMapping()
         Quaternion mapped = sensors[i]->getRotation().normalized();
         mapped = sensors[i]->getRotationOffset() * mapped;// * sensors[i]->getRotationOffset();
         mapped.normalize();
-        mapped = bone->getDefaultOrientation().inv() * mapped;
+        mapped = mapped.inv() * bone->getDefaultOrientation();
         mapped.normalize();
-        sensors[i]->setBoneMapping(mapped.inv());
+        sensors[i]->setBoneMapping(mapped);
 
         theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
     }
@@ -293,6 +293,20 @@ Skeleton MoCapManager::createDefaultSkeleton() const
     boneData.setName("rLowerArm");
     skeleton.createBone(boneData, rUpperArm);
 
+/*
+    // right upper arm sensor
+    boneData.setLength(0.35);
+    boneData.setDefaultOrientation(Quaternion(1.0, 0.0, 0.0, 0.0));
+    boneData.setName("rUpperArmSensor");
+    int rUpperArmS = skeleton.createBone(boneData, rShoulder);
+
+    // right lower arm sensor
+    boneData.setLength(0.30);
+    boneData.setDefaultOrientation(Quaternion(1.0, 0.0, 0.0, 0.0));
+    boneData.setName("rLowerArmSensor");
+    skeleton.createBone(boneData, rUpperArmS);
+*/
+
     // neck - left shoulder
     boneData.setLength(0.20);
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0));
@@ -310,6 +324,20 @@ Skeleton MoCapManager::createDefaultSkeleton() const
     boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0));
     boneData.setName("lLowerArm");
     skeleton.createBone(boneData, lUpperArm);
+
+/*
+    // left upper arm sensor
+    boneData.setLength(0.35);
+    boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0));
+    boneData.setName("lUpperArmSensor");
+    int lUpperArmS = skeleton.createBone(boneData, lShoulder);
+
+    // left lower arm sensor
+    boneData.setLength(0.30);
+    boneData.setDefaultOrientation(Quaternion(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0));
+    boneData.setName("lLowerArmSensor");
+    skeleton.createBone(boneData, lUpperArmS);
+*/
 
     // hip - right leg
     boneData.setLength(0.20);

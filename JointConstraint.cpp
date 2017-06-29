@@ -49,7 +49,8 @@ void JointConstraint::addConstraint(const Quaternion& quat)
 {
     Quaternion twist, swing;
     quat.decomposeSwingTwist(_axis, &swing, &twist);
-    Vector3 rotAxis = swing.getRotationAxis();
+    // Vector3 rotAxis = swing.getRotationAxis();
+
     // map the angle of the rotation axis to [-2, 2], i.e. use the following formula to map sin and cos values:
     // std::sin(angle*M_PI/180.0) >= 0 ? -1 : 1) * (1 + std::cos(angle*M_PI/180.0));
     // thus directly y and z values of the vector can be used (the vector is unit and on the y-z-plane)
@@ -228,7 +229,8 @@ bool JointConstraint::adjust(Quaternion* quat) const
     return true;
 }
 
-JointConstraint::ConstraintKey::ConstraintKey() : _mapValue(-2.0f), _cosConstraintAngleHalf(0.0f), _sinConstraintAngleHalf(1.0f), _cosAxisAngle(1.0f), _sinAxisAngle(0.0f)
+JointConstraint::ConstraintKey::ConstraintKey() : _mapValue(-2.0f), _cosConstraintAngleHalf(0.0f), _sinConstraintAngleHalf(1.0f), _cosAxisAngle(1.0f), _sinAxisAngle(0.0f),
+                                                  _constraintAngle(180.0f), _axisAngle(0.0f)
 {
 
 }
@@ -244,9 +246,12 @@ JointConstraint::ConstraintKey::ConstraintKey(const Quaternion &quat) : _cosCons
     _sinAxisAngle = swing.z()/_sinConstraintAngleHalf;
 
     _mapValue = calcMapValue(_sinAxisAngle, _cosAxisAngle);
+
+    _constraintAngle = quat.getRotationAngle();
+    _axisAngle = 180/M_PI * (_sinAxisAngle > 0 ? std::acos(_cosAxisAngle) : 2.0*M_PI - std::acos(_cosAxisAngle));
 }
 
-JointConstraint::ConstraintKey::ConstraintKey(float axisAngle, float constraintAngle)
+JointConstraint::ConstraintKey::ConstraintKey(float axisAngle, float constraintAngle) : _constraintAngle(constraintAngle), _axisAngle(axisAngle)
 {
     axisAngle *= M_PI/180.0;
     // set constraintAngle to 1/2 (in rad) -> see construct quaternion from axis and angle
@@ -284,30 +289,32 @@ void JointConstraint::ConstraintKey::interpolateAngle(const ConstraintKey &key1,
 {
     // TODO(JK#3#2017-04-07): joint constraint interpolation not perfect... maybe not possible with sin (with pure angles, this works)
     // calc axis1 cross axis2 (to get sine between both)
+    /*
     float sinTheta = (key1.getCosAxisAngle() * key2.getSinAxisAngle() - key1.getSinAxisAngle() * key2.getCosAxisAngle());// + key1.getCosConstraintAngleHalf() * key2.getSinConstraintAngleHalf();// + key1.getSinConstraintAngleHalf() * key2.getCosConstraintAngleHalf();
     float sinStartToKey = (key1.getCosAxisAngle() * getSinAxisAngle() - key1.getSinAxisAngle() * getCosAxisAngle());//sinTheta;
-    float sinKeyToEnd = /*(1.0f - sinStartToKey);*/ (getCosAxisAngle() * key2.getSinAxisAngle() - getSinAxisAngle() * key2.getCosAxisAngle());//sinTheta;
+    float sinKeyToEnd = (getCosAxisAngle() * key2.getSinAxisAngle() - getSinAxisAngle() * key2.getCosAxisAngle());//sinTheta;
     float w = (sinStartToKey + sinKeyToEnd);
 
     _cosConstraintAngleHalf = (sinStartToKey * key2.getCosConstraintAngleHalf() + sinKeyToEnd * key1.getCosConstraintAngleHalf()) / w;
     //_sinConstraintAngleHalf = (sinStartToKey * key1.getSinConstraintAngleHalf() + sinKeyToEnd * key2.getSinConstraintAngleHalf()) / sinTheta;
     _sinConstraintAngleHalf = std::sqrt(1.0f - _cosConstraintAngleHalf * _cosConstraintAngleHalf);
+    */
 
-    /* code below is working as intended, but not very efficient
-    float a = ((key2.getAxisAngle() - key1.getAxisAngle()));
+    // code below is working as intended, but not very efficient
+    float a = key2.getAxisAngle() - key1.getAxisAngle();
     if (a < 0.0f) a += 360.0f;
 
-    float b = sin((getAxisAngle() - key1.getAxisAngle()));
-    if (b < 0.0f) b += 360.0f/a;
+    float b = (getAxisAngle() - key1.getAxisAngle());
+    if (b < 0.0f) b += 360.0f;
 
-    float c = sin((key2.getAxisAngle() - getAxisAngle()));
-    if (c < 0.0f) c += 360.0f;
+    b /= a;
 
     //_cosConstraintAngleHalf = (b * key2.getCosConstraintAngleHalf() + c * key1.getCosConstraintAngleHalf())/a;
     //_sinConstraintAngleHalf = std::sqrt(1.0f - _cosConstraintAngleHalf * _cosConstraintAngleHalf);
 
     setAngle(b*key2.getAngle() + (1.0f-b)*key1.getAngle());
 
+    /*
     // slerp:
     double d = dot(other);
     double absD = std::abs(d);
@@ -340,6 +347,8 @@ void JointConstraint::ConstraintKey::interpolateAngle(const ConstraintKey &key1,
 
 void JointConstraint::ConstraintKey::setAxisAngle(float axisAngle)
 {
+    _axisAngle = axisAngle;
+
     axisAngle *= M_PI/180.0;
 
     _sinAxisAngle = std::sin(axisAngle);
@@ -351,6 +360,7 @@ void JointConstraint::ConstraintKey::setAxisAngle(float axisAngle)
 
 void JointConstraint::ConstraintKey::setAngle(float constraintAngle)
 {
+    _constraintAngle = constraintAngle;
     // set constraintAngle to 1/2 (in rad) -> see construct quaternion from axis and angle
     constraintAngle *= M_PI/(180.0 * 2.0);
 
@@ -360,24 +370,26 @@ void JointConstraint::ConstraintKey::setAngle(float constraintAngle)
 
 float JointConstraint::ConstraintKey::getAxisAngle() const
 {
-    return 180.0/M_PI * (_mapValue >= 0.0f ? (2.0 * M_PI - std::acos(_cosAxisAngle)) : std::acos(_cosAxisAngle));
-    // return _mapValue >= 0.0f ? 180.0/M_PI*(2.0 * M_PI - std::acos(_mapValue - 1.0f)) : 180.0/M_PI*(std::acos(-_mapValue -1.0f));
+    return _axisAngle;
+    // return 180.0/M_PI * (_mapValue >= 0.0f ? (2.0 * M_PI - std::acos(_cosAxisAngle)) : std::acos(_cosAxisAngle));
 }
 
 float JointConstraint::ConstraintKey::getAxisAngleRad() const
 {
-    return _mapValue >= 0.0f ? (2.0 * M_PI - std::acos(_cosAxisAngle)) : std::acos(_cosAxisAngle);
-    // return _mapValue >= 0.0f ? 180.0/M_PI*(2.0 * M_PI - std::acos(_mapValue - 1.0f)) : 180.0/M_PI*(std::acos(-_mapValue -1.0f));
+    return _axisAngle * M_PI/180.0;
+    // return _mapValue >= 0.0f ? (2.0 * M_PI - std::acos(_cosAxisAngle)) : std::acos(_cosAxisAngle);
 }
 
 float JointConstraint::ConstraintKey::getAngle() const
 {
-    return 180.0/M_PI * 2.0f * std::acos(_cosConstraintAngleHalf);
+    return _constraintAngle;
+    // return 180.0/M_PI * 2.0f * std::acos(_cosConstraintAngleHalf);
 }
 
 float JointConstraint::ConstraintKey::getAngleRad() const
 {
-    return 2.0f * std::acos(_cosConstraintAngleHalf);
+    return _constraintAngle * M_PI/180.0;
+    // return 2.0f * std::acos(_cosConstraintAngleHalf);
 }
 
 void JointConstraint::ConstraintKey::copyAxis(const ConstraintKey &other)
@@ -385,12 +397,14 @@ void JointConstraint::ConstraintKey::copyAxis(const ConstraintKey &other)
     _sinAxisAngle = other._sinAxisAngle;
     _cosAxisAngle = other._cosAxisAngle;
     _mapValue = other._mapValue;
+    _axisAngle = other._axisAngle;
 }
 
 void JointConstraint::ConstraintKey::copyAngle(const ConstraintKey &other)
 {
     _sinConstraintAngleHalf = other._sinConstraintAngleHalf;
     _cosConstraintAngleHalf = other._cosConstraintAngleHalf;
+    _constraintAngle = other._constraintAngle;
 }
 
 float JointConstraint::ConstraintKey::calcMapValue(const Quaternion &quat) const

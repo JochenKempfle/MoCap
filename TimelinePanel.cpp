@@ -521,7 +521,7 @@ void TimelinePanel::drawTrack(wxDC* dc, TimelineTrack* track, wxPoint pos) const
             {
                 overlapColour = wxColour(100, 200, 200);
             }
-            // TODO(JK#2#): add colors for other overlay types here
+            // TODO(JK#4#): add colors for other overlay types here
 
             dc->GradientFillLinear(wxRect(start, overlapLength), overlapColour, bgColour, gradientDirection);
 
@@ -1765,8 +1765,6 @@ void TimelinePanel::OnButtonZoomOutClick(wxCommandEvent& event)
 
 void TimelinePanel::OnButtonDecomposeClick(wxCommandEvent& event)
 {
-    ConstraintDialog dialog(this);
-    dialog.ShowModal();
     if (_selectedTrack < 0)
     {
         return;

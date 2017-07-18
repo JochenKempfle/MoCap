@@ -40,6 +40,7 @@ struct SensorRawData
     ~SensorRawData();
 
     unsigned int id;
+    // unsigned int type;
     unsigned int timestamp;
     float rotation[4];
     float position[3];

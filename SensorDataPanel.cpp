@@ -52,7 +52,7 @@ END_EVENT_TABLE()
 SensorDataPanel::SensorDataPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
 	//(*Initialize(SensorDataPanel)
-	Create(parent, id, wxDefaultPosition, wxSize(80,40), wxNO_BORDER|wxTAB_TRAVERSAL, _T("id"));
+	Create(parent, wxID_ANY, wxDefaultPosition, wxSize(90,40), wxNO_BORDER|wxTAB_TRAVERSAL, _T("wxID_ANY"));
 
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&SensorDataPanel::OnPaint);
 	Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&SensorDataPanel::OnLeftDown);
@@ -139,7 +139,7 @@ void SensorDataPanel::OnPaint(wxPaintEvent& event)
 
     if (_sensorId >= 0)
     {
-        name << theSensorManager.getSensor(_sensorId)->getIPAddress();
+        name << theSensorManager.getSensor(_sensorId)->getName();
     }
     wxString affiliation;
 
@@ -164,7 +164,8 @@ void SensorDataPanel::OnPaint(wxPaintEvent& event)
     dc.SetPen(pen);
     dc.SetBrush(*wxTRANSPARENT_BRUSH);
 
-    dc.DrawRectangle(wxPoint(0, 0), wxSize(size.x, size.y));
+    dc.DrawRectangle(wxPoint(0, 0), size);
+    event.Skip();
 }
 
 
@@ -200,5 +201,6 @@ void SensorDataPanel::OnRightDown(wxMouseEvent& event)
     _dataExtPopup->getPanel()->update();
     _dataExtPopup->Popup(this);
 }
+
 
 

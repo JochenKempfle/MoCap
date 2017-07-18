@@ -47,7 +47,7 @@ class MotionFilterSlerp : public MotionFilterBase
   protected:
     virtual void onStartRecording();
     virtual void onStopRecording();
-    std::vector<SensorData> _prevData;
+    std::vector<SensorDataOrientation> _prevData;
 
   private:
 };

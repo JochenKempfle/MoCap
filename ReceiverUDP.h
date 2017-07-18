@@ -31,7 +31,12 @@ OF SUCH DAMAGE.
 #define UDPRECEIVER_H
 
 #include "ReceiverBase.h"
+#include "Quaternion.h"
+#include "Vector3.h"
+#include "SensorData.h"
 #include "wx/socket.h"
+#include <map>
+#include <list>
 
 class ReceiverUDP : public ReceiverBase
 {
@@ -56,9 +61,17 @@ class ReceiverUDP : public ReceiverBase
   protected:
 
   private:
+    Quaternion getQuaternion(unsigned char* pBuffer) const;
+    Vector3 getVector(unsigned char* pBuffer) const;
+
     wxIPV4address _addressLocal;
     wxIPV4address _addressPeer;
     wxDatagramSocket* _socket;
+    // the receive buffer (maximum expected data size is less than 100 bytes)
+    alignas(float) unsigned char _rcvBuffer[100];
+
+    const unsigned char BUFFERSIZE = 10;
+    std::map<std::string, std::list<SensorDataOrientation> > _buffer;
 };
 
 #endif // UDPRECEIVER_H

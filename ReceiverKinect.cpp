@@ -36,6 +36,20 @@ ReceiverKinect::ReceiverKinect()
     _coordinateMapper = nullptr;
     _kinectSensor = nullptr;
     _startTime = -1;
+    // TODO(JK#9#2017-07-05): Kinect requires to run KinectService.exe, but the file (and Kinect) does not exist to the software (although it does exist on the system)
+    // luckily the KinectService seems to get started at system startup time
+    if (wxFileExists(_("C:\\Windows\\System32\\Kinect\\KinectService.exe")))
+    {
+        long pid = wxExecute(_("C:\\Windows\\System32\\Kinect\\KinectService.exe"));
+        if (pid == 0)
+        {
+            wxLogDebug(_("Could not start KinectService.exe"));
+        }
+    }
+    else
+    {
+        wxLogDebug(_("KinectService.exe does not exist!"));
+    }
 }
 
 ReceiverKinect::~ReceiverKinect()
@@ -52,16 +66,16 @@ std::string ReceiverKinect::getName() const
 bool ReceiverKinect::update()
 {
     /*
-                        wxString msg;
-                        msg << _("update!");
-                        wxLogDebug(msg);
-                        */
+    wxString msg;
+    msg << _("update!");
+    wxLogDebug(msg);
+    */
     // TODO(JK#1#2017-05-24): Kinect update stuff
     if (_bodyFrameReader == nullptr)
     {
-                        wxString msg;
-                        msg << _("update failed!");
-                        wxLogDebug(msg);
+        wxString msg;
+        msg << _("update failed!");
+        wxLogDebug(msg);
         return false;
     }
 
@@ -70,21 +84,83 @@ bool ReceiverKinect::update()
 
     if (!available)
     {
-        wxMessageBox(_("not available"));
+        wxLogDebug(_("Kinect not available"));
         return false;
     }
 
 
-    IBodyFrame* pBodyFrame = NULL;
+    if (_multiSourceFrameReader == nullptr)
+    {
+        wxLogDebug(_("Kinect update failed - multi source frame reader not available!"));
+        return false;
+    }
 
-    HRESULT hr = _bodyFrameReader->AcquireLatestFrame(&pBodyFrame);
+    IMultiSourceFrame* multiSourceFrame = nullptr;
+    IDepthFrame* depthFrame = nullptr;
+    IColorFrame* colorFrame = nullptr;
+    IBodyIndexFrame* bodyIndexFrame = nullptr;
+    IBodyFrame* bodyFrame = nullptr;
+
+    HRESULT hr = _multiSourceFrameReader->AcquireLatestFrame(&multiSourceFrame);
+
+    // acquire frames
+    if (SUCCEEDED(hr))
+    {
+        IDepthFrameReference* depthFrameReference = NULL;
+
+        hr = multiSourceFrame->get_DepthFrameReference(&depthFrameReference);
+        if (SUCCEEDED(hr))
+        {
+            hr = depthFrameReference->AcquireFrame(&depthFrame);
+        }
+
+        SafeRelease(&depthFrameReference);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        IColorFrameReference* colorFrameReference = NULL;
+
+        hr = multiSourceFrame->get_ColorFrameReference(&colorFrameReference);
+        if (SUCCEEDED(hr))
+        {
+            hr = colorFrameReference->AcquireFrame(&colorFrame);
+        }
+
+        SafeRelease(&colorFrameReference);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        IBodyIndexFrameReference* bodyIndexFrameReference = NULL;
+
+        hr = multiSourceFrame->get_BodyIndexFrameReference(&bodyIndexFrameReference);
+        if (SUCCEEDED(hr))
+        {
+            hr = bodyIndexFrameReference->AcquireFrame(&bodyIndexFrame);
+        }
+
+        SafeRelease(&bodyIndexFrameReference);
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        IBodyFrameReference* bodyFrameReference = NULL;
+
+        hr = multiSourceFrame->get_BodyFrameReference(&bodyFrameReference);
+        if (SUCCEEDED(hr))
+        {
+            hr = bodyFrameReference->AcquireFrame(&bodyFrame);
+        }
+
+        SafeRelease(&bodyFrameReference);
+    }
 
     if (SUCCEEDED(hr))
     {
         int64_t nTime = 0;
 
-        hr = pBodyFrame->get_RelativeTime(&nTime);
-
+        hr = bodyFrame->get_RelativeTime(&nTime);
 
         // get time point at which the data arrived
         wxLongLong time = wxGetUTCTimeMillis();
@@ -95,11 +171,134 @@ bool ReceiverKinect::update()
             _startTime = receiveTime;
         }
 
+
+        INT64 nDepthTime = 0;
+        IFrameDescription* depthFrameDescription = NULL;
+        int nDepthWidth = 0;
+        int nDepthHeight = 0;
+        UINT nDepthBufferSize = 0;
+        UINT16 *pDepthBuffer = NULL;
+
+        IFrameDescription* colorFrameDescription = NULL;
+        int nColorWidth = 0;
+        int nColorHeight = 0;
+        ColorImageFormat imageFormat = ColorImageFormat_None;
+        UINT nColorBufferSize = 0;
+        RGBQUAD *pColorBuffer = NULL;
+
+        IFrameDescription* bodyIndexFrameDescription = NULL;
+        int nBodyIndexWidth = 0;
+        int nBodyIndexHeight = 0;
+        UINT nBodyIndexBufferSize = 0;
+        BYTE *pBodyIndexBuffer = NULL;
+
+        // get depth frame data
+
+        hr = depthFrame->get_RelativeTime(&nDepthTime);
+
+        if (SUCCEEDED(hr))
+        {
+            hr = depthFrame->get_FrameDescription(&depthFrameDescription);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = depthFrameDescription->get_Width(&nDepthWidth);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = depthFrameDescription->get_Height(&nDepthHeight);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = depthFrame->AccessUnderlyingBuffer(&nDepthBufferSize, &pDepthBuffer);
+        }
+
+        // get color frame data
+
+        if (SUCCEEDED(hr))
+        {
+            hr = colorFrame->get_FrameDescription(&colorFrameDescription);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = colorFrameDescription->get_Width(&nColorWidth);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = colorFrameDescription->get_Height(&nColorHeight);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = colorFrame->get_RawColorImageFormat(&imageFormat);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            /*
+            if (imageFormat == ColorImageFormat_Bgra)
+            {
+                hr = colorFrame->AccessRawUnderlyingBuffer(&nColorBufferSize, reinterpret_cast<BYTE**>(&pColorBuffer));
+            }
+            else if (m_pColorRGBX)
+            {
+                pColorBuffer = m_pColorRGBX;
+                nColorBufferSize = _colorWidth * _colorHeight * sizeof(RGBQUAD);
+                hr = colorFrame->CopyConvertedFrameDataToArray(nColorBufferSize, reinterpret_cast<BYTE*>(pColorBuffer), ColorImageFormat_Bgra);
+            }
+            else
+            {
+                hr = E_FAIL;
+            }
+            */
+        }
+
+        // get body index frame data
+
+        if (SUCCEEDED(hr))
+        {
+            hr = bodyIndexFrame->get_FrameDescription(&bodyIndexFrameDescription);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = bodyIndexFrameDescription->get_Width(&nBodyIndexWidth);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = bodyIndexFrameDescription->get_Height(&nBodyIndexHeight);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            hr = bodyIndexFrame->AccessUnderlyingBuffer(&nBodyIndexBufferSize, &pBodyIndexBuffer);
+        }
+
+        if (SUCCEEDED(hr))
+        {
+            /*
+            ProcessFrame(nDepthTime, pDepthBuffer, nDepthWidth, nDepthHeight,
+                         pColorBuffer, nColorWidth, nColorHeight,
+                         pBodyIndexBuffer, nBodyIndexWidth, nBodyIndexHeight);
+            */
+        }
+
+        SafeRelease(&depthFrameDescription);
+        SafeRelease(&colorFrameDescription);
+        SafeRelease(&bodyIndexFrameDescription);
+
+        // get body frame data
         IBody* ppBodies[BODY_COUNT] = {0};
 
         if (SUCCEEDED(hr))
         {
-            hr = pBodyFrame->GetAndRefreshBodyData(BODY_COUNT, ppBodies);
+            hr = bodyFrame->GetAndRefreshBodyData(BODY_COUNT, ppBodies);
         }
 
         if (SUCCEEDED(hr))
@@ -172,35 +371,17 @@ bool ReceiverKinect::update()
                                 orientationFromKinect = orientationFromKinect * coordinateMapping;
                                 orientationFromKinect.normalize();
 
+                                SensorDataOrientation data;
 
+                                data.setType(RGBD);
+                                data.setTimestamp(static_cast<unsigned int>(receiveTime - _startTime));
+                                data.setReceiveTime(receiveTime);
 
-                                // TODO(JK#2#2017-06-07): coordinate mapping hack to circumvent wrong coordinate mapping in SensorNode::update. Correct this.
-                                coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+                                // toggle comments to either get kinect orientations or orientations from joint positions
+                                data.setOrientation(orientationFromKinect);
+                                // data.setOrientation(orientationFromPosition);
 
-                                orientationFromPosition = coordinateMapping.inv() * orientationFromPosition * coordinateMapping;
-                                orientationFromPosition.normalize();
-
-                                orientationFromKinect = coordinateMapping.inv() * orientationFromKinect * coordinateMapping;
-                                orientationFromKinect.normalize();
-
-                                SensorRawData data;
-/*
-                                data.rotation[0] = orientationFromPosition.u();
-                                data.rotation[1] = orientationFromPosition.x();
-                                data.rotation[2] = orientationFromPosition.y();
-                                data.rotation[3] = orientationFromPosition.z();
-*/
-                                // uncomment to get kinect orientations
-
-                                data.rotation[0] = orientationFromKinect.u();
-                                data.rotation[1] = orientationFromKinect.x();
-                                data.rotation[2] = orientationFromKinect.y();
-                                data.rotation[3] = orientationFromKinect.z();
-
-                                data.timestamp = static_cast<unsigned int>(receiveTime - _startTime);
-                                data.receiveTime = receiveTime;
-
-                                theSensorManager.updateSensor(name, data);
+                                theSensorManager.updateSensor(name, &data);
                             }
                         }
                     }
@@ -216,9 +397,14 @@ bool ReceiverKinect::update()
     else
     {
         wxLogDebug(_("error getting body data"));
+        return false;
     }
 
-    SafeRelease(&pBodyFrame);
+    SafeRelease(&depthFrame);
+    SafeRelease(&colorFrame);
+    SafeRelease(&bodyIndexFrame);
+    SafeRelease(&bodyFrame);
+    SafeRelease(&multiSourceFrame);
 
     return true;
 }
@@ -238,7 +424,7 @@ bool ReceiverKinect::connect()
     if (_kinectSensor)
     {
         // Initialize the Kinect and get coordinate mapper and the body reader
-        IBodyFrameSource* pBodyFrameSource = NULL;
+        IBodyFrameSource* bodyFrameSource = NULL;
 
         hr = _kinectSensor->Open();
 
@@ -247,14 +433,15 @@ bool ReceiverKinect::connect()
             hr = _kinectSensor->get_CoordinateMapper(&_coordinateMapper);
         }
 
+
         if (SUCCEEDED(hr))
         {
-            hr = _kinectSensor->get_BodyFrameSource(&pBodyFrameSource);
+            hr = _kinectSensor->get_BodyFrameSource(&bodyFrameSource);
         }
 
         if (SUCCEEDED(hr))
         {
-            hr = pBodyFrameSource->OpenReader(&_bodyFrameReader);
+            hr = bodyFrameSource->OpenReader(&_bodyFrameReader);
         }
 
         if (_bodyFrameReader == nullptr)
@@ -262,7 +449,14 @@ bool ReceiverKinect::connect()
             wxLogDebug(_("error getting body frame reader"));
         }
 
-        SafeRelease(&pBodyFrameSource);
+        SafeRelease(&bodyFrameSource);
+
+
+        if (SUCCEEDED(hr))
+        {
+            hr = _kinectSensor->OpenMultiSourceFrameReader(FrameSourceTypes::FrameSourceTypes_Depth | FrameSourceTypes::FrameSourceTypes_Color
+                                                           | FrameSourceTypes::FrameSourceTypes_BodyIndex | FrameSourceTypes::FrameSourceTypes_Body, &_multiSourceFrameReader);
+        }
     }
 
     if (!_kinectSensor || FAILED(hr))
@@ -272,15 +466,15 @@ bool ReceiverKinect::connect()
     }
 
     BOOLEAN available = false;
-    WCHAR buffer[16] = {0};
-    _kinectSensor->get_UniqueKinectId(16, buffer);
+    // WCHAR buffer[16] = {0};
+    // _kinectSensor->get_UniqueKinectId(16, buffer);
     _kinectSensor->get_IsAvailable(&available);
     /*available = false;
     _kinectSensor->get_IsAvailable(&available);
     available = false;
     _kinectSensor->get_IsAvailable(&available);
 
-ComPtr<IIsAvailableChangedEventArgs> args;*/
+    ComPtr<IIsAvailableChangedEventArgs> args;*/
     /*
     IIsAvailableChangedEventArgs* data = new IIsAvailableChangedEventArgs();
     WAITABLE_HANDLE handle;

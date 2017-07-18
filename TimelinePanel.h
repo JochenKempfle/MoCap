@@ -46,6 +46,7 @@ OF SUCH DAMAGE.
 #include <wx/tglbtn.h>
 //*)
 
+// TODO(JK#4#2017-06-30): try to keep/extract global orientations of bones when editing (e.g. left upper arm depends on left shoulder -> edit shoulder -> invalid/rotated left arm)
 class TimelinePanel: public wxPanel
 {
 	public:

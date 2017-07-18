@@ -34,7 +34,7 @@ SensorData::SensorData()
     //ctor
 }
 
-SensorData::SensorData(uint64_t receiveTime, int timestamp, const Quaternion &orientation) : _receiveTime(receiveTime), _timestamp(timestamp), _orientation(orientation)
+SensorData::SensorData(uint64_t receiveTime, unsigned int timestamp, int dataType/*, const Quaternion &orientation*/) : _receiveTime(receiveTime), _timestamp(timestamp), _dataType(dataType)//, _orientation(orientation)
 {
 
 }

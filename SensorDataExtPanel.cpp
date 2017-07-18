@@ -43,8 +43,8 @@ OF SUCH DAMAGE.
 //*)
 
 //(*IdInit(SensorDataExtPanel)
-const long SensorDataExtPanel::ID_STATICTEXTNAME = wxNewId();
-const long SensorDataExtPanel::ID_STATICTEXTIP = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTID = wxNewId();
+const long SensorDataExtPanel::ID_STATICTEXTName = wxNewId();
 const long SensorDataExtPanel::ID_STATICTEXTFPS = wxNewId();
 const long SensorDataExtPanel::ID_STATICTEXTSTATE = wxNewId();
 const long SensorDataExtPanel::ID_STATICTEXT1 = wxNewId();
@@ -79,10 +79,10 @@ SensorDataExtPanel::SensorDataExtPanel(wxWindow* parent,wxWindowID id,const wxPo
 	BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
 	StaticBoxSizerInfo = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Sensor Info"));
 	BoxSizer2 = new wxBoxSizer(wxVERTICAL);
-	StaticTextName = new wxStaticText(this, ID_STATICTEXTNAME, _("Sensor Name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTNAME"));
+	StaticTextID = new wxStaticText(this, ID_STATICTEXTID, _("Sensor ID"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTID"));
+	BoxSizer2->Add(StaticTextID, 1, wxALL|wxALIGN_LEFT, 5);
+	StaticTextName = new wxStaticText(this, ID_STATICTEXTName, _("Name"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTName"));
 	BoxSizer2->Add(StaticTextName, 1, wxALL|wxALIGN_LEFT, 5);
-	StaticTextIP = new wxStaticText(this, ID_STATICTEXTIP, _("IP"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTIP"));
-	BoxSizer2->Add(StaticTextIP, 1, wxALL|wxALIGN_LEFT, 5);
 	StaticTextFPS = new wxStaticText(this, ID_STATICTEXTFPS, _("FPS: 0"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTFPS"));
 	BoxSizer2->Add(StaticTextFPS, 1, wxALL|wxALIGN_LEFT, 5);
 	StaticTextState = new wxStaticText(this, ID_STATICTEXTSTATE, _("State"), wxDefaultPosition, wxDefaultSize, 0, _T("ID_STATICTEXTSTATE"));
@@ -150,8 +150,8 @@ void SensorDataExtPanel::setSensor(SensorNode* sensor)
 
     wxString label;
     label << _("Sensor ") << sensor->getId();
-    StaticTextName->SetLabel(label);
-    StaticTextIP->SetLabel(sensor->getIPAddress());
+    StaticTextID->SetLabel(label);
+    StaticTextName->SetLabel(sensor->getName());
 
     wxLongLong time = wxGetUTCTimeMillis();
     uint64_t currentTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();

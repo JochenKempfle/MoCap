@@ -50,6 +50,7 @@ std::string MotionFilterNone::getName() const
     return "No Filter";
 }
 
+// TODO(JK#2#2017-07-03): MotionFilterNone's update routine is outdated -> update
 void MotionFilterNone::update()
 {
     if (_skeleton == nullptr)
@@ -60,6 +61,10 @@ void MotionFilterNone::update()
     {
         SensorBuffer* buffer = _buffers[i];
         SensorNode* sensor = buffer->getSensor();
+        if (sensor == nullptr)
+        {
+            continue;
+        }
         int boneId = sensor->getBoneId();
 
         size_t bufferSize = buffer->sizeFront();
@@ -76,9 +81,25 @@ void MotionFilterNone::update()
         }
         for (size_t i = 0; i < bufferSize; ++i)
         {
-            MotionSequenceFrame frame(buffer->front().getOrientation());
+            SensorDataOrientation data;
+            try
+            {
+                data = *dynamic_cast<SensorDataOrientation*>(&buffer->front());
+            }
+            catch (const std::bad_cast &e)
+            {
+                // Cast failed -> no orientation data present
+                wxLogDebug(e.what());
+            }
+            MotionSequenceFrame frame(data.getOrientation());
             _sequence.getChannel(boneId)->appendFrame(frame);
             buffer->pop_front();
+            /*
+            SensorDataOrientation* data = dynamic_cast<SensorDataOrientation*>(&buffer->front());
+            MotionSequenceFrame frame(data.getOrientation());
+            _sequence.getChannel(boneId)->appendFrame(frame);
+            buffer->pop_front();
+            */
             //_skeleton->setAbsBoneRotation(_sensors[i]->getBoneId(), buffer->front().second.getOrientation());
         }
         if (_sequence.getNumFrames() < _sequence.getChannel(boneId)->getNumFrames())

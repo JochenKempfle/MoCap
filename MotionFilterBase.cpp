@@ -55,7 +55,7 @@ void MotionFilterBase::setSensors(std::vector<SensorNode*> sensors)
     _buffers.reserve(sensors.size());
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        _buffers.push_back(new SensorBuffer(sensors[i]));
+        _buffers.push_back(new SensorBufferType<SensorDataOrientation>(sensors[i]));
     }
 }
 

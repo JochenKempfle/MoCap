@@ -60,6 +60,7 @@ enum GLCanvasStyle
     DRAW_LABEL = 512,
     DRAW_ROTATION_AXIS = 1024,
     DRAW_JOINT_CONSTRAINTS = 2048
+    // TODO(JK#2#2017-06-30): add render skeleton normal and special mode (special = hidden or colored bones)
 };
 
 

@@ -164,6 +164,7 @@ void ViewPanel::OnUpdateEvent(wxEvent& event)
         // update sensor states displayed in the GUI
         std::vector<SensorNode*> sensors = theSensorManager.getSensors();
 
+        // TODO(JK#2#2017-07-03): update of sensor panels more efficiently possible (no need to loop through sensors)
         for (size_t i = 0; i < sensors.size(); ++i)
         {
             int id = sensors[i]->getId();

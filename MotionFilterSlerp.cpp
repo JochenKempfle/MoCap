@@ -59,7 +59,7 @@ void MotionFilterSlerp::update()
     if (_prevData.size() != _buffers.size())
     {
         _prevData.clear();
-        _prevData.resize(_buffers.size(), SensorData());
+        _prevData.resize(_buffers.size(), SensorDataOrientation());
     }
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
@@ -83,13 +83,23 @@ void MotionFilterSlerp::update()
         }
         // update the skeleton with the calibrated absolute orientation measured by the sensors
 
+        SensorDataOrientation data;
         // apply sensor model
         buffer->lock();
-        Quaternion rotation = sensor->getRotationOffset() * buffer->front().getOrientation();
+        try
+        {
+            data = dynamic_cast<SensorDataOrientation&>(buffer->front());
+        }
+        catch (const std::bad_cast &e)
+        {
+            // Cast failed -> no orientation data present
+            wxLogDebug(e.what());
+        }
         buffer->unlock();
-        rotation.normalize();
 
-        _skeleton->setAbsBoneOrientation(boneId, rotation * sensor->getBoneMapping());//buffer->back().getOrientation());
+        sensor->applyCalibration(&data);
+
+        _skeleton->setAbsBoneOrientation(boneId, data.getOrientation());//buffer->back().getOrientation());
         //_skeleton->setAbsBoneOrientation(boneId, sensor->getCalRotation());//buffer->back().getOrientation());
         if (!_recording && bufferSize > 1)
         {
@@ -108,9 +118,19 @@ void MotionFilterSlerp::update()
             --bufferSize;
 
             buffer->lock();
-            SensorData data = buffer->front();
+            try
+            {
+                data = dynamic_cast<SensorDataOrientation&>(buffer->front());
+            }
+            catch (const std::bad_cast &e)
+            {
+                // Cast failed -> no orientation data present
+                wxLogDebug(e.what());
+            }
             buffer->unlock();
             uint64_t dataTime = sensor->getStartTime() + uint64_t(data.getTimestamp());
+
+            sensor->applyCalibration(&data);
 
             // apply sensor model
 //            Quaternion q = sensor->getRotationOffset() * data.getOrientation();
@@ -140,10 +160,10 @@ void MotionFilterSlerp::update()
                 Quaternion rotation = _prevData[i].getOrientation().slerp(data.getOrientation().normalize(), t);
 
                 // apply sensor model
-                rotation = sensor->getRotationOffset() * rotation;
-                rotation.normalize();
+                // rotation = sensor->getRotationOffset() * rotation;
+                // rotation.normalize();
 
-                MotionSequenceFrame frame(rotation * sensor->getBoneMapping());
+                MotionSequenceFrame frame(rotation/* sensor->getBoneMapping()*/);
                 _sequence.getChannel(boneId)->appendFrame(frame);
 
                 currentTime = nextTime;
@@ -169,7 +189,7 @@ void MotionFilterSlerp::onStartRecording()
     _sequence.setHasAbsOrientations(true);
 
     _prevData.clear();
-    _prevData.resize(_buffers.size(), SensorData());
+    _prevData.resize(_buffers.size(), SensorDataOrientation());
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         _buffers[i]->clear();

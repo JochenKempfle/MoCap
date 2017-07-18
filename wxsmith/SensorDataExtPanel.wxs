@@ -11,16 +11,16 @@
 						<object class="wxBoxSizer" variable="BoxSizer2" member="no">
 							<orient>wxVERTICAL</orient>
 							<object class="sizeritem">
-								<object class="wxStaticText" name="ID_STATICTEXTNAME" variable="StaticTextName" member="yes">
-									<label>Sensor Name</label>
+								<object class="wxStaticText" name="ID_STATICTEXTID" variable="StaticTextID" member="yes">
+									<label>Sensor ID</label>
 								</object>
 								<flag>wxALL|wxALIGN_LEFT</flag>
 								<border>5</border>
 								<option>1</option>
 							</object>
 							<object class="sizeritem">
-								<object class="wxStaticText" name="ID_STATICTEXTIP" variable="StaticTextIP" member="yes">
-									<label>IP</label>
+								<object class="wxStaticText" name="ID_STATICTEXTName" variable="StaticTextName" member="yes">
+									<label>Name</label>
 								</object>
 								<flag>wxALL|wxALIGN_LEFT</flag>
 								<border>5</border>

@@ -62,7 +62,7 @@ class Quaternion
      * Constructs the (1,0,0,0) Unit Quaternion
      * representing the identity rotation.
      */
-    inline Quaternion() { u() = 1;  x() = 0; y() = 0; z() = 0;  }
+    inline Quaternion() { u() = 1.0;  x() = 0.0; y() = 0.0; z() = 0.0;  }
 
     /*!
      * \brief Copy constructor

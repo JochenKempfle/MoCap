@@ -8703,14 +8703,14 @@
 	<vector>
 	<map>
 
-1498653244 c:\projekte\mocap\bone.h
+1498856207 c:\projekte\mocap\bone.h
 	"Quaternion.h"
 	"Vector3.h"
 	"JointConstraint.h"
 	<vector>
 	<string>
 
-1498691549 c:\projekte\mocap\quaternion.h
+1499093967 c:\projekte\mocap\quaternion.h
 	"Vector3.h"
 	<iostream>
 	<vector>
@@ -8889,7 +8889,7 @@
 	<wx/tokenzr.h>
 	<wx/filename.h>
 
-1487761777 c:\projekte\mocap\filehandler.h
+1498763745 c:\projekte\mocap\filehandler.h
 	"MotionSequence.h"
 	"Timeline.h"
 	<wx/string.h>
@@ -8916,7 +8916,7 @@
 	<vector>
 	"MotionFilterBase.h"
 
-1496160704 c:\projekte\mocap\motionfilterbase.h
+1499787218 c:\projekte\mocap\motionfilterbase.h
 	<string>
 	"Skeleton.h"
 	"MotionSequence.h"
@@ -8924,7 +8924,7 @@
 	"SensorBuffer.h"
 	<wx/thread.h>
 
-1488383945 c:\projekte\mocap\sensornode.h
+1499880536 c:\projekte\mocap\sensornode.h
 	"Vector3.h"
 	"Quaternion.h"
 	"SensorRawData.h"
@@ -8934,13 +8934,13 @@
 	<list>
 	<vector>
 
-1493911016 c:\projekte\mocap\sensorrawdata.h
+1499785031 c:\projekte\mocap\sensorrawdata.h
 	<cstdint>
 
-1487761777 c:\projekte\mocap\sensordata.h
+1499883003 c:\projekte\mocap\sensordata.h
 	"Quaternion.h"
 
-1487761777 c:\projekte\mocap\sensorbuffer.h
+1499957447 c:\projekte\mocap\sensorbuffer.h
 	"SensorData.h"
 	<mutex>
 	<atomic>
@@ -8957,7 +8957,7 @@
 	<GL/glu.h>
 	<wx/wx.h>
 
-1498655279 c:\projekte\mocap\glcanvas.h
+1498856207 c:\projekte\mocap\glcanvas.h
 	<wx/glcanvas.h>
 	"GLImage.h"
 	"Skeleton.h"
@@ -9041,7 +9041,7 @@
 	"ScrolledContainerPanel.h"
 	<wx/glcanvas.h>
 
-1497891804 c:\projekte\mocap\sensordatapanel.h
+1499787218 c:\projekte\mocap\sensordatapanel.h
 	<wx/panel.h>
 	"SensorNode.h"
 	"PopupWindow.h"
@@ -9056,7 +9056,7 @@
 	<wx/sizer.h>
 	<wx/panel.h>
 
-1497891372 source:c:\projekte\mocap\mocapmain.cpp
+1499098794 source:c:\projekte\mocap\mocapmain.cpp
 	"wx_pch.h"
 	"MoCapMain.h"
 	<wx/msgdlg.h>
@@ -9077,14 +9077,14 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1487761777 c:\projekte\mocap\sensordetailpanel.h
+1499787218 c:\projekte\mocap\sensordetailpanel.h
 	<wx/sizer.h>
 	<wx/panel.h>
 	"ScrolledContainerPanel.h"
 	"SensorDataExtPanel.h"
 	<map>
 
-1487761777 c:\projekte\mocap\sensordataextpanel.h
+1499874151 c:\projekte\mocap\sensordataextpanel.h
 	<wx/sizer.h>
 	<wx/stattext.h>
 	<wx/panel.h>
@@ -9115,7 +9115,7 @@
 1456698816 c:\engines\wxwidgets-3.1.0\include\wx\qt\tglbtn.h
 	"wx/tglbtn.h"
 
-1498658178 c:\projekte\mocap\skeletoncreatorpanel.h
+1498760101 c:\projekte\mocap\skeletoncreatorpanel.h
 	"GLCanvas.h"
 	"TreeItemBoneData.h"
 	<map>
@@ -9195,7 +9195,7 @@
 	<wx/tglbtn.h>
 	<wx/dirctrl.h>
 
-1489590411 c:\projekte\mocap\timelinepanel.h
+1498856207 c:\projekte\mocap\timelinepanel.h
 	<vector>
 	"TimelineTrack.h"
 	"AnimationManager.h"
@@ -9214,18 +9214,18 @@
 	"wx/dirdlg.h"
 	"wx/choice.h"
 
-1487761777 c:\projekte\mocap\sensormanager.h
+1499875063 c:\projekte\mocap\sensormanager.h
 	"SensorNode.h"
 	"SensorRawData.h"
+	"Quaternion.h"
 	<map>
 	<vector>
-	<queue>
 	<string>
 
 1487761777 c:\projekte\mocap\customevents.h
 	<wx/event.h>
 
-1498740466 source:c:\projekte\mocap\mocapmanager.cpp
+1499787217 source:c:\projekte\mocap\mocapmanager.cpp
 	"MoCapManager.h"
 	"SensorManager.h"
 	"MotionFilterNone.h"
@@ -9235,19 +9235,19 @@
 1495533962 c:\projekte\mocap\motionfilternone.h
 	"MotionFilterBase.h"
 
-1496325112 c:\projekte\mocap\motionfilterslerp.h
+1499861640 c:\projekte\mocap\motionfilterslerp.h
 	"MotionFilterBase.h"
 	<vector>
 
-1493910958 source:c:\projekte\mocap\motionfilterbase.cpp
+1499872798 source:c:\projekte\mocap\motionfilterbase.cpp
 	"MotionFilterBase.h"
 	<wx/msgdlg.h>
 
-1496325112 source:c:\projekte\mocap\motionfilternone.cpp
+1499883374 source:c:\projekte\mocap\motionfilternone.cpp
 	"MotionFilterNone.h"
 	<list>
 
-1498690632 source:c:\projekte\mocap\motionfilterslerp.cpp
+1499861662 source:c:\projekte\mocap\motionfilterslerp.cpp
 	"MotionFilterSlerp.h"
 
 1488380608 source:c:\projekte\mocap\motionplayerpanel.cpp
@@ -9295,20 +9295,20 @@
 
 1456698816 c:\engines\wxwidgets-3.1.0\include\wx\msw\rcdefs.h
 
-1496856910 source:c:\projekte\mocap\scrolledcontainerpanel.cpp
+1499275294 source:c:\projekte\mocap\scrolledcontainerpanel.cpp
 	"wx_pch.h"
 	"ScrolledContainerPanel.h"
 	<wx/intl.h>
 	<wx/string.h>
 
-1487761777 source:c:\projekte\mocap\sensorbuffer.cpp
+1499957352 source:c:\projekte\mocap\sensorbuffer.cpp
 	"SensorBuffer.h"
 	"SensorNode.h"
 
-1487761777 source:c:\projekte\mocap\sensordata.cpp
+1499791141 source:c:\projekte\mocap\sensordata.cpp
 	"SensorData.h"
 
-1497885466 source:c:\projekte\mocap\sensordataextpanel.cpp
+1499874180 source:c:\projekte\mocap\sensordataextpanel.cpp
 	"wx_pch.h"
 	"SensorDataExtPanel.h"
 	"SensorManager.h"
@@ -9317,7 +9317,7 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1498750806 source:c:\projekte\mocap\sensordatapanel.cpp
+1499787218 source:c:\projekte\mocap\sensordatapanel.cpp
 	"wx_pch.h"
 	"SensorDataPanel.h"
 	"MoCapManager.h"
@@ -9325,7 +9325,7 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1487761777 source:c:\projekte\mocap\sensordetailpanel.cpp
+1499787218 source:c:\projekte\mocap\sensordetailpanel.cpp
 	"wx_pch.h"
 	"SensorDetailPanel.h"
 	"SensorManager.h"
@@ -9335,10 +9335,12 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1488376662 source:c:\projekte\mocap\sensormanager.cpp
+1499875134 source:c:\projekte\mocap\sensormanager.cpp
 	"SensorManager.h"
+	"SensorNodeIMU.h"
+	"SensorNodeRGBD.h"
 
-1488383945 source:c:\projekte\mocap\sensornode.cpp
+1499880536 source:c:\projekte\mocap\sensornode.cpp
 	"SensorNode.h"
 	"MoCapManager.h"
 	<limits>
@@ -9390,7 +9392,7 @@
 	<wx/spinctrl.h>
 	"TimelineOverlay.h"
 
-1498658400 source:c:\projekte\mocap\timelinepanel.cpp
+1498763745 source:c:\projekte\mocap\timelinepanel.cpp
 	"wx_pch.h"
 	"TimelinePanel.h"
 	"AnimationManager.h"
@@ -9440,7 +9442,7 @@
 	<math.h>
 	<string.h>
 
-1497887713 source:c:\projekte\mocap\viewpanel.cpp
+1499880770 source:c:\projekte\mocap\viewpanel.cpp
 	"wx_pch.h"
 	"ViewPanel.h"
 	"MoCapMain.h"
@@ -9585,23 +9587,28 @@
 	"ReceiverBase.h"
 	"wx/socket.h"
 
-1496858913 c:\projekte\mocap\receiverudp.h
+1499882421 c:\projekte\mocap\receiverudp.h
 	"ReceiverBase.h"
+	"Quaternion.h"
+	"Vector3.h"
+	"SensorData.h"
 	"wx/socket.h"
+	<map>
+	<list>
 
-1498744677 c:\projekte\mocap\receiverkinect.h
+1499270036 c:\projekte\mocap\receiverkinect.h
 	"ReceiverBase.h"
 	"Skeleton.h"
 	"KinectHack.h"
 	<Kinect.h>
 	<string>
 
-1496858913 source:c:\projekte\mocap\receiverudp.cpp
+1499882421 source:c:\projekte\mocap\receiverudp.cpp
 	"ReceiverUDP.h"
 	"SensorData.h"
 	"SensorManager.h"
 
-1498750828 source:c:\projekte\mocap\receiverkinect.cpp
+1499875093 source:c:\projekte\mocap\receiverkinect.cpp
 	"ReceiverKinect.h"
 	"SensorManager.h"
 
@@ -9658,4 +9665,51 @@
 	"GLCanvasDialog.h"
 	<wx/intl.h>
 	<wx/string.h>
+
+1499180510 c:\projekte\mocap\sensornodebase.h
+	"Vector3.h"
+	"Quaternion.h"
+	"SensorRawData.h"
+	"SensorData.h"
+	"SensorBuffer.h"
+	<string>
+	<list>
+	<vector>
+
+1499874703 c:\projekte\mocap\sensornodeimu.h
+	"SensorNode.h"
+	"Vector3.h"
+	"Quaternion.h"
+	"SensorRawData.h"
+	"SensorData.h"
+	"SensorBuffer.h"
+	<string>
+	<list>
+	<vector>
+
+1499874703 c:\projekte\mocap\sensornodergbd.h
+	"SensorNode.h"
+	"Vector3.h"
+	"Quaternion.h"
+	"SensorRawData.h"
+	"SensorData.h"
+	"SensorBuffer.h"
+	<string>
+	<list>
+	<vector>
+
+1499179464 source:c:\projekte\mocap\sensornodebase.cpp
+	"SensorNodeBase.h"
+	"MoCapManager.h"
+	<limits>
+
+1499877384 source:c:\projekte\mocap\sensornodeimu.cpp
+	"SensorNodeIMU.h"
+	"MoCapManager.h"
+	<limits>
+
+1499874703 source:c:\projekte\mocap\sensornodergbd.cpp
+	"SensorNodeRGBD.h"
+	"MoCapManager.h"
+	<limits>
 

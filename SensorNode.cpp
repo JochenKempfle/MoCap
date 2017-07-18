@@ -31,32 +31,36 @@ OF SUCH DAMAGE.
 #include "MoCapManager.h"
 #include <limits>
 
-SensorNode::SensorNode(int id, std::string IPAddress) : _id(id), _IPAddress(IPAddress)
+SensorNode::SensorNode(int id, std::string name) : _id(id), _name(name)
 {
     _boneId = -1;
     _state = 0;
-    _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    // _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
     _startTime = std::numeric_limits<uint64_t>::max();
     _synchronizing = true;
     _numReceivedPackets = 0;
     _numLostPackets = 0;
     _currentTimeStamp = 0;
     _frameTime = 0.0f;
+    _currentFrameTime = 0.1f;
     _delay = 0;
+    _currentDelay = 0;
 }
 
 SensorNode::SensorNode() : _id(-1)
 {
     _boneId = -1;
     _state = 0;
-    _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    // _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
     _startTime = std::numeric_limits<uint64_t>::max();
     _synchronizing = true;
     _numReceivedPackets = 0;
     _numLostPackets = 0;
     _currentTimeStamp = 0;
     _frameTime = 0.0f;
+    _currentFrameTime = 0.1f;
     _delay = 0;
+    _currentDelay = 0;
 }
 
 SensorNode::~SensorNode()
@@ -70,89 +74,58 @@ void SensorNode::setBoneId(int boneId)
     setHasBone(boneId >= 0);
 }
 
-void SensorNode::update(const SensorRawData &rawData)
+void SensorNode::update(SensorData* data)
 {
-    // TODO(JK#9#): implement some kind of filtering here (do this in a Motion filter!)
-    _rotation.u() = rawData.rotation[0];
-    _rotation.x() = rawData.rotation[1];
-    _rotation.y() = rawData.rotation[2];
-    _rotation.z() = rawData.rotation[3];
-    // TODO(JK#9#): remove sensor coordinate mapping from SensorNode::update() as soon as there is a valid mapping routine
-    // Quaternion x(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
-    // Quaternion y(Vector3(0.0, 1.0, 0.0), M_PI*180.0/180.0);
-    // x = y*x;
-    _rotation = _coordinateMapping * _rotation * _coordinateMapping.inv();
-    _rotation.normalize();
-
+    /*
     auto it = _buffer.end();
     while (it != _buffer.begin())
     {
         --it;
-        if (it->getTimestamp() < rawData.timestamp)
+        if (it->getTimestamp() < data->getTimestamp())
         {
             ++it;
             break;
         }
     }
-    _buffer.insert(it, SensorData(rawData.receiveTime, rawData.timestamp, _rotation));
+    _buffer.insert(it, data);
+    */
 
     // adjust the start time
     if (_synchronizing)
     {
-        if (rawData.receiveTime < _startTime + rawData.timestamp || _startTime == std::numeric_limits<uint64_t>::max())
+        if (data->getReceiveTime() < _startTime + data->getTimestamp() || _startTime == std::numeric_limits<uint64_t>::max())
         {
-            _startTime = rawData.receiveTime - rawData.timestamp;
+            _startTime = data->getReceiveTime() - data->getTimestamp();
         }
     }
 
-    _lastReceiveTime = rawData.receiveTime;
-    _currentTimeStamp = _buffer.back().getTimestamp();
+    _lastReceiveTime = data->getReceiveTime();
+
+
+    int deltaTimestamp = data->getTimestamp() - _currentTimeStamp;
+
+    if (deltaTimestamp > 0)
+    {
+        _currentFrameTime = float(deltaTimestamp)/1000.0f;
+        _currentTimeStamp = data->getTimestamp();
+    }
+    _currentDelay = _lastReceiveTime - _startTime - _currentTimeStamp;
     ++_numReceivedPackets;
 
-    if (_buffer.size() < 10)
-    {
-        // make first guesses
-        if (_buffer.size() == 9)
-        {
-//            int deltaTimestamp = std::numeric_limits<int>::max();
-//            auto it = _buffer.begin();
-//            int currentTimestamp = it->getTimestamp();
-//            ++it;
-//            while (it != _buffer.end())
-//            {
-//                if (int(it->getTimestamp()) - currentTimestamp < deltaTimestamp && int(it->getTimestamp()) - currentTimestamp > 0)
-//                {
-//                    deltaTimestamp = it->getTimestamp() - currentTimestamp;
-//                }
-//                currentTimestamp = it->getTimestamp();
-//                ++it;
-//            }
-            _frameTime = float(_buffer.back().getTimestamp() - _buffer.front().getTimestamp()) / (9.0f * 1000.0f);
-            _delay = _lastReceiveTime - _startTime - _currentTimeStamp;
-        }
-        return;
-    }
-
-    SensorData data = _buffer.front();
-    _buffer.pop_front();
-
-    int deltaTimestamp = _buffer.front().getTimestamp() - data.getTimestamp();
+    // TODO(JK#1#2017-07-12): In SensorNode: guess frame time and delay without having a buffer
 
     // check if the sensor was offline in the meantime and restarted from the beginning
-    if (deltaTimestamp > 10 * 1000 * _frameTime && data.getTimestamp() < 0.5f * 1000.0f * _frameTime * _numReceivedPackets)
+    if (data->getTimestamp() < 0.5f * _currentTimeStamp)
     {
-        _startTime = data.getReceiveTime() - data.getTimestamp();
+        _startTime = data->getReceiveTime() - data->getTimestamp();
         _numReceivedPackets = 0;
         _numLostPackets = 0;
         _currentTimeStamp = 0;
         _frameTime = 0.0f;
-        _buffer.clear();
-        _buffer.push_back(data);
-        return;
+        _currentFrameTime = 0.1f;
+        _delay = 0;
+        _currentDelay = 0;
     }
-
-
-    _currentFrameTime = float(_buffer.back().getTimestamp() - data.getTimestamp()) / (10.0f * 1000.0f);
 
     //_currentFrameTime = float(deltaTimestamp) / 1000.0f;
 
@@ -174,15 +147,18 @@ void SensorNode::update(const SensorRawData &rawData)
         _currentFrameTime = float(data.getTimestamp()) / (1000 * _numReceivedPackets);
     }
 */
+
     if (_frameTime <= 0.0f)
     {
         _frameTime = _currentFrameTime;
     }
     _frameTime = 0.98f * _frameTime + 0.02f * _currentFrameTime;
 
-    _delay = 0.98f * _delay + 0.02f * (_lastReceiveTime - _startTime - _currentTimeStamp);
+    _delay = 0.98f * _delay + 0.02f * _currentDelay;
 
-
+    // sensor update is done here (as implemented by child class)
+    onUpdate(data);
+/*
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         // TODO(JK#9#): what sensor data to push_back in the buffer? calRotation? - solved with received rotation
@@ -190,27 +166,12 @@ void SensorNode::update(const SensorRawData &rawData)
         _buffers[i]->push_back(data);
         //_buffers[i]->unlock();
     }
-
-
+*/
     // setUpdated(true);
 
-    // TODO(JK#5#): update position of sensor node
-/*    _position.x() = data.position[0];
-    _position.y() = data.position[1];
-    _position.z() = data.position[2];
-*/
     // TODO(JK#9#): implement some logic for a state update! (done?)
 }
 
-Quaternion SensorNode::getCalRotation() const
-{
-    // Quaternion x(1.0, 0.0, 0.0, M_PI*90.0/180.0);
-    // Quaternion offset = _rotationOffset * _mapping;
-    // return offset * _rotation * offset.inv();
-    Quaternion q = _rotationOffset * _rotation;
-    return /*_boneMapping */ q * _boneMapping;
-//    return _boneMapping * _rotationOffset.inv() * _rotation;// * _rotationOffset;
-}
 
 int SensorNode::getNumLostPackets() const
 {
@@ -218,10 +179,6 @@ int SensorNode::getNumLostPackets() const
     return lost < 0 ? 0 : lost;
 }
 
-Vector3 SensorNode::toEuler() const
-{
-    return _rotation.toEuler();
-}
 
 void SensorNode::addBuffer(SensorBuffer* buffer)
 {

@@ -81,39 +81,42 @@ bool ReceiverUDP::update()
     wxLongLong time = wxGetUTCTimeMillis();
     uint64_t receiveTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
 
-    SensorRawData data;
-    // 36 bytes is the maximum expected packet size
-    alignas(float) unsigned char buffer[36];
+    SensorDataOrientation data;
+    // ~68 bytes is the maximum expected packet size, so
+    //alignas(float) unsigned char buffer[100];
     wxIPV4address sensorAddress = _addressPeer;
 
     unsigned int bytesReceived = 1;
 
+    unsigned int id = 0;
+
     // take data from socket until no more bytes were received
     while (bytesReceived != 0)
     {
-        _socket->RecvFrom(sensorAddress, buffer, sizeof(buffer));
+        _socket->RecvFrom(sensorAddress, _rcvBuffer, sizeof(_rcvBuffer));
 
         bytesReceived = _socket->LastCount();
 
-        unsigned char* pBuffer = buffer;
+        unsigned char* pBuffer = _rcvBuffer;
 
         if (bytesReceived >= 24 && bytesReceived <= 36)
         {
-            data.receiveTime = receiveTime;
-            if (bytesReceived == 24 || bytesReceived == 36)
+            data.setReceiveTime(receiveTime);
+            //if (bytesReceived == 28 || bytesReceived == 36)
             {
-                data.id = *(reinterpret_cast<uint32_t*>(pBuffer));
+                id = *(reinterpret_cast<uint32_t*>(pBuffer));
                 pBuffer += sizeof(uint32_t);
             }
-            data.timestamp = *(reinterpret_cast<uint32_t*>(pBuffer));
+            //data.setType(*(reinterpret_cast<int32_t*>(pBuffer)));
+            //pBuffer += sizeof(uint32_t);
+
+            data.setTimestamp(*(reinterpret_cast<uint32_t*>(pBuffer)));
             pBuffer += sizeof(uint32_t);
-            data.rotation[0] = *reinterpret_cast<float*>(pBuffer);
-            pBuffer += sizeof(float);
-            data.rotation[1] = *reinterpret_cast<float*>(pBuffer);
-            pBuffer += sizeof(float);
-            data.rotation[2] = *reinterpret_cast<float*>(pBuffer);
-            pBuffer += sizeof(float);
-            data.rotation[3] = *reinterpret_cast<float*>(pBuffer);
+
+            //if (data.getType() & ORIENTATION)
+            {
+                data.setOrientation(getQuaternion(pBuffer));
+            }
             /*
             if (bytesReceived == 32 || bytesReceived == 36)
             {
@@ -134,11 +137,33 @@ bool ReceiverUDP::update()
 
         // handle setting of id for sensor node (and data) (solved by setting IP + id as name)
         wxString name = sensorAddress.IPAddress() + _("-");
-        name << data.id;
+        name << id;
+
+        data.setType(IMU);
+
+        std::string stdName = name.ToStdString();
+
+        auto it = _buffer[stdName].end();
+        auto mapIt = _buffer.find(stdName);
 
         if (bytesReceived >= 24 && bytesReceived <= 36)//== sizeof(SensorData))
         {
-            theSensorManager.updateSensor(name.ToStdString(), data);
+            while (it != mapIt->second.begin())
+            {
+                --it;
+                if (it->getTimestamp() < data.getTimestamp())
+                {
+                    ++it;
+                    break;
+                }
+            }
+            mapIt->second.insert(it, data);
+        }
+
+        if (mapIt->second.size() >= this->BUFFERSIZE)
+        {
+            theSensorManager.updateSensor(stdName, &_buffer[stdName].front());
+            _buffer[stdName].pop_front();
             // theSensorManager.updateSensor(sensorAddress.IPAddress().ToStdString(), data);
         }
 
@@ -206,3 +231,28 @@ unsigned short ReceiverUDP::getService() const
     return _addressLocal.Service();
 }
 
+Quaternion ReceiverUDP::getQuaternion(unsigned char* pBuffer) const
+{
+    Quaternion orientation;
+    orientation.u() = *reinterpret_cast<float*>(pBuffer);
+    pBuffer += sizeof(float);
+    orientation.x() = *reinterpret_cast<float*>(pBuffer);
+    pBuffer += sizeof(float);
+    orientation.y() = *reinterpret_cast<float*>(pBuffer);
+    pBuffer += sizeof(float);
+    orientation.z() = *reinterpret_cast<float*>(pBuffer);
+    pBuffer += sizeof(float);
+    return orientation;
+}
+
+Vector3 ReceiverUDP::getVector(unsigned char* pBuffer) const
+{
+    Vector3 vec;
+    vec.x() = *reinterpret_cast<float*>(pBuffer);
+    pBuffer += sizeof(float);
+    vec.y() = *reinterpret_cast<float*>(pBuffer);
+    pBuffer += sizeof(float);
+    vec.z() = *reinterpret_cast<float*>(pBuffer);
+    pBuffer += sizeof(float);
+    return vec;
+}

@@ -152,6 +152,10 @@
 		<Unit filename="SensorManager.h" />
 		<Unit filename="SensorNode.cpp" />
 		<Unit filename="SensorNode.h" />
+		<Unit filename="SensorNodeIMU.cpp" />
+		<Unit filename="SensorNodeIMU.h" />
+		<Unit filename="SensorNodeRGBD.cpp" />
+		<Unit filename="SensorNodeRGBD.h" />
 		<Unit filename="SensorRawData.cpp" />
 		<Unit filename="SensorRawData.h" />
 		<Unit filename="Skeleton.cpp" />

@@ -62,6 +62,8 @@ class Bone
     inline Vector3 getColor() const { return _color; }
     */
 
+    // TODO(JK#2#2017-06-30): show/hide a bone. In GUI allow a right click on bone for properties (name, color, visibility etc). Maybe use labels for this.
+
     inline void setLength(float length) { _length = length; }
     inline float getLength() const { return _length; }
     // TODO(JK#2#): make bone orientation dependent on relative default orientation, add new set***Orientation method

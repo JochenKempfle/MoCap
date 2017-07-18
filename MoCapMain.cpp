@@ -391,7 +391,7 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
     wxString name = sensorAddress.IPAddress() + _("-");
     name << data.id;
 
-    if (theSensorManager.getSensorIdFromIP(name.ToStdString()) == -1)
+    if (theSensorManager.getSensorIdFromName(name.ToStdString()) == -1)
     {
         _receiveStartTime[name] = receiveTime;
         Refresh();

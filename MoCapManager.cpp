@@ -150,11 +150,10 @@ void MoCapManager::calibrate()
     std::vector<SensorNode*> sensors = theSensorManager.getSensors();
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        Quaternion rotationOffset = sensors[i]->getRotation().inv();
-        sensors[i]->setRotationOffset(rotationOffset.normalize());
-        // theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
-
-        // TODO(JK#4#): calibration! If bone.dir does not match, rotate 180° around y
+        // TODO(JK#1#): calibration!
+        sensors[i]->calibrate(0);
+        // Quaternion rotationOffset = sensors[i]->getRotation().inv();
+        // sensors[i]->setRotationOffset(rotationOffset.normalize());
     }
 }
 
@@ -163,6 +162,8 @@ void MoCapManager::setSensorBoneMapping()
     std::vector<SensorNode*> sensors = theSensorManager.getSensors();
     for (size_t i = 0; i < sensors.size(); ++i)
     {
+        sensors[i]->calibrate(1);
+        /*
         Bone* bone = _skeleton.getBone(sensors[i]->getBoneId());
         if (bone == nullptr)
         {
@@ -176,6 +177,7 @@ void MoCapManager::setSensorBoneMapping()
         sensors[i]->setBoneMapping(mapped);
 
         theSensorManager.setSensorStateCalibrated(sensors[i]->getId(), true);
+        */
     }
 }
 

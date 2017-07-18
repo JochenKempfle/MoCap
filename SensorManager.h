@@ -32,9 +32,9 @@ OF SUCH DAMAGE.
 
 #include "SensorNode.h"
 #include "SensorRawData.h"
+#include "Quaternion.h"
 #include <map>
 #include <vector>
-#include <queue>
 #include <string>
 
 
@@ -48,16 +48,16 @@ class SensorManager
 
     static SensorManager& getInstance();
 
-    int createSensorNode(std::string IPAddress);
-    void updateSensor(std::string IPAddress, const SensorRawData &data);
-    bool updateSensor(int id, const SensorRawData &data);
+    int createSensorNode(std::string name, int type);
+    void updateSensor(std::string name, SensorData* data);
+    bool updateSensor(int id, SensorData* data);
 
     bool setSensorOffset(int id, const Quaternion &rotation);
 
     std::vector<int> getMoving(double minDegree);
 
     SensorNode* getSensor(int id);
-    int getSensorIdFromIP(std::string IPAddress);
+    int getSensorIdFromName(std::string name);
 
     void resetAllSensorStatesUpdated();
     void setSensorStateCalibrated(int id, bool calibrated = true);
@@ -72,9 +72,9 @@ class SensorManager
 
   private:
     int _nextId;
-    std::map<std::string, SensorNode*> _sensorFromIP;
+    std::map<std::string, SensorNode*> _sensorFromName;
     std::map<int, SensorNode*> _sensors;
-    std::vector<SensorNode> _previousSensorData;
+    std::vector<Quaternion> _previousSensorData;
 };
 
 

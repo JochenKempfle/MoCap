@@ -28,6 +28,8 @@ OF SUCH DAMAGE.
 
 
 #include "SensorManager.h"
+#include "SensorNodeIMU.h"
+#include "SensorNodeRGBD.h"
 
 SensorManager::SensorManager()
 {
@@ -53,31 +55,56 @@ SensorManager& SensorManager::getInstance()
     return *_sensorManager;
 }
 
-int SensorManager::createSensorNode(std::string IPAddress)
+int SensorManager::createSensorNode(std::string name, int type)
 {
     int id = _nextId++;
-    SensorNode* sensor = new SensorNode(id, IPAddress);
-    _sensors[id] = sensor;
-    _sensorFromIP[IPAddress] = sensor;
-    return id;
+    SensorNode* sensor = nullptr;
+    switch (type)
+    {
+        case IMU:
+            sensor = new SensorNodeIMU(id, name);
+            break;
+        case RGBD:
+            sensor = new SensorNodeRGBD(id, name);
+            break;
+        default:
+            break;
+    }
+    if (sensor != nullptr)
+    {
+        _sensors[id] = sensor;
+        _sensorFromName[name] = sensor;
+        return id;
+    }
+
+    // no sensor node could be created
+    --_nextId;
+    return -1;
 }
 
-void SensorManager::updateSensor(std::string IPAddress, const SensorRawData &data)
+void SensorManager::updateSensor(std::string name, SensorData* data)
 {
-    auto it = _sensorFromIP.find(IPAddress);
-    if (it != _sensorFromIP.end())
+    auto it = _sensorFromName.find(name);
+    if (it != _sensorFromName.end())
     {
         it->second->update(data);
     }
     else
     {
-        createSensorNode(IPAddress);
-        it = _sensorFromIP.find(IPAddress);
-        it->second->update(data);
+        int id = createSensorNode(name, data->getType());
+        if (id >= 0)
+        {
+            it = _sensorFromName.find(name);
+            it->second->update(data);
+        }
+        else
+        {
+            // uh-oh sensor could not be created!
+        }
     }
 }
 
-bool SensorManager::updateSensor(int id, const SensorRawData &data)
+bool SensorManager::updateSensor(int id, SensorData* data)
 {
     auto it = _sensors.find(id);
     if (it != _sensors.end())
@@ -88,6 +115,7 @@ bool SensorManager::updateSensor(int id, const SensorRawData &data)
     return false;
 }
 
+/*
 bool SensorManager::setSensorOffset(int id, const Quaternion &rotation)
 {
     auto it = _sensors.find(id);
@@ -98,15 +126,17 @@ bool SensorManager::setSensorOffset(int id, const Quaternion &rotation)
     }
     return false;
 }
+*/
 
 std::vector<int> SensorManager::getMoving(double minDegree)
 {
+    // TODO(JK#2#2017-07-03): getMoving (or auto assign) leads to a SW crash - rewrite
     std::vector<int> moving;
     double rotationThreshold = fabs(M_PI * minDegree/180.0);
     for (size_t i = 0; i < _previousSensorData.size(); ++i)
     {
-        int id = _previousSensorData[i].getId();
-        auto it = _sensors.find(id);
+        // int id = _previousSensorData[i].getId();
+        auto it = _sensors.find(i);
         if (it == _sensors.end())
         {
             continue;
@@ -114,10 +144,10 @@ std::vector<int> SensorManager::getMoving(double minDegree)
         //Vector3 difference = _previousSensorData[i].getRotation().toEuler() - it->second.getRotation().toEuler();
         // difference.normalize();
         //float angle = difference.norm();
-        double angle = _previousSensorData[i].getRotation().getShortestAngleTo(it->second->getRotation());
+        double angle = _previousSensorData[i].getShortestAngleTo(it->second->getRotation());
         if (angle >= rotationThreshold)
         {
-            moving.push_back(id);
+            moving.push_back(i);
         }
     }
     //_previousSensorData = getSensors();
@@ -125,7 +155,7 @@ std::vector<int> SensorManager::getMoving(double minDegree)
     _previousSensorData.clear();
     for (size_t i = 0; i < getSensors().size(); ++i)
     {
-        _previousSensorData.push_back(*getSensors()[i]);
+        _previousSensorData.push_back(getSensors()[i]->getRotation());
     }
     return moving;
 }
@@ -174,10 +204,10 @@ void SensorManager::setSynchronizing(bool sync)
     }
 }
 
-int SensorManager::getSensorIdFromIP(std::string IPAddress)
+int SensorManager::getSensorIdFromName(std::string name)
 {
-    auto it = _sensorFromIP.find(IPAddress);
-    if (it != _sensorFromIP.end())
+    auto it = _sensorFromName.find(name);
+    if (it != _sensorFromName.end())
     {
         return it->second->getId();
     }

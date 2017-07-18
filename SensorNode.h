@@ -27,8 +27,8 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef SENSORNODE_H
-#define SENSORNODE_H
+#ifndef SENSORNODEBASE_H
+#define SENSORNODEBASE_H
 
 #include "Vector3.h"
 #include "Quaternion.h"
@@ -42,6 +42,13 @@ OF SUCH DAMAGE.
 
 
 
+enum SensorType
+{
+    //NONE = 0,
+    IMU = 1,
+    RGBD
+};
+
 enum SensorState
 {
     NONE = 0,
@@ -54,20 +61,26 @@ enum SensorState
 class SensorNode
 {
   public:
-    SensorNode(int id, std::string IPAddress);
+    SensorNode(int id, std::string name);
     SensorNode();
     virtual ~SensorNode();
 
-    void update(const SensorRawData &data);
+    void update(SensorData* data);
+
+    virtual void calibrate(int step) = 0;
+
+    virtual void applyCalibration(SensorData* data) = 0;
+
+    virtual int getType() const = 0;
 
     int getId() const { return _id; }
-    std::string getIPAddress() const { return _IPAddress; }
+    std::string getName() const { return _name; }
 
     void setBoneId(int boneId);
     int getBoneId() const { return _boneId; }
 
-    unsigned char getState() const { return _state; }
     void setState(unsigned char state) { _state = state; }
+    unsigned char getState() const { return _state; }
 
     void setUpdated(bool value = true) { _state = (value ? _state | SensorState::UPDATED : _state & ~SensorState::UPDATED); }
     void setHasBone(bool value = true) { _state = (value ? _state | SensorState::HAS_BONE : _state & ~SensorState::HAS_BONE); }
@@ -78,28 +91,11 @@ class SensorNode
     bool hasBone() const { return _state & SensorState::HAS_BONE ? true : false; }
     bool isCalibrated() const { return _state & SensorState::CALIBRATED ? true : false; }
 
-    Vector3 getPosition() const { return _position; }
-    void setPosition(const Vector3 &position) { _position = position; }
-    // void setPosition(float x, float y, float z) { _rotation = Vector3f(x, y, z); }
-
-    Quaternion getRotation() const { return _rotation; }
     void setRotation(const Quaternion &rotation) { _rotation = rotation; }
-    // void setRotation(float u, float x, float y, float z) { _rotation = Quaternionf(u, x, y, z); }
-
-    Quaternion getMapping() const { return _coordinateMapping; }
-    void setMapping(const Quaternion &mapping) { _coordinateMapping = mapping; }
-    void resetMapping() { _coordinateMapping = Quaternion(); }
-
-    Quaternion getBoneMapping() const { return _boneMapping; }
-    void setBoneMapping(const Quaternion &mapping) { _boneMapping = mapping; }
-    void resetBoneMapping() { _boneMapping = Quaternion(); }
+    Quaternion getRotation() const { return _rotation; }
 
     // returns the relative rotation to the offset
-    Quaternion getCalRotation() const;// { return _rotationOffset * _rotation; }
-
-    Quaternion getRotationOffset() const { return _rotationOffset; }
-    void setRotationOffset(const Quaternion &offset) { _rotationOffset = offset; }
-    void resetRotationOffset() { _rotationOffset = Quaternion(); }
+    virtual Quaternion getCalRotation() const = 0;
 
     uint64_t getStartTime() const { return _startTime; }
     uint64_t getLastReceiveTime() const { return _lastReceiveTime; }
@@ -116,42 +112,39 @@ class SensorNode
     void setSynchronizing(bool sync = true) { _synchronizing = sync; }
     bool isSynchronizing() const { return _synchronizing; }
 
-    // returns the rotation in euler angles, using the 1-2-3 convention
-    Vector3 toEuler() const;
 
     void addBuffer(SensorBuffer* buffer);
     void removeBuffer(SensorBuffer* buffer);
 
     // TODO(JK#2#2017-06-29): allow a sensor node to reset its calibration values and to set it individually
     // TODO(JK#2#2017-06-29): allow a sensor node to use one sensor for whole coordinate mapping
+  protected:
+    virtual void onUpdate(SensorData* data) = 0;
+
+    int _boneId;
+    std::vector<SensorBuffer*> _buffers;
+
   private:
     int _id;
-    int _boneId;
     unsigned char _state;
-    std::string _IPAddress;
+    std::string _name;
+    // TODO(JK#1#2017-07-04): get rid of sensor rotation!
     Quaternion _rotation;
-    Quaternion _rotationOffset;
-    Quaternion _boneOffset;
-    // how to map from sensor coordinates to simulation coordinates
-    Quaternion _coordinateMapping;
-    Quaternion _boneMapping;
-    Vector3 _position;
+
     // the global start time in ms
     uint64_t _startTime;
     uint64_t _lastReceiveTime;
     float _frameTime;
     float _currentFrameTime;
     int _delay;
+    int _currentDelay;
 
     unsigned int _numReceivedPackets;
     int _numLostPackets;
     unsigned int _currentTimeStamp;
 
     bool _synchronizing;
-
-    std::list<SensorData> _buffer;
-    std::vector<SensorBuffer*> _buffers;
 };
 
-#endif // SENSORNODE_H
+#endif // SENSORNODEBASE_H
 

@@ -65,10 +65,16 @@ class ReceiverKinect : public ReceiverBase
 
     // Body reader
     IBodyFrameReader* _bodyFrameReader;
+    IMultiSourceFrameReader* _multiSourceFrameReader;
 
     int64_t _startTime;
 
     Skeleton _kinectSkeleton;
+
+    const int _depthWidth  = 512;
+    const int _depthHeight = 424;
+    const int _colorWidth  = 1920;
+    const int _colorHeight = 1080;
 };
 
 #endif // KINECTRECEIVER_H

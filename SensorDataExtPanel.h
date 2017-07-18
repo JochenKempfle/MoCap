@@ -62,6 +62,7 @@ class SensorDataExtPanel: public wxPanel
 		//(*Declarations(SensorDataExtPanel)
 		wxPanel* PanelPlot;
 		wxStaticText* StaticText2;
+		wxStaticText* StaticTextID;
 		wxStaticText* StaticTextState;
 		wxStaticText* StaticTextFPS;
 		wxStaticText* StaticTextDelay;
@@ -72,7 +73,6 @@ class SensorDataExtPanel: public wxPanel
 		wxStaticText* StaticTextReceived;
 		wxStaticText* StaticTextLost;
 		wxToggleButton* ToggleButtonOffset;
-		wxStaticText* StaticTextIP;
 		wxStaticText* StaticTextTimeStamp;
 		wxStaticText* StaticText4;
 		GLCanvas* glCanvas;
@@ -81,8 +81,8 @@ class SensorDataExtPanel: public wxPanel
 	protected:
 
 		//(*Identifiers(SensorDataExtPanel)
-		static const long ID_STATICTEXTNAME;
-		static const long ID_STATICTEXTIP;
+		static const long ID_STATICTEXTID;
+		static const long ID_STATICTEXTName;
 		static const long ID_STATICTEXTFPS;
 		static const long ID_STATICTEXTSTATE;
 		static const long ID_STATICTEXT1;
@@ -109,7 +109,7 @@ class SensorDataExtPanel: public wxPanel
 		Quaternion _offset;
 
 		const unsigned int _numPlotPoints = 150;
-		SensorBuffer _buffer;
+		SensorBufferType<SensorDataOrientation> _buffer;
 		std::list<Vector3> _plotData;
 
 		DECLARE_EVENT_TABLE()

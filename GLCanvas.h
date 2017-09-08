@@ -124,6 +124,7 @@ class GLCanvas : public wxGLCanvas
     bool _showUI;
 
     wxColour _backgroundColor;
+    float _lineWidth;
 
     Skeleton* _skeleton;
     Quaternion _sensorOrientation;

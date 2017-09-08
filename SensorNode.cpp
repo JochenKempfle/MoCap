@@ -179,7 +179,7 @@ int SensorNode::getNumLostPackets() const
     return lost < 0 ? 0 : lost;
 }
 
-
+/*
 void SensorNode::addBuffer(SensorBuffer* buffer)
 {
     for (size_t i = 0; i < _buffers.size(); ++i)
@@ -203,4 +203,4 @@ void SensorNode::removeBuffer(SensorBuffer* buffer)
         }
     }
 }
-
+*/

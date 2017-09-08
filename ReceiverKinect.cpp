@@ -375,7 +375,7 @@ bool ReceiverKinect::update()
 
                                 data.setType(RGBD);
                                 data.setTimestamp(static_cast<unsigned int>(receiveTime - _startTime));
-                                data.setReceiveTime(receiveTime);
+                                // data.setReceiveTime(receiveTime);
 
                                 // toggle comments to either get kinect orientations or orientations from joint positions
                                 data.setOrientation(orientationFromKinect);

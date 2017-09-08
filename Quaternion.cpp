@@ -286,7 +286,7 @@ Quaternion& Quaternion::normalize()
 {
     double len = norm();
     if (len > 0.0)
-      *this /= float(len);
+      *this /= len;
     return *this;
 }
 

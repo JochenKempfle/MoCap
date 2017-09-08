@@ -12,7 +12,7 @@
 
 //(*IdInit(GLCanvasDialog)
 const long GLCanvasDialog::ID_COLOURPICKERCTRL = wxNewId();
-const long GLCanvasDialog::ID_SLIDERLINEWIDTH = wxNewId();
+const long GLCanvasDialog::ID_SLIDER1 = wxNewId();
 const long GLCanvasDialog::ID_BUTTONOK = wxNewId();
 const long GLCanvasDialog::ID_BUTTONABORT = wxNewId();
 //*)
@@ -38,12 +38,11 @@ GLCanvasDialog::GLCanvasDialog(wxWindow* parent,wxWindowID id,const wxPoint& pos
 	ColourPickerCtrl = new wxColourPickerCtrl(this, ID_COLOURPICKERCTRL, wxColour(0,0,0), wxDefaultPosition, wxDefaultSize, wxCLRP_USE_TEXTCTRL, wxDefaultValidator, _T("ID_COLOURPICKERCTRL"));
 	ColourPickerCtrl->SetToolTip(_("Click or enter text to change background color"));
 	StaticBoxSizer1->Add(ColourPickerCtrl, 1, wxALL, 5);
-	BoxSizer1->Add(StaticBoxSizer1, 0, wxALL|wxEXPAND, 5);
+	BoxSizer1->Add(StaticBoxSizer1, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	StaticBoxSizer2 = new wxStaticBoxSizer(wxHORIZONTAL, this, _("Line Width"));
-	SliderLineWidth = new wxSlider(this, ID_SLIDERLINEWIDTH, 1, 1, 5, wxDefaultPosition, wxDefaultSize, wxSL_LABELS|wxSL_TOP, wxDefaultValidator, _T("ID_SLIDERLINEWIDTH"));
-	SliderLineWidth->SetTickFreq(1);
-	StaticBoxSizer2->Add(SliderLineWidth, 1, wxALL, 5);
-	BoxSizer1->Add(StaticBoxSizer2, 1, wxALL|wxEXPAND, 5);
+	Slider1 = new wxSlider(this, ID_SLIDER1, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_LABELS, wxDefaultValidator, _T("ID_SLIDER1"));
+	StaticBoxSizer2->Add(Slider1, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+	BoxSizer1->Add(StaticBoxSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
 	BoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
 	ButtonOK = new wxButton(this, ID_BUTTONOK, _("OK"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONOK"));
 	ButtonOK->SetDefault();

@@ -70,6 +70,7 @@ class SensorData
   protected:
 
   private:
+    // TODO(JK#2#2017-07-27): make sensor data independent from receive time
     uint64_t _receiveTime;
     unsigned int _timestamp;
     unsigned int _dataType;

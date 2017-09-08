@@ -35,6 +35,7 @@ OF SUCH DAMAGE.
 #include "SensorRawData.h"
 #include "SensorData.h"
 #include "SensorBuffer.h"
+#include "DataProvider.h"
 #include <string>
 #include <list>
 #include <vector>
@@ -58,7 +59,7 @@ enum SensorState
     // TODO(JK#5#): add appropriate states (done?)
 };
 
-class SensorNode
+class SensorNode : public DataProvider
 {
   public:
     SensorNode(int id, std::string name);
@@ -113,8 +114,8 @@ class SensorNode
     bool isSynchronizing() const { return _synchronizing; }
 
 
-    void addBuffer(SensorBuffer* buffer);
-    void removeBuffer(SensorBuffer* buffer);
+    // void addBuffer(SensorBuffer* buffer);
+    // void removeBuffer(SensorBuffer* buffer);
 
     // TODO(JK#2#2017-06-29): allow a sensor node to reset its calibration values and to set it individually
     // TODO(JK#2#2017-06-29): allow a sensor node to use one sensor for whole coordinate mapping
@@ -122,7 +123,7 @@ class SensorNode
     virtual void onUpdate(SensorData* data) = 0;
 
     int _boneId;
-    std::vector<SensorBuffer*> _buffers;
+    // std::vector<SensorBuffer*> _buffers;
 
   private:
     int _id;

@@ -77,6 +77,7 @@ GLCanvas::GLCanvas(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wx
     _cameraRight = Vector3(1.0f, 0.0f, 0.0f);
     _showUI = false;
     _backgroundColor = wxColour(0, 0, 0);
+    _lineWidth = 1.0f;
     _lClicked = false;
     _rClicked = false;
     _skeleton = nullptr;
@@ -233,10 +234,12 @@ void GLCanvas::OnLeftDown(wxMouseEvent &event)
         {
             GLCanvasDialog dialog(this);
             dialog.setBackgroundColor(_backgroundColor);
+            dialog.setLineWidth(_lineWidth);
             if (dialog.ShowModal() == wxID_OK)
             {
                 _backgroundColor = dialog.getBackgroundColor();
                 glClearColor(float(_backgroundColor.Red())/255.0f, float(_backgroundColor.Green())/255.0f, float(_backgroundColor.Blue())/255.0f, 0.0);
+                _lineWidth = dialog.getLineWidth();
                 Refresh();
             }
         }
@@ -503,6 +506,9 @@ void GLCanvas::renderSkeleton() const
             glEnd();
         }
 
+        // set line width
+        glLineWidth(_lineWidth);
+
         // draw local coordinate system
         if (_style & DRAW_LOCAL_COORDINATE_SYSTEM)
         {
@@ -596,6 +602,9 @@ void GLCanvas::renderSkeleton() const
                 // glEnable(GL_DEPTH_TEST);
             }
         }
+
+        // reset line width
+        glLineWidth(1.0f);
 
         if (_style & DRAW_SPIN_ARROWS && bone.getId() == _skeleton->getSelectedBoneId())
         {

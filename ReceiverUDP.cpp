@@ -101,7 +101,7 @@ bool ReceiverUDP::update()
 
         if (bytesReceived >= 24 && bytesReceived <= 36)
         {
-            data.setReceiveTime(receiveTime);
+            // data.setReceiveTime(receiveTime);
             //if (bytesReceived == 28 || bytesReceived == 36)
             {
                 id = *(reinterpret_cast<uint32_t*>(pBuffer));

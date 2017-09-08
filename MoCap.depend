@@ -8924,12 +8924,13 @@
 	"SensorBuffer.h"
 	<wx/thread.h>
 
-1499880536 c:\projekte\mocap\sensornode.h
+1504713454 c:\projekte\mocap\sensornode.h
 	"Vector3.h"
 	"Quaternion.h"
 	"SensorRawData.h"
 	"SensorData.h"
 	"SensorBuffer.h"
+	"DataProvider.h"
 	<string>
 	<list>
 	<vector>
@@ -8937,16 +8938,16 @@
 1499785031 c:\projekte\mocap\sensorrawdata.h
 	<cstdint>
 
-1499883003 c:\projekte\mocap\sensordata.h
+1501173475 c:\projekte\mocap\sensordata.h
 	"Quaternion.h"
 
-1499957447 c:\projekte\mocap\sensorbuffer.h
+1504799282 c:\projekte\mocap\sensorbuffer.h
 	"SensorData.h"
 	<mutex>
 	<atomic>
 	<list>
 
-1498695495 source:c:\projekte\mocap\glcanvas.cpp
+1501791182 source:c:\projekte\mocap\glcanvas.cpp
 	"wx_pch.h"
 	"GLCanvas.h"
 	"MoCapManager.h"
@@ -8957,7 +8958,7 @@
 	<GL/glu.h>
 	<wx/wx.h>
 
-1498856207 c:\projekte\mocap\glcanvas.h
+1501789224 c:\projekte\mocap\glcanvas.h
 	<wx/glcanvas.h>
 	"GLImage.h"
 	"Skeleton.h"
@@ -9243,11 +9244,11 @@
 	"MotionFilterBase.h"
 	<wx/msgdlg.h>
 
-1499883374 source:c:\projekte\mocap\motionfilternone.cpp
+1504793295 source:c:\projekte\mocap\motionfilternone.cpp
 	"MotionFilterNone.h"
 	<list>
 
-1499861662 source:c:\projekte\mocap\motionfilterslerp.cpp
+1504795277 source:c:\projekte\mocap\motionfilterslerp.cpp
 	"MotionFilterSlerp.h"
 
 1488380608 source:c:\projekte\mocap\motionplayerpanel.cpp
@@ -9280,7 +9281,7 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1498691495 source:c:\projekte\mocap\quaternion.cpp
+1504627552 source:c:\projekte\mocap\quaternion.cpp
 	"Vector3.h"
 	"Quaternion.h"
 	<cassert>
@@ -9301,11 +9302,11 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1499957352 source:c:\projekte\mocap\sensorbuffer.cpp
+1504793433 source:c:\projekte\mocap\sensorbuffer.cpp
 	"SensorBuffer.h"
 	"SensorNode.h"
 
-1499791141 source:c:\projekte\mocap\sensordata.cpp
+1501150430 source:c:\projekte\mocap\sensordata.cpp
 	"SensorData.h"
 
 1499874180 source:c:\projekte\mocap\sensordataextpanel.cpp
@@ -9335,12 +9336,12 @@
 	<wx/intl.h>
 	<wx/string.h>
 
-1499875134 source:c:\projekte\mocap\sensormanager.cpp
+1500912031 source:c:\projekte\mocap\sensormanager.cpp
 	"SensorManager.h"
 	"SensorNodeIMU.h"
 	"SensorNodeRGBD.h"
 
-1499880536 source:c:\projekte\mocap\sensornode.cpp
+1504713454 source:c:\projekte\mocap\sensornode.cpp
 	"SensorNode.h"
 	"MoCapManager.h"
 	<limits>
@@ -9603,12 +9604,12 @@
 	<Kinect.h>
 	<string>
 
-1499882421 source:c:\projekte\mocap\receiverudp.cpp
+1501150087 source:c:\projekte\mocap\receiverudp.cpp
 	"ReceiverUDP.h"
 	"SensorData.h"
 	"SensorManager.h"
 
-1499875093 source:c:\projekte\mocap\receiverkinect.cpp
+1501150077 source:c:\projekte\mocap\receiverkinect.cpp
 	"ReceiverKinect.h"
 	"SensorManager.h"
 
@@ -9636,8 +9637,9 @@
 
 1456698816 c:\engines\wxwidgets-3.1.0\include\wx\qt\popupwin.h
 
-1498655279 c:\projekte\mocap\glcanvasdialog.h
+1501791143 c:\projekte\mocap\glcanvasdialog.h
 	<wx/sizer.h>
+	<wx/slider.h>
 	<wx/button.h>
 	<wx/dialog.h>
 	<wx/clrpicker.h>
@@ -9660,7 +9662,7 @@
 1456698816 c:\engines\wxwidgets-3.1.0\include\wx\colourdata.h
 	"wx/colour.h"
 
-1498657501 source:c:\projekte\mocap\glcanvasdialog.cpp
+1501791143 source:c:\projekte\mocap\glcanvasdialog.cpp
 	"wx_pch.h"
 	"GLCanvasDialog.h"
 	<wx/intl.h>
@@ -9703,7 +9705,7 @@
 	"MoCapManager.h"
 	<limits>
 
-1499877384 source:c:\projekte\mocap\sensornodeimu.cpp
+1504799317 source:c:\projekte\mocap\sensornodeimu.cpp
 	"SensorNodeIMU.h"
 	"MoCapManager.h"
 	<limits>
@@ -9712,4 +9714,11 @@
 	"SensorNodeRGBD.h"
 	"MoCapManager.h"
 	<limits>
+
+1504713473 c:\projekte\mocap\dataprovider.h
+	<vector>
+
+1504793593 source:c:\projekte\mocap\dataprovider.cpp
+	"DataProvider.h"
+	"SensorBuffer.h"
 

@@ -64,7 +64,11 @@ void MotionFilterSlerp::update()
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         SensorBuffer* buffer = _buffers[i];
-        SensorNode* sensor = buffer->getSensor();
+        SensorNode* sensor = dynamic_cast<SensorNode*>(buffer->getDataProvider());
+        if (sensor == nullptr)
+        {
+            continue;
+        }
         int boneId = sensor->getBoneId();
 
         buffer->lock();
@@ -75,9 +79,9 @@ void MotionFilterSlerp::update()
             // a buffer with no bone affiliation is not used, so clear it to safe memory
             if (bufferSize > 5)
             {
-                buffer->lock();
+                // buffer->lock();
                 buffer->clear();
-                buffer->unlock();
+                // buffer->unlock();
             }
             continue;
         }
@@ -94,6 +98,8 @@ void MotionFilterSlerp::update()
         {
             // Cast failed -> no orientation data present
             wxLogDebug(e.what());
+            buffer->unlock();
+            continue;
         }
         buffer->unlock();
 
@@ -103,9 +109,9 @@ void MotionFilterSlerp::update()
         //_skeleton->setAbsBoneOrientation(boneId, sensor->getCalRotation());//buffer->back().getOrientation());
         if (!_recording && bufferSize > 1)
         {
-            buffer->lock();
+            // buffer->lock();
             buffer->clear();
-            buffer->unlock();
+            // buffer->unlock();
             continue;
         }
 
@@ -126,6 +132,8 @@ void MotionFilterSlerp::update()
             {
                 // Cast failed -> no orientation data present
                 wxLogDebug(e.what());
+                buffer->unlock();
+                continue;
             }
             buffer->unlock();
             uint64_t dataTime = sensor->getStartTime() + uint64_t(data.getTimestamp());

@@ -27,50 +27,34 @@ OF SUCH DAMAGE.
 */
 
 
-#include "SensorBuffer.h"
-#include "SensorNode.h"
+#ifndef DATAPROVIDER_H
+#define DATAPROVIDER_H
 
-SensorBuffer::SensorBuffer()
+#include <vector>
+
+// forward declaration of sensor buffer
+class SensorBuffer;
+class SensorData;
+
+class DataProvider
 {
-    _provider = nullptr;
-}
+  public:
+    DataProvider();
+    virtual ~DataProvider();
 
-SensorBuffer::SensorBuffer(DataProvider* provider)
-{
-    _provider = nullptr;
-    subscribe(provider);
-}
+    bool hasBuffer(SensorBuffer* buffer) const;
+    size_t numBuffers() const { return _buffers.size(); }
 
-SensorBuffer::~SensorBuffer()
-{
+    void updateBuffers(SensorData* data);
 
-}
+    friend class SensorBuffer;
 
-void SensorBuffer::subscribe(DataProvider* provider)
-{
-    if (_provider == provider)
-    {
-        return;
-    }
-    unsubscribe();
-    if (provider == nullptr)
-    {
-        return;
-    }
-    _provider = provider;
-    provider->addBuffer(this);
-}
+  protected:
+    void addBuffer(SensorBuffer* buffer);
+    void removeBuffer(SensorBuffer* buffer);
 
-void SensorBuffer::unsubscribe()
-{
-    if (_provider == nullptr)
-    {
-        return;
-    }
-    _provider->removeBuffer(this);
-    _provider = nullptr;
-    clear();
-}
+  private:
+    std::vector<SensorBuffer*> _buffers;
+};
 
-
-
+#endif // DATAPROVIDER_H

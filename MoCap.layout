@@ -2,49 +2,39 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Release" />
-	<File name="AnimationManager.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="FileHandler.cpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3414" topLine="54" />
+			<Cursor1 position="2441" topLine="56" />
 		</Cursor>
 	</File>
-	<File name="MotionSequenceChannel.cpp" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="GLCanvasDialog.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2662" topLine="85" />
+			<Cursor1 position="878" topLine="20" />
 		</Cursor>
 	</File>
-	<File name="SensorRawData.cpp" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="TimelinePanel.cpp" open="0" top="0" tabpos="24" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1303" topLine="4" />
+			<Cursor1 position="19131" topLine="419" />
+		</Cursor>
+		<Folding>
+			<Collapse line="231" />
+			<Collapse line="286" />
+			<Collapse line="306" />
+		</Folding>
+	</File>
+	<File name="MotionSequence.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8829" topLine="78" />
 		</Cursor>
 	</File>
-	<File name="SkeletonCreatorPanel.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="KinectHack.h" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5267" topLine="133" />
+			<Cursor1 position="4543" topLine="168" />
 		</Cursor>
 	</File>
-	<File name="ExportDialog.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="AABB.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="13206" topLine="213" />
-		</Cursor>
-	</File>
-	<File name="MotionSequenceChannel.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3063" topLine="44" />
-		</Cursor>
-	</File>
-	<File name="SensorManager.cpp" open="1" top="0" tabpos="24" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2556" topLine="78" />
-		</Cursor>
-	</File>
-	<File name="JointConstraint.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5166" topLine="101" />
-		</Cursor>
-	</File>
-	<File name="MotionSequenceFrame.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2637" topLine="94" />
+			<Cursor1 position="2474" topLine="18" />
 		</Cursor>
 	</File>
 	<File name="SensorRawData.h" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -52,74 +42,83 @@
 			<Cursor1 position="1489" topLine="15" />
 		</Cursor>
 	</File>
-	<File name="MoCapMain.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="MoCapManager.h" open="0" top="0" tabpos="26" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="16046" topLine="376" />
+			<Cursor1 position="4042" topLine="97" />
 		</Cursor>
 	</File>
-	<File name="MotionSequenceFrame.h" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="DataProvider.h" open="1" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2235" topLine="28" />
+			<Cursor1 position="1863" topLine="24" />
 		</Cursor>
 	</File>
-	<File name="PostProcessPanel.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="GLImage.cpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="24883" topLine="543" />
+			<Cursor1 position="2934" topLine="80" />
 		</Cursor>
 	</File>
-	<File name="MoCapMain.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Timer.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1578" topLine="17" />
+			<Cursor1 position="1648" topLine="40" />
+		</Cursor>
+	</File>
+	<File name="MotionFilterNone.cpp" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2089" topLine="43" />
+		</Cursor>
+	</File>
+	<File name="GLCanvas.cpp" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="7078" topLine="208" />
+		</Cursor>
+		<Folding>
+			<Collapse line="133" />
+			<Collapse line="301" />
+		</Folding>
+	</File>
+	<File name="MotionFilterSlerp.cpp" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4257" topLine="95" />
+		</Cursor>
+	</File>
+	<File name="Vector3.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5998" topLine="90" />
+		</Cursor>
+	</File>
+	<File name="MotionFilterSlerp.h" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1450" topLine="17" />
+		</Cursor>
+	</File>
+	<File name="JointConstraint.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="9213" topLine="296" />
+		</Cursor>
+	</File>
+	<File name="MotionSequence.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2349" topLine="45" />
+		</Cursor>
+	</File>
+	<File name="ViewPanel.h" open="0" top="0" tabpos="23" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2162" topLine="63" />
+		</Cursor>
+	</File>
+	<File name="MotionFilterBase.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="699" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="AnimationManager.h" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1782" topLine="38" />
 		</Cursor>
 	</File>
 	<File name="PopupWindow.h" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="1625" topLine="39" />
-		</Cursor>
-	</File>
-	<File name="ScrolledContainerPanel.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2835" topLine="57" />
-		</Cursor>
-	</File>
-	<File name="Skeleton.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2579" topLine="60" />
-		</Cursor>
-	</File>
-	<File name="ConnectionDialog.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="7883" topLine="150" />
-		</Cursor>
-	</File>
-	<File name="MotionFilterBase.cpp" open="1" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1876" topLine="30" />
-		</Cursor>
-	</File>
-	<File name="Quaternion.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8594" topLine="74" />
-		</Cursor>
-	</File>
-	<File name="Timer.h" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1334" topLine="12" />
-		</Cursor>
-	</File>
-	<File name="GLCanvas.h" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2103" topLine="37" />
-		</Cursor>
-	</File>
-	<File name="MotionFilterNone.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1590" topLine="17" />
-		</Cursor>
-	</File>
-	<File name="ReceiverKinect.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2234" topLine="42" />
 		</Cursor>
 	</File>
 	<File name="Timeline.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -159,79 +158,9 @@
 			<Collapse line="731" />
 		</Folding>
 	</File>
-	<File name="MoCapManager.cpp" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="MotionSequenceFrame.h" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4937" topLine="324" />
-		</Cursor>
-	</File>
-	<File name="MotionFilterSlerp.h" open="1" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1767" topLine="17" />
-		</Cursor>
-	</File>
-	<File name="ReceiverKinect.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13383" topLine="357" />
-		</Cursor>
-	</File>
-	<File name="Vector3.cpp" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3059" topLine="90" />
-		</Cursor>
-	</File>
-	<File name="GLCanvasDialog.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="624" topLine="3" />
-		</Cursor>
-	</File>
-	<File name="SensorBuffer.h" open="1" top="1" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3069" topLine="72" />
-		</Cursor>
-	</File>
-	<File name="Timer.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1648" topLine="40" />
-		</Cursor>
-	</File>
-	<File name="MoCapManager.h" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3681" topLine="94" />
-		</Cursor>
-	</File>
-	<File name="MotionFilterNone.cpp" open="1" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2895" topLine="73" />
-		</Cursor>
-	</File>
-	<File name="SensorData.h" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2482" topLine="54" />
-		</Cursor>
-	</File>
-	<File name="TreeItemBoneData.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="FilterDialog.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="675" topLine="16" />
-		</Cursor>
-	</File>
-	<File name="MotionSequence.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2349" topLine="45" />
-		</Cursor>
-	</File>
-	<File name="SensorDataPanel.h" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1809" topLine="40" />
-		</Cursor>
-	</File>
-	<File name="Vector3.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5998" topLine="90" />
+			<Cursor1 position="2235" topLine="28" />
 		</Cursor>
 	</File>
 	<File name="AABB.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -239,129 +168,29 @@
 			<Cursor1 position="2045" topLine="60" />
 		</Cursor>
 	</File>
-	<File name="PopupWindow.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="MoCapManager.cpp" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="333" topLine="0" />
+			<Cursor1 position="4937" topLine="219" />
 		</Cursor>
 	</File>
-	<File name="SensorDetailPanel.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="resource.rc" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3691" topLine="86" />
+			<Cursor1 position="55" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="wxsmith\MoCapframe.wxs" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="MotionPlayerPanel.cpp" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="5995" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="GLImage.h" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1840" topLine="51" />
-		</Cursor>
-	</File>
-	<File name="MotionFilterBase.h" open="1" top="0" tabpos="26" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2361" topLine="42" />
-		</Cursor>
-	</File>
-	<File name="SensorBuffer.cpp" open="1" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1541" topLine="12" />
-		</Cursor>
-	</File>
-	<File name="SkeletonCreatorPanel.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="31135" topLine="690" />
-		</Cursor>
-	</File>
-	<File name="FileHandler.cpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2441" topLine="56" />
-		</Cursor>
-	</File>
-	<File name="MotionSequence.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8829" topLine="78" />
-		</Cursor>
-	</File>
-	<File name="ReceiverUDP.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4956" topLine="141" />
-		</Cursor>
-	</File>
-	<File name="TimelineOverlay.cpp" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1375" topLine="6" />
-		</Cursor>
-	</File>
-	<File name="CustomEvents.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="ReceiverBase.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1399" topLine="15" />
-		</Cursor>
-	</File>
-	<File name="TimelineChannelGroup.h" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2507" topLine="28" />
-		</Cursor>
-	</File>
-	<File name="Bone.cpp" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="8113" topLine="21" />
-		</Cursor>
-	</File>
-	<File name="TimelineOverlayDialog.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1372" topLine="32" />
-		</Cursor>
-	</File>
-	<File name="SensorDataPanel.cpp" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2418" topLine="73" />
-		</Cursor>
-	</File>
-	<File name="TreeItemBoneData.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13" topLine="1" />
-		</Cursor>
-	</File>
-	<File name="FileHandler.h" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1883" topLine="15" />
-		</Cursor>
-	</File>
-	<File name="ReceiverUDP.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2573" topLine="42" />
-		</Cursor>
-	</File>
-	<File name="TimelinePanel.cpp" open="0" top="0" tabpos="24" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="19131" topLine="419" />
+			<Cursor1 position="14132" topLine="120" />
 		</Cursor>
 		<Folding>
-			<Collapse line="231" />
-			<Collapse line="286" />
-			<Collapse line="306" />
+			<Collapse line="158" />
+			<Collapse line="171" />
+			<Collapse line="185" />
 		</Folding>
 	</File>
-	<File name="SensorDetailPanel.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="MoCapApp.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2175" topLine="42" />
-		</Cursor>
-	</File>
-	<File name="ViewPanel.cpp" open="0" top="0" tabpos="24" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="9314" topLine="188" />
-		</Cursor>
-	</File>
-	<File name="FilterDialog.cpp" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4092" topLine="92" />
+			<Cursor1 position="13" topLine="1" />
 		</Cursor>
 	</File>
 	<File name="PostProcessPanel.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -369,17 +198,64 @@
 			<Cursor1 position="5192" topLine="59" />
 		</Cursor>
 	</File>
-	<File name="TimelineChannel.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="SkeletonCreatorPanel.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="3563" topLine="82" />
+			<Cursor1 position="31135" topLine="690" />
 		</Cursor>
-		<Folding>
-			<Collapse line="81" />
-		</Folding>
 	</File>
-	<File name="ScrolledContainerPanel.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="SensorNode.h" open="1" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2105" topLine="40" />
+			<Cursor1 position="1798" topLine="81" />
+		</Cursor>
+	</File>
+	<File name="ExportDialog.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13206" topLine="213" />
+		</Cursor>
+	</File>
+	<File name="Quaternion.h" open="0" top="0" tabpos="27" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4248" topLine="98" />
+		</Cursor>
+	</File>
+	<File name="wx_pch.h" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="426" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="SensorNodeIMU.cpp" open="1" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2221" topLine="40" />
+		</Cursor>
+	</File>
+	<File name="GLCanvasDialog.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3082" topLine="10" />
+		</Cursor>
+	</File>
+	<File name="ReceiverBase.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1399" topLine="15" />
+		</Cursor>
+	</File>
+	<File name="TreeItemBoneData.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13" topLine="1" />
+		</Cursor>
+	</File>
+	<File name="SensorNodeIMU.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3049" topLine="55" />
+		</Cursor>
+	</File>
+	<File name="JointConstraint.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5166" topLine="101" />
+		</Cursor>
+	</File>
+	<File name="ReceiverUDP.cpp" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2981" topLine="86" />
 		</Cursor>
 	</File>
 	<File name="Skeleton.cpp" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -399,14 +275,207 @@
 			<Collapse line="275" />
 		</Folding>
 	</File>
-	<File name="GLImage.cpp" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="SensorNodeRGBD.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2934" topLine="80" />
+			<Cursor1 position="5075" topLine="86" />
 		</Cursor>
 	</File>
-	<File name="SensorData.cpp" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="ConnectionDialog.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1369" topLine="10" />
+			<Cursor1 position="7883" topLine="150" />
+		</Cursor>
+	</File>
+	<File name="PostProcessPanel.cpp" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="24883" topLine="543" />
+		</Cursor>
+	</File>
+	<File name="TimelineChannel.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1382" topLine="29" />
+		</Cursor>
+	</File>
+	<File name="SensorBuffer.h" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4487" topLine="143" />
+		</Cursor>
+	</File>
+	<File name="FileHandler.h" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1883" topLine="15" />
+		</Cursor>
+	</File>
+	<File name="MotionFilterBase.cpp" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1876" topLine="30" />
+		</Cursor>
+	</File>
+	<File name="TimelineChannelGroup.cpp" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2238" topLine="48" />
+		</Cursor>
+	</File>
+	<File name="SensorDataPanel.cpp" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2418" topLine="73" />
+		</Cursor>
+	</File>
+	<File name="MoCapApp.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13" topLine="5" />
+		</Cursor>
+	</File>
+	<File name="MotionSequenceChannel.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3063" topLine="44" />
+		</Cursor>
+	</File>
+	<File name="Timeline.h" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2000" topLine="37" />
+		</Cursor>
+	</File>
+	<File name="SensorDataExtPanel.cpp" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="9965" topLine="225" />
+		</Cursor>
+	</File>
+	<File name="MoCapMain.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="16046" topLine="376" />
+		</Cursor>
+	</File>
+	<File name="ReceiverKinect.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2234" topLine="42" />
+		</Cursor>
+	</File>
+	<File name="TimelineOverlayDialog.cpp" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5788" topLine="90" />
+		</Cursor>
+	</File>
+	<File name="SensorManager.h" open="0" top="0" tabpos="24" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1815" topLine="40" />
+		</Cursor>
+	</File>
+	<File name="AnimationManager.cpp" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3414" topLine="54" />
+		</Cursor>
+	</File>
+	<File name="MotionPlayerPanel.h" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3210" topLine="89" />
+		</Cursor>
+	</File>
+	<File name="TimelineTrack.h" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3086" topLine="59" />
+		</Cursor>
+	</File>
+	<File name="SensorDetailPanel.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2175" topLine="42" />
+		</Cursor>
+	</File>
+	<File name="ConstraintDialog.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2178" topLine="9" />
+		</Cursor>
+	</File>
+	<File name="ReceiverUDP.h" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2573" topLine="39" />
+		</Cursor>
+	</File>
+	<File name="Vector3.cpp" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3059" topLine="90" />
+		</Cursor>
+	</File>
+	<File name="SensorNodeRGBD.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1640" topLine="36" />
+		</Cursor>
+	</File>
+	<File name="Bone.cpp" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8113" topLine="21" />
+		</Cursor>
+	</File>
+	<File name="SensorBuffer.cpp" open="1" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1744" topLine="38" />
+		</Cursor>
+	</File>
+	<File name="SkeletonCreatorPanel.h" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5267" topLine="133" />
+		</Cursor>
+	</File>
+	<File name="SensorData.cpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1413" topLine="7" />
+		</Cursor>
+	</File>
+	<File name="Bone.h" open="0" top="0" tabpos="25" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2357" topLine="42" />
+		</Cursor>
+	</File>
+	<File name="TimelineChannel.cpp" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3563" topLine="82" />
+		</Cursor>
+		<Folding>
+			<Collapse line="81" />
+		</Folding>
+	</File>
+	<File name="SensorDataPanel.h" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1809" topLine="40" />
+		</Cursor>
+	</File>
+	<File name="ConnectionDialog.h" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="TimelineOverlay.cpp" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1375" topLine="6" />
+		</Cursor>
+	</File>
+	<File name="MotionSequenceChannel.cpp" open="0" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2662" topLine="85" />
+		</Cursor>
+	</File>
+	<File name="TimelinePanel.h" open="0" top="0" tabpos="26" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1351" topLine="21" />
+		</Cursor>
+	</File>
+	<File name="SensorNode.cpp" open="1" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5852" topLine="141" />
+		</Cursor>
+	</File>
+	<File name="FilterDialog.h" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="675" topLine="16" />
+		</Cursor>
+	</File>
+	<File name="ViewPanel.cpp" open="1" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8803" topLine="176" />
+		</Cursor>
+	</File>
+	<File name="MotionSequenceFrame.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2637" topLine="94" />
 		</Cursor>
 	</File>
 	<File name="TimelineTrack.cpp" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -417,24 +486,109 @@
 			<Collapse line="166" />
 		</Folding>
 	</File>
+	<File name="SensorDataExtPanel.h" open="1" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3490" topLine="83" />
+		</Cursor>
+	</File>
+	<File name="MoCapMain.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1578" topLine="17" />
+		</Cursor>
+	</File>
+	<File name="Timer.h" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1334" topLine="12" />
+		</Cursor>
+	</File>
+	<File name="PopupWindow.cpp" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="333" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Skeleton.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2579" topLine="60" />
+		</Cursor>
+	</File>
+	<File name="SensorManager.cpp" open="0" top="0" tabpos="23" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2533" topLine="72" />
+		</Cursor>
+	</File>
+	<File name="CustomEvents.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="13" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="wxsmith\MoCapframe.wxs" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5995" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Quaternion.cpp" open="0" top="0" tabpos="28" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8205" topLine="284" />
+		</Cursor>
+	</File>
+	<File name="SensorRawData.cpp" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1303" topLine="4" />
+		</Cursor>
+	</File>
+	<File name="SensorData.h" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2619" topLine="158" />
+		</Cursor>
+	</File>
+	<File name="DataProvider.cpp" open="1" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1813" topLine="36" />
+		</Cursor>
+	</File>
 	<File name="ReceiverBase.cpp" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="0" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="ViewPanel.h" open="0" top="0" tabpos="23" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="SensorDetailPanel.cpp" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2162" topLine="63" />
+			<Cursor1 position="3691" topLine="86" />
 		</Cursor>
 	</File>
-	<File name="JointConstraint.cpp" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="GLImage.h" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1662" topLine="37" />
+			<Cursor1 position="1840" topLine="51" />
 		</Cursor>
 	</File>
-	<File name="SensorDataExtPanel.cpp" open="1" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="TreeItemBoneData.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="9739" topLine="219" />
+			<Cursor1 position="13" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="ReceiverKinect.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="12996" topLine="360" />
+		</Cursor>
+	</File>
+	<File name="FilterDialog.cpp" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4092" topLine="92" />
+		</Cursor>
+	</File>
+	<File name="TimelineChannelGroup.h" open="0" top="0" tabpos="20" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2507" topLine="28" />
+		</Cursor>
+	</File>
+	<File name="ScrolledContainerPanel.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2835" topLine="57" />
+		</Cursor>
+	</File>
+	<File name="GLCanvas.h" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4241" topLine="107" />
 		</Cursor>
 	</File>
 	<File name="TimelineOverlay.h" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -442,44 +596,14 @@
 			<Cursor1 position="1300" topLine="13" />
 		</Cursor>
 	</File>
-	<File name="Quaternion.h" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="ScrolledContainerPanel.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2524" topLine="56" />
-		</Cursor>
-	</File>
-	<File name="MoCapApp.cpp" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13" topLine="1" />
-		</Cursor>
-	</File>
-	<File name="SensorDataExtPanel.h" open="1" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3440" topLine="83" />
-		</Cursor>
-	</File>
-	<File name="TimelineTrack.h" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3086" topLine="59" />
+			<Cursor1 position="2105" topLine="40" />
 		</Cursor>
 	</File>
 	<File name="ExportDialog.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="2092" topLine="44" />
-		</Cursor>
-	</File>
-	<File name="MoCapApp.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13" topLine="5" />
-		</Cursor>
-	</File>
-	<File name="SensorManager.h" open="1" top="0" tabpos="25" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1815" topLine="40" />
-		</Cursor>
-	</File>
-	<File name="resource.rc" open="0" top="0" tabpos="22" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="55" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="ConstraintDialog.cpp" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -490,128 +614,14 @@
 			<Collapse line="151" />
 		</Folding>
 	</File>
-	<File name="AABB.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="TimelineOverlayDialog.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="2474" topLine="18" />
+			<Cursor1 position="1372" topLine="32" />
 		</Cursor>
 	</File>
-	<File name="SensorNode.h" open="1" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="MotionFilterNone.h" open="0" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="4845" topLine="96" />
-		</Cursor>
-	</File>
-	<File name="wx_pch.h" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="426" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Bone.h" open="0" top="0" tabpos="25" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2357" topLine="42" />
-		</Cursor>
-	</File>
-	<File name="ConnectionDialog.h" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="13" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="SensorNodeRGBD.cpp" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1607" topLine="36" />
-		</Cursor>
-	</File>
-	<File name="Timeline.h" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2000" topLine="37" />
-		</Cursor>
-	</File>
-	<File name="GLCanvas.cpp" open="0" top="0" tabpos="15" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="12629" topLine="316" />
-		</Cursor>
-		<Folding>
-			<Collapse line="132" />
-			<Collapse line="298" />
-		</Folding>
-	</File>
-	<File name="ConstraintDialog.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2178" topLine="9" />
-		</Cursor>
-	</File>
-	<File name="SensorNode.cpp" open="1" top="0" tabpos="23" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4563" topLine="100" />
-		</Cursor>
-	</File>
-	<File name="TimelineChannel.h" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1382" topLine="29" />
-		</Cursor>
-	</File>
-	<File name="GLCanvasDialog.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="643" topLine="2" />
-		</Cursor>
-	</File>
-	<File name="MotionFilterSlerp.cpp" open="1" top="0" tabpos="16" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="4205" topLine="101" />
-		</Cursor>
-	</File>
-	<File name="SensorNodeIMU.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2325" topLine="43" />
-		</Cursor>
-	</File>
-	<File name="TimelineChannelGroup.cpp" open="0" top="0" tabpos="19" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2238" topLine="48" />
-		</Cursor>
-	</File>
-	<File name="AnimationManager.h" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1782" topLine="38" />
-		</Cursor>
-	</File>
-	<File name="MotionPlayerPanel.cpp" open="0" top="0" tabpos="18" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="14132" topLine="120" />
-		</Cursor>
-		<Folding>
-			<Collapse line="158" />
-			<Collapse line="171" />
-			<Collapse line="185" />
-		</Folding>
-	</File>
-	<File name="SensorNodeIMU.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3049" topLine="56" />
-		</Cursor>
-	</File>
-	<File name="TimelineOverlayDialog.cpp" open="0" top="0" tabpos="21" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5788" topLine="90" />
-		</Cursor>
-	</File>
-	<File name="KinectHack.h" open="0" top="0" tabpos="14" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="6185" topLine="210" />
-		</Cursor>
-	</File>
-	<File name="MotionPlayerPanel.h" open="0" top="0" tabpos="17" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="3210" topLine="89" />
-		</Cursor>
-	</File>
-	<File name="SensorNodeRGBD.h" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5075" topLine="86" />
-		</Cursor>
-	</File>
-	<File name="TimelinePanel.h" open="0" top="0" tabpos="26" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1351" topLine="21" />
+			<Cursor1 position="1590" topLine="17" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

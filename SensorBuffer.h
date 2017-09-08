@@ -35,22 +35,22 @@ OF SUCH DAMAGE.
 #include <atomic>
 #include <list>
 
-class SensorNode;
+class DataProvider;
 
 class SensorBuffer
 {
   public:
     SensorBuffer();
-    SensorBuffer(SensorNode* sensor);
+    SensorBuffer(DataProvider* provider);
     virtual ~SensorBuffer();
 
-    void subscribe(SensorNode* sensor);
+    void subscribe(DataProvider* provider);
     void unsubscribe();
 
     void lock() { _mtx.lock(); }
     void unlock() { _mtx.unlock(); }
 
-    SensorNode* getSensor() const { return _sensor; }
+    DataProvider* getDataProvider() const { return _provider; }
 
     virtual void push_back(SensorData* data) = 0;
     virtual void push_front(SensorData* data) = 0;
@@ -76,7 +76,7 @@ class SensorBuffer
 //    std::list<SensorData>::const_iterator end() const { return _buffer.end(); }
 
   protected:
-    SensorNode* _sensor;
+    DataProvider* _provider;
     std::mutex _mtx;
 
   private:
@@ -88,7 +88,7 @@ class SensorBufferType : public virtual SensorBuffer
 {
   public:
     SensorBufferType();
-    SensorBufferType(SensorNode* sensor);
+    SensorBufferType(DataProvider* provider);
     virtual ~SensorBufferType();
 
     void push_back(SensorData* data);
@@ -131,7 +131,7 @@ SensorBufferType<T>::SensorBufferType() : SensorBuffer()
 }
 
 template <typename T>
-SensorBufferType<T>::SensorBufferType(SensorNode* sensor) : SensorBuffer(sensor)
+SensorBufferType<T>::SensorBufferType(DataProvider* provider) : SensorBuffer(provider)
 {
 
 }
@@ -145,7 +145,13 @@ SensorBufferType<T>::~SensorBufferType()
 template <typename T>
 void SensorBufferType<T>::push_back(SensorData* data)
 {
-    _bufferBack.push_back(*dynamic_cast<T*>(data));
+    // cast sensor data to the supported type. If not supported fall through
+    T* typedData = dynamic_cast<T*>(data);
+    if (typedData == nullptr)
+    {
+        return;
+    }
+    _bufferBack.push_back(*typedData);
     // ensure the data of the back buffer is forwarded to the front buffer at any time
     if (_bufferBack.size() > 10)
     {
@@ -163,7 +169,13 @@ void SensorBufferType<T>::push_back(SensorData* data)
 template <typename T>
 void SensorBufferType<T>::push_front(SensorData* data)
 {
-    _bufferFront.push_front(*dynamic_cast<T*>(data));
+    // cast sensor data to the supported type. If not supported fall through
+    T* typedData = dynamic_cast<T*>(data);
+    if (typedData == nullptr)
+    {
+        return;
+    }
+    _bufferBack.push_front(*typedData);
 }
 
 template <typename T>
@@ -175,7 +187,9 @@ void SensorBufferType<T>::pop_back()
 template <typename T>
 void SensorBufferType<T>::pop_front()
 {
+    _mtx.lock();
     _bufferFront.pop_front();
+    _mtx.unlock();
 }
 
 template <typename T>

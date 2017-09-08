@@ -57,19 +57,20 @@ void SensorNodeIMU::onUpdate(SensorData* data)
         wxLogDebug(msg);
     }
     */
-    // TODO(JK#9#): implement some kind of filtering here (do this in a Motion filter!)
     SensorDataOrientation* orientationData = dynamic_cast<SensorDataOrientation*>(data);
     if (orientationData == nullptr)
     {
         return;
     }
 
+    // adjust quaternion to local coordinate system (OpenGL coordinate system instead of sensor's world coordinate system)
     Quaternion rotation = _coordinateMapping * orientationData->getOrientation() * _coordinateMapping.inv();
     orientationData->setOrientation(rotation.normalize());
     // TODO(JK#1#2017-07-04): get rid of sensor rotation
     setRotation(rotation);
 
-
+    updateBuffers(orientationData);
+/*
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         // TODO(JK#9#): what sensor data to push_back in the buffer? calRotation? - solved with received rotation
@@ -77,6 +78,7 @@ void SensorNodeIMU::onUpdate(SensorData* data)
         _buffers[i]->push_back(orientationData);
         //_buffers[i]->unlock();
     }
+    */
 }
 
 void SensorNodeIMU::calibrate(int step)

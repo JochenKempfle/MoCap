@@ -27,29 +27,33 @@ OF SUCH DAMAGE.
 */
 
 
-#include "SensorNodeRGBD.h"
-#include "MoCapManager.h"
-#include <limits>
+#include "DataProvider.h"
+#include "SensorBuffer.h"
 
-SensorNodeRGBD::SensorNodeRGBD(int id, std::string name) : SensorNode(id, name)
+DataProvider::DataProvider()
 {
-
+    //ctor
 }
 
-SensorNodeRGBD::SensorNodeRGBD() : SensorNode()
-{
-
-}
-
-SensorNodeRGBD::~SensorNodeRGBD()
+DataProvider::~DataProvider()
 {
     //dtor
 }
 
-void SensorNodeRGBD::onUpdate(SensorData* data)
+bool DataProvider::hasBuffer(SensorBuffer* buffer) const
 {
-    updateBuffers(data);
-    /*
+    for (size_t i = 0; i < _buffers.size(); ++i)
+    {
+        if (_buffers[i] == buffer)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void DataProvider::updateBuffers(SensorData* data)
+{
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         // TODO(JK#9#): what sensor data to push_back in the buffer? calRotation? - solved with received rotation
@@ -57,44 +61,32 @@ void SensorNodeRGBD::onUpdate(SensorData* data)
         _buffers[i]->push_back(data);
         //_buffers[i]->unlock();
     }
-    */
-
-    // setUpdated(true);
-
-    // TODO(JK#5#): update position of sensor node
-/*    _position.x() = data.position[0];
-    _position.y() = data.position[1];
-    _position.z() = data.position[2];
-*/
-    // TODO(JK#9#): implement some logic for a state update! (done?)
 }
 
-
-void SensorNodeRGBD::calibrate(int step)
+void DataProvider::addBuffer(SensorBuffer* buffer)
 {
-    return;
+    if (buffer == nullptr)
+    {
+        return;
+    }
+    for (size_t i = 0; i < _buffers.size(); ++i)
+    {
+        if (_buffers[i] == buffer)
+        {
+            return;
+        }
+    }
+    _buffers.push_back(buffer);
 }
 
-void SensorNodeRGBD::applyCalibration(SensorData* data)
+void DataProvider::removeBuffer(SensorBuffer* buffer)
 {
-    return;
+    for (auto it = _buffers.begin(); it != _buffers.end(); ++it)
+    {
+        if (*it == buffer)
+        {
+            _buffers.erase(it);
+            return;
+        }
+    }
 }
-
-Quaternion SensorNodeRGBD::getCalRotation() const
-{
-    // Quaternion x(1.0, 0.0, 0.0, M_PI*90.0/180.0);
-    // Quaternion offset = _rotationOffset * _mapping;
-    // return offset * _rotation * offset.inv();
-    Quaternion q = _rotationOffset * _rotation;
-    return /*_boneMapping */ q * _boneMapping;
-//    return _boneMapping * _rotationOffset.inv() * _rotation;// * _rotationOffset;
-}
-
-
-Vector3 SensorNodeRGBD::toEuler() const
-{
-    return _rotation.toEuler();
-}
-
-
-

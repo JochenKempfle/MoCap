@@ -60,7 +60,7 @@ void MotionFilterNone::update()
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         SensorBuffer* buffer = _buffers[i];
-        SensorNode* sensor = buffer->getSensor();
+        SensorNode* sensor = dynamic_cast<SensorNode*>(buffer->getDataProvider());
         if (sensor == nullptr)
         {
             continue;

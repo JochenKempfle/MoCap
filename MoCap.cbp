@@ -89,6 +89,8 @@
 		<Unit filename="ConstraintDialog.cpp" />
 		<Unit filename="ConstraintDialog.h" />
 		<Unit filename="CustomEvents.h" />
+		<Unit filename="DataProvider.cpp" />
+		<Unit filename="DataProvider.h" />
 		<Unit filename="ExportDialog.cpp" />
 		<Unit filename="ExportDialog.h" />
 		<Unit filename="FileHandler.cpp" />

@@ -44,36 +44,33 @@ OF SUCH DAMAGE.
 class SensorNodeIMU : public SensorNode
 {
   public:
-    SensorNodeIMU(int id, std::string IPAddress);
+    SensorNodeIMU(int id, std::string name);
     SensorNodeIMU();
     virtual ~SensorNodeIMU();
 
     virtual void calibrate(int step);
 
     virtual void applyCalibration(SensorData* data);
+    // TODO(JK#5#2017-09-12): copy calibration parameters from other sensor node
 
-    virtual int getType() const { return IMU; }
-
-    std::string getIPAddress() const { return _IPAddress; }
-
-    void setPosition(const Vector3 &position) { _position = position; }
-    Vector3 getPosition() const { return _position; }
+    // void setPosition(const Vector3 &position) { _position = position; }
+    // Vector3 getPosition() const { return _position; }
     // void setPosition(float x, float y, float z) { _rotation = Vector3f(x, y, z); }
 
-    Quaternion getMapping() const { return _coordinateMapping; }
-    void setMapping(const Quaternion &mapping) { _coordinateMapping = mapping; }
-    void resetMapping() { _coordinateMapping = Quaternion(); }
+    // Quaternion getMapping() const { return _coordinateMapping; }
+    // void setMapping(const Quaternion &mapping) { _coordinateMapping = mapping; }
+    // void resetMapping() { _coordinateMapping = Quaternion(); }
 
-    Quaternion getBoneMapping() const { return _boneMapping; }
-    void setBoneMapping(const Quaternion &mapping) { _boneMapping = mapping; }
-    void resetBoneMapping() { _boneMapping = Quaternion(); }
+    Quaternion getCoordinateOffset() const { return _coordinateOffset; }
+    void setCoordinateOffset(const Quaternion &offset) { _coordinateOffset = offset; }
+    void resetCoordinateOffset() { _coordinateOffset = Quaternion(); }
+
+    Quaternion getBoneOffset() const { return _boneOffset; }
+    void setBoneOffset(const Quaternion &offset) { _boneOffset = offset; }
+    void resetBoneOffset() { _boneOffset = Quaternion(); }
 
     // returns the relative rotation to the offset
-    virtual Quaternion getCalRotation() const;// { return _rotationOffset * _rotation; }
-
-    Quaternion getRotationOffset() const { return _rotationOffset; }
-    void setRotationOffset(const Quaternion &offset) { _rotationOffset = offset; }
-    void resetRotationOffset() { _rotationOffset = Quaternion(); }
+    virtual Quaternion getCalRotation() const;// { return _coordinateOffset * _rotation; }
 
     // returns the rotation in euler angles, using the 1-2-3 convention
     Vector3 toEuler() const;
@@ -82,14 +79,14 @@ class SensorNodeIMU : public SensorNode
     virtual void onUpdate(SensorData* data);
 
   private:
-    std::string _IPAddress;
     // Quaternion _rotation;
-    Quaternion _rotationOffset;
+    Quaternion _coordinateOffset;
     Quaternion _boneOffset;
-    // how to map from sensor coordinates to simulation coordinates
-    Quaternion _coordinateMapping;
-    Quaternion _boneMapping;
-    Vector3 _position;
+
+    // how to map from sensor coordinates to simulation coordinates (OpenGL coordinate system)
+    const Quaternion _coordinateMapping  = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    // Quaternion _boneMapping;
+    // Vector3 _position;
 };
 
 #endif // SENSORNODEIMU_H

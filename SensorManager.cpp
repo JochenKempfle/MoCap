@@ -55,43 +55,19 @@ SensorManager& SensorManager::getInstance()
     return *_sensorManager;
 }
 
-int SensorManager::createSensorNode(std::string name, int type)
-{
-    int id = _nextId++;
-    SensorNode* sensor = nullptr;
-    switch (type)
-    {
-        case IMU:
-            sensor = new SensorNodeIMU(id, name);
-            break;
-        case RGBD:
-            sensor = new SensorNodeRGBD(id, name);
-            break;
-        default:
-            break;
-    }
-    if (sensor != nullptr)
-    {
-        _sensors[id] = sensor;
-        _sensorFromName[name] = sensor;
-        return id;
-    }
-
-    // no sensor node could be created
-    --_nextId;
-    return -1;
-}
-
-void SensorManager::updateSensor(std::string name, SensorData* data)
+bool SensorManager::updateSensor(std::string name, SensorData* data, uint64_t receiveTime)
 {
     auto it = _sensorFromName.find(name);
     if (it != _sensorFromName.end())
     {
-        it->second->update(data);
+        it->second->update(data, receiveTime);
+        return true;
     }
+    return false;
+    /*
     else
     {
-        int id = createSensorNode(name, data->getType());
+        int id = createSensorNode(name);
         if (id >= 0)
         {
             it = _sensorFromName.find(name);
@@ -102,14 +78,15 @@ void SensorManager::updateSensor(std::string name, SensorData* data)
             // uh-oh sensor could not be created!
         }
     }
+    */
 }
 
-bool SensorManager::updateSensor(int id, SensorData* data)
+bool SensorManager::updateSensor(int id, SensorData* data, uint64_t receiveTime)
 {
     auto it = _sensors.find(id);
     if (it != _sensors.end())
     {
-        it->second->update(data);
+        it->second->update(data, receiveTime);
         return true;
     }
     return false;

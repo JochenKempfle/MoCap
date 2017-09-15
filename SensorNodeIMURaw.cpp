@@ -27,39 +27,35 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef DATAPROVIDER_H
-#define DATAPROVIDER_H
+#include "SensorNodeIMURaw.h"
 
-#include <map>
-#include <vector>
-
-// forward declaration of sensor buffer
-class SensorBuffer;
-class SensorData;
-
-class DataProvider
+SensorNodeIMURaw::SensorNodeIMURaw()
 {
-  public:
-    DataProvider();
-    virtual ~DataProvider();
+    //ctor
+}
 
-    size_t getNumChannels() const { return _buffers.size(); }
-    bool hasChannel(int channel) const;
-    std::vector<int> getChannelIds() const;
+SensorNodeIMURaw::SensorNodeIMURaw(int id, std::string name) : SensorNode(id, name)
+{
+    //ctor
+}
 
-    bool hasBuffer(SensorBuffer* buffer) const;
-    size_t numBuffers(int channel) const;
+SensorNodeIMURaw::~SensorNodeIMURaw()
+{
+    //dtor
+}
 
-    void updateBuffers(SensorData* data, int channel);
+void SensorNodeIMURaw::calibrate(int step)
+{
 
-    friend class SensorBuffer;
+}
 
-  protected:
-    void addBuffer(SensorBuffer* buffer);
-    void removeBuffer(SensorBuffer* buffer);
+void SensorNodeIMURaw::applyCalibration(SensorData* data)
+{
 
-  private:
-    std::map<int, std::vector<SensorBuffer*> > _buffers;
-};
+}
 
-#endif // DATAPROVIDER_H
+void SensorNodeIMURaw::onUpdate(SensorData* data)
+{
+
+}
+

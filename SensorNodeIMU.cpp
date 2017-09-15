@@ -33,12 +33,12 @@ OF SUCH DAMAGE.
 
 SensorNodeIMU::SensorNodeIMU(int id, std::string name) : SensorNode(id, name)
 {
-    _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    // _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
 }
 
 SensorNodeIMU::SensorNodeIMU() : SensorNode()
 {
-    _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
+    // _coordinateMapping = Quaternion(Vector3(1.0, 0.0, 0.0), -M_PI*90.0/180.0);
 }
 
 SensorNodeIMU::~SensorNodeIMU()
@@ -69,7 +69,7 @@ void SensorNodeIMU::onUpdate(SensorData* data)
     // TODO(JK#1#2017-07-04): get rid of sensor rotation
     setRotation(rotation);
 
-    updateBuffers(orientationData);
+    updateBuffers(orientationData, getId());
 /*
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
@@ -85,7 +85,7 @@ void SensorNodeIMU::calibrate(int step)
 {
     if (step == 0)
     {
-        _rotationOffset = getRotation().inv().normalize();
+        _coordinateOffset = getRotation().inv().normalize();
     }
     else if (step == 1)
     {
@@ -94,10 +94,10 @@ void SensorNodeIMU::calibrate(int step)
         {
             return;
         }
-        Quaternion mapped = getRotationOffset() * getRotation().normalized();
-        mapped.normalize();
-        mapped = mapped.inv() * bone->getDefaultOrientation();
-        setBoneMapping(mapped.normalized());
+        Quaternion offset = getCoordinateOffset() * getRotation().normalized();
+        offset.normalize();
+        offset = offset.inv() * bone->getDefaultOrientation();
+        setBoneOffset(offset.normalized());
     }
     else
     {
@@ -111,18 +111,18 @@ void SensorNodeIMU::applyCalibration(SensorData* data)
 
     if (orientationData != nullptr)
     {
-        orientationData->setOrientation(((_rotationOffset * orientationData->getOrientation()) * _boneMapping).normalize());
+        orientationData->setOrientation(((_coordinateOffset * orientationData->getOrientation()) * _boneOffset).normalize());
     }
 }
 
 Quaternion SensorNodeIMU::getCalRotation() const
 {
     // Quaternion x(1.0, 0.0, 0.0, M_PI*90.0/180.0);
-    // Quaternion offset = _rotationOffset * _mapping;
+    // Quaternion offset = _coordinateOffset * _mapping;
     // return offset * _rotation * offset.inv();
-    Quaternion q = _rotationOffset * getRotation();
-    return /*_boneMapping */ q * _boneMapping;
-//    return _boneMapping * _rotationOffset.inv() * _rotation;// * _rotationOffset;
+    Quaternion q = _coordinateOffset * getRotation();
+    return /*_boneMapping */ q * _boneOffset;
+//    return _boneMapping * _coordinateOffset.inv() * _rotation;// * _coordinateOffset;
 }
 
 Vector3 SensorNodeIMU::toEuler() const

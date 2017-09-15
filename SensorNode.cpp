@@ -74,7 +74,7 @@ void SensorNode::setBoneId(int boneId)
     setHasBone(boneId >= 0);
 }
 
-void SensorNode::update(SensorData* data)
+void SensorNode::update(SensorData* data, uint64_t receiveTime)
 {
     /*
     auto it = _buffer.end();
@@ -93,13 +93,13 @@ void SensorNode::update(SensorData* data)
     // adjust the start time
     if (_synchronizing)
     {
-        if (data->getReceiveTime() < _startTime + data->getTimestamp() || _startTime == std::numeric_limits<uint64_t>::max())
+        if (receiveTime < _startTime + data->getTimestamp() || _startTime == std::numeric_limits<uint64_t>::max())
         {
-            _startTime = data->getReceiveTime() - data->getTimestamp();
+            _startTime = receiveTime - data->getTimestamp();
         }
     }
 
-    _lastReceiveTime = data->getReceiveTime();
+    _lastReceiveTime = receiveTime;
 
 
     int deltaTimestamp = data->getTimestamp() - _currentTimeStamp;
@@ -117,7 +117,7 @@ void SensorNode::update(SensorData* data)
     // check if the sensor was offline in the meantime and restarted from the beginning
     if (data->getTimestamp() < 0.5f * _currentTimeStamp)
     {
-        _startTime = data->getReceiveTime() - data->getTimestamp();
+        _startTime = receiveTime - data->getTimestamp();
         _numReceivedPackets = 0;
         _numLostPackets = 0;
         _currentTimeStamp = 0;

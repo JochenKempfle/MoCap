@@ -41,16 +41,18 @@ class SensorBuffer
 {
   public:
     SensorBuffer();
-    SensorBuffer(DataProvider* provider);
+    SensorBuffer(DataProvider* provider, int channel);
     virtual ~SensorBuffer();
 
-    void subscribe(DataProvider* provider);
+    void subscribe(DataProvider* provider, int channel);
     void unsubscribe();
 
     void lock() { _mtx.lock(); }
     void unlock() { _mtx.unlock(); }
 
     DataProvider* getDataProvider() const { return _provider; }
+
+    int getChannel() const { return _channel; }
 
     virtual void push_back(SensorData* data) = 0;
     virtual void push_front(SensorData* data) = 0;
@@ -80,6 +82,7 @@ class SensorBuffer
     std::mutex _mtx;
 
   private:
+    int _channel;
 };
 
 
@@ -88,7 +91,7 @@ class SensorBufferType : public virtual SensorBuffer
 {
   public:
     SensorBufferType();
-    SensorBufferType(DataProvider* provider);
+    SensorBufferType(DataProvider* provider, int channel);
     virtual ~SensorBufferType();
 
     void push_back(SensorData* data);
@@ -131,7 +134,7 @@ SensorBufferType<T>::SensorBufferType() : SensorBuffer()
 }
 
 template <typename T>
-SensorBufferType<T>::SensorBufferType(DataProvider* provider) : SensorBuffer(provider)
+SensorBufferType<T>::SensorBufferType(DataProvider* provider, int channel) : SensorBuffer(provider, channel)
 {
 
 }

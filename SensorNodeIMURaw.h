@@ -27,39 +27,40 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef DATAPROVIDER_H
-#define DATAPROVIDER_H
+#ifndef SENSORNODEIMURAW_H
+#define SENSORNODEIMURAW_H
 
-#include <map>
+#include "SensorNode.h"
+#include "Vector3.h"
+#include "Quaternion.h"
+#include "SensorRawData.h"
+#include "SensorData.h"
+#include "SensorBuffer.h"
+#include <string>
+#include <list>
 #include <vector>
 
-// forward declaration of sensor buffer
-class SensorBuffer;
-class SensorData;
 
-class DataProvider
+class SensorNodeIMURaw : public SensorNode
 {
   public:
-    DataProvider();
-    virtual ~DataProvider();
+    SensorNodeIMURaw();
+    SensorNodeIMURaw(int id, std::string name);
+    virtual ~SensorNodeIMURaw();
 
-    size_t getNumChannels() const { return _buffers.size(); }
-    bool hasChannel(int channel) const;
-    std::vector<int> getChannelIds() const;
+    virtual void calibrate(int step);
 
-    bool hasBuffer(SensorBuffer* buffer) const;
-    size_t numBuffers(int channel) const;
+    virtual void applyCalibration(SensorData* data);
 
-    void updateBuffers(SensorData* data, int channel);
-
-    friend class SensorBuffer;
+    virtual Quaternion getCalRotation() const { return Quaternion(); }
 
   protected:
-    void addBuffer(SensorBuffer* buffer);
-    void removeBuffer(SensorBuffer* buffer);
+    virtual void onUpdate(SensorData* data);
 
   private:
-    std::map<int, std::vector<SensorBuffer*> > _buffers;
+    Vector3 _acceleration;
+    Vector3 _gyroscope;
+    Vector3 _magnetometer;
 };
 
-#endif // DATAPROVIDER_H
+#endif // SENSORNODEIMURAW_H

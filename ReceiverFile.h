@@ -27,39 +27,61 @@ OF SUCH DAMAGE.
 */
 
 
-#ifndef DATAPROVIDER_H
-#define DATAPROVIDER_H
+#ifndef RECEIVERFILE_H
+#define RECEIVERFILE_H
 
-#include <map>
+#include "ReceiverBase.h"
 #include <vector>
+#include <string>
+#include <wx/string.h>
 
-// forward declaration of sensor buffer
-class SensorBuffer;
-class SensorData;
+#include "SensorData.h"
 
-class DataProvider
+
+class ReceiverFile : public ReceiverBase
 {
   public:
-    DataProvider();
-    virtual ~DataProvider();
+    ReceiverFile();
+    ReceiverFile(wxString filename);
+    virtual ~ReceiverFile();
 
-    size_t getNumChannels() const { return _buffers.size(); }
-    bool hasChannel(int channel) const;
-    std::vector<int> getChannelIds() const;
+    std::string getName() const { return "ReceiverFile"; }
 
-    bool hasBuffer(SensorBuffer* buffer) const;
-    size_t numBuffers(int channel) const;
+    bool update();
 
-    void updateBuffers(SensorData* data, int channel);
+    bool connect();
+    void disconnect();
+    bool isConnected();
 
-    friend class SensorBuffer;
+    void setFilename(wxString filename) { _filename = filename; }
+    wxString getFilename() const { return _filename; }
+
+    // TODO(JK#5#2017-09-13): in ReceiverBase implement binary read mode
+    /*
+    void setBinary(bool binary = true) { _binary = binary; }
+    void unsetBinary() { _binary = false; }
+    bool isBinary() const { return _binary; }
+    */
 
   protected:
-    void addBuffer(SensorBuffer* buffer);
-    void removeBuffer(SensorBuffer* buffer);
 
   private:
-    std::map<int, std::vector<SensorBuffer*> > _buffers;
+    wxString _filename;
+    bool _binary;
+
+    int64_t _startTime;
+
+    size_t _pos;
+    int _id;
+
+    unsigned int _time;
+
+    std::vector<SensorDataIMURaw> _data;
+
+    // calibration values
+    const float ratio_acc  = 4.0f/32767.0f;
+    const float ratio_gyro = (1000.0f/32767.0f) * (M_PI/180.0f);
+    const float ratio_mag  = 48.0f/32767.0f;
 };
 
-#endif // DATAPROVIDER_H
+#endif // RECEIVERFILE_H

@@ -30,6 +30,7 @@ OF SUCH DAMAGE.
 #include "ReceiverUDP.h"
 #include "SensorData.h"
 #include "SensorManager.h"
+#include "SensorNodeIMU.h"
 
 /*
 ReceiverUDP::ReceiverUDP()
@@ -139,8 +140,6 @@ bool ReceiverUDP::update()
         wxString name = sensorAddress.IPAddress() + _("-");
         name << id;
 
-        data.setType(IMU);
-
         std::string stdName = name.ToStdString();
 
         auto it = _buffer[stdName].end();
@@ -162,7 +161,16 @@ bool ReceiverUDP::update()
 
         if (mapIt->second.size() >= this->BUFFERSIZE)
         {
-            theSensorManager.updateSensor(stdName, &_buffer[stdName].front());
+            if (!theSensorManager.updateSensor(stdName, &_buffer[stdName].front(), receiveTime))
+            {
+                // sensor not yet registered -> create it
+                int id = theSensorManager.createSensorNode<SensorNodeIMU>(stdName);
+                if (id >= 0)
+                {
+                    // as the id now is known it is more efficient to update by this id
+                    theSensorManager.updateSensor(id, &_buffer[stdName].front(), receiveTime);
+                }
+            }
             _buffer[stdName].pop_front();
             // theSensorManager.updateSensor(sensorAddress.IPAddress().ToStdString(), data);
         }

@@ -146,7 +146,7 @@ SensorDataExtPanel::~SensorDataExtPanel()
 void SensorDataExtPanel::setSensor(SensorNode* sensor)
 {
     _sensor = sensor;
-    _buffer.subscribe(sensor);
+    _buffer.subscribe(sensor, sensor->getId());
 
     wxString label;
     label << _("Sensor ") << sensor->getId();

@@ -29,6 +29,7 @@ OF SUCH DAMAGE.
 
 #include "ReceiverKinect.h"
 #include "SensorManager.h"
+#include "SensorNodeRGBD.h"
 
 ReceiverKinect::ReceiverKinect()
 {
@@ -373,7 +374,6 @@ bool ReceiverKinect::update()
 
                                 SensorDataOrientation data;
 
-                                data.setType(RGBD);
                                 data.setTimestamp(static_cast<unsigned int>(receiveTime - _startTime));
                                 // data.setReceiveTime(receiveTime);
 
@@ -381,7 +381,16 @@ bool ReceiverKinect::update()
                                 data.setOrientation(orientationFromKinect);
                                 // data.setOrientation(orientationFromPosition);
 
-                                theSensorManager.updateSensor(name, &data);
+                                if (!theSensorManager.updateSensor(name, &data, receiveTime))
+                                {
+                                    // sensor not yet registered -> create it
+                                    int id = theSensorManager.createSensorNode<SensorNodeRGBD>(name);
+                                    if (id >= 0)
+                                    {
+                                        // as the id now is known it is more efficient to update by this id
+                                        theSensorManager.updateSensor(id, &data, receiveTime);
+                                    }
+                                }
                             }
                         }
                     }

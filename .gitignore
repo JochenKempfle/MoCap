@@ -60,6 +60,7 @@ build/
 *.meta
 *.obj
 *.pch
+*.gch
 *.pdb
 *.pgc
 *.pgd

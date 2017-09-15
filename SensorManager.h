@@ -48,9 +48,10 @@ class SensorManager
 
     static SensorManager& getInstance();
 
-    int createSensorNode(std::string name, int type);
-    void updateSensor(std::string name, SensorData* data);
-    bool updateSensor(int id, SensorData* data);
+    template <class T>
+    int createSensorNode(std::string name);
+    bool updateSensor(std::string name, SensorData* data, uint64_t receiveTime);
+    bool updateSensor(int id, SensorData* data, uint64_t receiveTime);
 
     bool setSensorOffset(int id, const Quaternion &rotation);
 
@@ -77,5 +78,29 @@ class SensorManager
     std::vector<Quaternion> _previousSensorData;
 };
 
+
+// template implementations
+
+template <class T>
+int SensorManager::createSensorNode(std::string name)
+{
+    if (!std::is_base_of<SensorNode, T>())
+    {
+        return -1;
+    }
+    int id = _nextId++;
+    SensorNode* sensor = new T(id, name);
+
+    if (sensor != nullptr)
+    {
+        _sensors[id] = sensor;
+        _sensorFromName[name] = sensor;
+        return id;
+    }
+
+    // no sensor node could be created
+    --_nextId;
+    return -1;
+}
 
 #endif // SENSORMANAGER_H

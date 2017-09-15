@@ -35,10 +35,10 @@ SensorBuffer::SensorBuffer()
     _provider = nullptr;
 }
 
-SensorBuffer::SensorBuffer(DataProvider* provider)
+SensorBuffer::SensorBuffer(DataProvider* provider, int channel)
 {
     _provider = nullptr;
-    subscribe(provider);
+    subscribe(provider, channel);
 }
 
 SensorBuffer::~SensorBuffer()
@@ -46,7 +46,7 @@ SensorBuffer::~SensorBuffer()
 
 }
 
-void SensorBuffer::subscribe(DataProvider* provider)
+void SensorBuffer::subscribe(DataProvider* provider, int channel)
 {
     if (_provider == provider)
     {
@@ -58,6 +58,8 @@ void SensorBuffer::subscribe(DataProvider* provider)
         return;
     }
     _provider = provider;
+    // setChannel before calling addBuffer, as the channel gets read from this
+    _channel = channel;
     provider->addBuffer(this);
 }
 

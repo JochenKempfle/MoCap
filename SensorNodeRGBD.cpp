@@ -48,7 +48,7 @@ SensorNodeRGBD::~SensorNodeRGBD()
 
 void SensorNodeRGBD::onUpdate(SensorData* data)
 {
-    updateBuffers(data);
+    updateBuffers(data, getId());
     /*
     for (size_t i = 0; i < _buffers.size(); ++i)
     {

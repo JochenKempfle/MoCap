@@ -40,16 +40,6 @@ OF SUCH DAMAGE.
 #include <list>
 #include <vector>
 
-
-
-
-enum SensorType
-{
-    //NONE = 0,
-    IMU = 1,
-    RGBD
-};
-
 enum SensorState
 {
     NONE = 0,
@@ -66,13 +56,11 @@ class SensorNode : public DataProvider
     SensorNode();
     virtual ~SensorNode();
 
-    void update(SensorData* data);
+    void update(SensorData* data, uint64_t receiveTime);
 
     virtual void calibrate(int step) = 0;
 
     virtual void applyCalibration(SensorData* data) = 0;
-
-    virtual int getType() const = 0;
 
     int getId() const { return _id; }
     std::string getName() const { return _name; }
@@ -95,6 +83,7 @@ class SensorNode : public DataProvider
     void setRotation(const Quaternion &rotation) { _rotation = rotation; }
     Quaternion getRotation() const { return _rotation; }
 
+    // TODO(JK#1#2017-09-13): remove getCalRotation from sensor node!
     // returns the relative rotation to the offset
     virtual Quaternion getCalRotation() const = 0;
 

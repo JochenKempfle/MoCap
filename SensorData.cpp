@@ -34,7 +34,7 @@ SensorData::SensorData()
     //ctor
 }
 
-SensorData::SensorData(uint64_t receiveTime, unsigned int timestamp, int dataType/*, const Quaternion &orientation*/) : _receiveTime(receiveTime), _timestamp(timestamp), _dataType(dataType)//, _orientation(orientation)
+SensorData::SensorData(unsigned int timestamp/*, uint64_t receiveTime, int dataType*/) : _timestamp(timestamp)//, _receiveTime(receiveTime), _dataType(dataType)
 {
 
 }
@@ -42,4 +42,79 @@ SensorData::SensorData(uint64_t receiveTime, unsigned int timestamp, int dataTyp
 SensorData::~SensorData()
 {
     //dtor
+}
+
+SensorDataOrientation::SensorDataOrientation()
+{
+
+}
+
+SensorDataOrientation::SensorDataOrientation(const SensorDataOrientation &other) : _orientation(other._orientation)
+{
+
+}
+
+SensorDataOrientation::SensorDataOrientation(const Quaternion &orientation) : _orientation(orientation)
+{
+
+}
+
+SensorDataPosition::SensorDataPosition()
+{
+
+}
+
+SensorDataPosition::SensorDataPosition(const SensorDataPosition &other) : _position(other._position)
+{
+
+}
+
+SensorDataPosition::SensorDataPosition(const Vector3 &position) : _position(position)
+{
+
+}
+
+SensorDataAcceleration::SensorDataAcceleration()
+{
+
+}
+
+SensorDataAcceleration::SensorDataAcceleration(const SensorDataAcceleration &other) : _acceleration(other._acceleration)
+{
+
+}
+
+SensorDataAcceleration::SensorDataAcceleration(const Vector3 &acc) : _acceleration(acc)
+{
+
+}
+
+SensorDataGyroscope::SensorDataGyroscope()
+{
+
+}
+
+SensorDataGyroscope::SensorDataGyroscope(const SensorDataGyroscope &other) : _gyroscope(other._gyroscope)
+{
+
+}
+
+SensorDataGyroscope::SensorDataGyroscope(const Vector3 &gyro) : _gyroscope(gyro)
+{
+
+}
+
+SensorDataMagnetometer::SensorDataMagnetometer()
+{
+
+}
+
+SensorDataMagnetometer::SensorDataMagnetometer(const SensorDataMagnetometer &other) : _magnetometer(other._magnetometer)
+{
+
+}
+
+SensorDataMagnetometer::SensorDataMagnetometer(const Vector3 &magnet) : _magnetometer(magnet)
+{
+
 }

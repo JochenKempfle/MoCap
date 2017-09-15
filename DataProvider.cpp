@@ -40,11 +40,32 @@ DataProvider::~DataProvider()
     //dtor
 }
 
+bool DataProvider::hasChannel(int channel) const
+{
+    auto it = _buffers.find(channel);
+    return it != _buffers.end();
+}
+
+std::vector<int> DataProvider::getChannelIds() const
+{
+    std::vector<int> ids;
+    for (auto it = _buffers.begin(); it != _buffers.end(); ++it)
+    {
+        ids.push_back(it->first);
+    }
+    return ids;
+}
+
 bool DataProvider::hasBuffer(SensorBuffer* buffer) const
 {
-    for (size_t i = 0; i < _buffers.size(); ++i)
+    auto it = _buffers.find(buffer->getChannel());
+    if (it == _buffers.end())
     {
-        if (_buffers[i] == buffer)
+        return false;
+    }
+    for (size_t i = 0; i < it->second.size(); ++i)
+    {
+        if (it->second[i] == buffer)
         {
             return true;
         }
@@ -52,13 +73,28 @@ bool DataProvider::hasBuffer(SensorBuffer* buffer) const
     return false;
 }
 
-void DataProvider::updateBuffers(SensorData* data)
+size_t DataProvider::numBuffers(int channel) const
 {
-    for (size_t i = 0; i < _buffers.size(); ++i)
+    auto it = _buffers.find(channel);
+    if (it == _buffers.end())
+    {
+        return 0;
+    }
+    return it->second.size();
+}
+
+void DataProvider::updateBuffers(SensorData* data, int channel)
+{
+    auto it = _buffers.find(channel);
+    if (it == _buffers.end())
+    {
+        return;
+    }
+    for (size_t i = 0; i < it->second.size(); ++i)
     {
         // TODO(JK#9#): what sensor data to push_back in the buffer? calRotation? - solved with received rotation
         //_buffers[i]->lock();
-        _buffers[i]->push_back(data);
+        it->second[i]->push_back(data);
         //_buffers[i]->unlock();
     }
 }
@@ -69,23 +105,36 @@ void DataProvider::addBuffer(SensorBuffer* buffer)
     {
         return;
     }
-    for (size_t i = 0; i < _buffers.size(); ++i)
+    auto it = _buffers.find(buffer->getChannel());
+    if (it == _buffers.end())
     {
-        if (_buffers[i] == buffer)
-        {
-            return;
-        }
+        _buffers[buffer->getChannel()].push_back(buffer);
     }
-    _buffers.push_back(buffer);
+    else
+    {
+        for (size_t i = 0; i < it->second.size(); ++i)
+        {
+            if (it->second[i] == buffer)
+            {
+                return;
+            }
+        }
+        it->second.push_back(buffer);
+    }
 }
 
 void DataProvider::removeBuffer(SensorBuffer* buffer)
 {
-    for (auto it = _buffers.begin(); it != _buffers.end(); ++it)
+    auto channelIt = _buffers.find(buffer->getChannel());
+    if (channelIt == _buffers.end())
+    {
+        return;
+    }
+    for (auto it = channelIt->second.begin(); it != channelIt->second.end(); ++it)
     {
         if (*it == buffer)
         {
-            _buffers.erase(it);
+            channelIt->second.erase(it);
             return;
         }
     }

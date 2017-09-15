@@ -45,6 +45,7 @@ OF SUCH DAMAGE.
 
 #include "ReceiverUDP.h"
 #include "ReceiverKinect.h"
+#include "ReceiverFile.h"
 
 //(*InternalHeaders(MoCapFrame)
 #include <wx/intl.h>
@@ -415,6 +416,7 @@ void MoCapFrame::OnTimerEvent(wxTimerEvent& event)
     {
         if (!_receivers[i]->update())
         {
+            wxLogDebug(_("fail"));
             // TODO(JK#2#2017-06-01): what to do if update in receivers fails?
             // _receivers[i]->disconnect();
         }
@@ -590,6 +592,30 @@ void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
     else
     {
         _receivers.push_back(recv);
+    }
+
+    // show the file dialog
+    wxFileDialog* fileDialog = new wxFileDialog(this, _("Open file"), _(""), _(""), _("csv files (*.csv)|*.csv"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+    if (fileDialog->ShowModal() == wxID_CANCEL)
+    {
+        fileDialog->Destroy();
+        return;
+    }
+    SetCursor(wxCURSOR_ARROWWAIT);
+    ReceiverFile* recvFile = new ReceiverFile(fileDialog->GetPath());
+    fileDialog->Destroy();
+
+    SetCursor(wxCURSOR_DEFAULT);
+
+    if (!recvFile->connect())
+    {
+        recvFile->disconnect();
+        delete recvFile;
+        wxMessageBox(_("unable to open file"));
+    }
+    else
+    {
+        _receivers.push_back(recvFile);
     }
 
     ButtonDisconnect->Enable();

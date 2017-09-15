@@ -8889,7 +8889,7 @@
 	<wx/tokenzr.h>
 	<wx/filename.h>
 
-1498763745 c:\projekte\mocap\filehandler.h
+1505491177 c:\projekte\mocap\filehandler.h
 	"MotionSequence.h"
 	"Timeline.h"
 	<wx/string.h>
@@ -8924,7 +8924,7 @@
 	"SensorBuffer.h"
 	<wx/thread.h>
 
-1504713454 c:\projekte\mocap\sensornode.h
+1505491177 c:\projekte\mocap\sensornode.h
 	"Vector3.h"
 	"Quaternion.h"
 	"SensorRawData.h"
@@ -8938,10 +8938,10 @@
 1499785031 c:\projekte\mocap\sensorrawdata.h
 	<cstdint>
 
-1501173475 c:\projekte\mocap\sensordata.h
+1505491177 c:\projekte\mocap\sensordata.h
 	"Quaternion.h"
 
-1504799282 c:\projekte\mocap\sensorbuffer.h
+1505491177 c:\projekte\mocap\sensorbuffer.h
 	"SensorData.h"
 	<mutex>
 	<atomic>
@@ -9018,7 +9018,7 @@
 1487761777 c:\projekte\mocap\mocapapp.h
 	<wx/app.h>
 
-1497890500 c:\projekte\mocap\mocapmain.h
+1505491177 c:\projekte\mocap\mocapmain.h
 	<wx/sizer.h>
 	<wx/menu.h>
 	<wx/panel.h>
@@ -9031,7 +9031,7 @@
 	"KinectHack.h"
 	<Kinect.h>
 
-1487761777 c:\projekte\mocap\viewpanel.h
+1505491178 c:\projekte\mocap\viewpanel.h
 	"GLCanvas.h"
 	"SensorDataPanel.h"
 	"Timer.h"
@@ -9215,7 +9215,7 @@
 	"wx/dirdlg.h"
 	"wx/choice.h"
 
-1499875063 c:\projekte\mocap\sensormanager.h
+1505491177 c:\projekte\mocap\sensormanager.h
 	"SensorNode.h"
 	"SensorRawData.h"
 	"Quaternion.h"
@@ -9573,7 +9573,7 @@
 	<Kinect.h>
 	<string>
 
-1496249450 c:\projekte\mocap\receiverbase.h
+1505491177 c:\projekte\mocap\receiverbase.h
 	<string>
 
 1496160703 source:c:\projekte\mocap\receiverbase.cpp
@@ -9715,10 +9715,13 @@
 	"MoCapManager.h"
 	<limits>
 
-1504713473 c:\projekte\mocap\dataprovider.h
+1505491177 c:\projekte\mocap\dataprovider.h
+	<map>
 	<vector>
 
 1504793593 source:c:\projekte\mocap\dataprovider.cpp
 	"DataProvider.h"
 	"SensorBuffer.h"
+
+1456698816 c:\engines\wxwidgets-3.1.0\lib\gcc_dll\mswud\wx\setup.h
 

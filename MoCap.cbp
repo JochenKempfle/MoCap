@@ -134,6 +134,8 @@
 		<Unit filename="Quaternion.h" />
 		<Unit filename="ReceiverBase.cpp" />
 		<Unit filename="ReceiverBase.h" />
+		<Unit filename="ReceiverFile.cpp" />
+		<Unit filename="ReceiverFile.h" />
 		<Unit filename="ReceiverKinect.cpp" />
 		<Unit filename="ReceiverKinect.h" />
 		<Unit filename="ReceiverUDP.cpp" />
@@ -156,6 +158,8 @@
 		<Unit filename="SensorNode.h" />
 		<Unit filename="SensorNodeIMU.cpp" />
 		<Unit filename="SensorNodeIMU.h" />
+		<Unit filename="SensorNodeIMURaw.cpp" />
+		<Unit filename="SensorNodeIMURaw.h" />
 		<Unit filename="SensorNodeRGBD.cpp" />
 		<Unit filename="SensorNodeRGBD.h" />
 		<Unit filename="SensorRawData.cpp" />

@@ -52,35 +52,34 @@ class SensorData
 {
   public:
     SensorData();
-    SensorData(uint64_t receiveTime, unsigned int timestamp, int dataType/*, const Quaternion &orientation*/);
+    SensorData(unsigned int timestamp/*, uint64_t receiveTime, int dataType*/);
     virtual ~SensorData();
 
-    inline void setType(unsigned int dataType) { _dataType = dataType; }
-    inline unsigned int getType() const { return _dataType; }
+    // inline void setType(unsigned int dataType) { _dataType = dataType; }
+    // inline unsigned int getType() const { return _dataType; }
 
     inline void setTimestamp(unsigned int timestamp) { _timestamp = timestamp; }
     inline unsigned int getTimestamp() const { return _timestamp; }
 
-    inline void setReceiveTime(uint64_t receiveTime) { _receiveTime = receiveTime; }
-    inline uint64_t getReceiveTime() const { return _receiveTime; }
-
-    // void setOrientation(const Quaternion &orientation) { _orientation = orientation; }
-    // Quaternion getOrientation() const { return _orientation; }
+    // inline void setReceiveTime(uint64_t receiveTime) { _receiveTime = receiveTime; }
+    // inline uint64_t getReceiveTime() const { return _receiveTime; }
 
   protected:
 
   private:
-    // TODO(JK#2#2017-07-27): make sensor data independent from receive time
-    uint64_t _receiveTime;
     unsigned int _timestamp;
-    unsigned int _dataType;
-    // Quaternion _orientation;
+    // uint64_t _receiveTime;
+    // unsigned int _dataType;
 };
 
 
 class SensorDataOrientation : public virtual SensorData
 {
   public:
+    SensorDataOrientation();
+    SensorDataOrientation(const SensorDataOrientation &orientation);
+    SensorDataOrientation(const Quaternion &orientation);
+
     inline void setOrientation(const Quaternion &orientation) { _orientation = orientation; }
     inline Quaternion getOrientation() const { return _orientation; }
 
@@ -92,6 +91,10 @@ class SensorDataOrientation : public virtual SensorData
 class SensorDataPosition : public virtual SensorData
 {
   public:
+    SensorDataPosition();
+    SensorDataPosition(const SensorDataPosition &position);
+    SensorDataPosition(const Vector3 &position);
+
     inline void setPosition(const Vector3 &position) { _position = position; }
     inline Vector3 getPosition() const { return _position; }
 
@@ -103,6 +106,10 @@ class SensorDataPosition : public virtual SensorData
 class SensorDataAcceleration : public virtual SensorData
 {
   public:
+    SensorDataAcceleration();
+    SensorDataAcceleration(const SensorDataAcceleration &acc);
+    SensorDataAcceleration(const Vector3 &acc);
+
     inline void setAcceleration(const Vector3 &acceleration) { _acceleration = acceleration; }
     inline Vector3 getAcceleration() const { return _acceleration; }
 
@@ -114,6 +121,10 @@ class SensorDataAcceleration : public virtual SensorData
 class SensorDataGyroscope : public virtual SensorData
 {
   public:
+    SensorDataGyroscope();
+    SensorDataGyroscope(const SensorDataGyroscope &gyro);
+    SensorDataGyroscope(const Vector3 &gyro);
+
     inline void setGyroscope(const Vector3 &gyroscope) { _gyroscope = gyroscope; }
     inline Vector3 getGyroscope() const { return _gyroscope; }
 
@@ -125,6 +136,10 @@ class SensorDataGyroscope : public virtual SensorData
 class SensorDataMagnetometer : public virtual SensorData
 {
   public:
+    SensorDataMagnetometer();
+    SensorDataMagnetometer(const SensorDataMagnetometer &magnet);
+    SensorDataMagnetometer(const Vector3 &magnet);
+
     inline void setMagnetometer(const Vector3 &magnetometer) { _magnetometer = magnetometer; }
     inline Vector3 getMagnetometer() const { return _magnetometer; }
 
@@ -187,10 +202,77 @@ class SensorDataPointCloud : public virtual SensorData
     std::vector<Vector3> _pointCloud;
 };
 
-
+/*
 class SensorDataOrientationPosition : public SensorDataOrientation, public SensorDataPosition
 {
 
 };
+*/
+
+// TODO(JK#1#2017-09-13): SensorDataComposition requires lots of memory (due to RTTI). Rewrite and provide sensorData_cast<class T>(data*)
+
+// templates for data composition. To get more template parameters just add SensorDataComposition[X+1] templates like shown below.
+// This style guarantees that each Composition can be downcasted to any other subset of compositions
+
+template <class... Args>
+class SensorDataComposition : public virtual Args...
+{
+  public:
+    SensorDataComposition();
+    SensorDataComposition(const Args&... args);
+    template <class T>
+    SensorDataComposition(const T &other);
+};
+
+
+// sensorData_cast provided for convenience, rather not use it
+/*
+template <class... Args1, class... Args2>
+inline SensorDataComposition<Args1...> sensorData_cast(const SensorDataComposition<Args2...> &data)
+{
+    static_assert(sizeof...(Args1) > 0, "sensorData_cast must be called with template parameters specified");
+    return SensorDataComposition<Args1...>(static_cast<Args1>(data)...);
+}
+*/
+
+
+
+template <class... Args>
+struct isBaseOfSensorData : std::true_type
+{
+};
+
+template <class T, class... Args>
+struct isBaseOfSensorData<T, Args...> : std::integral_constant<bool, std::is_base_of<SensorData, T>() && isBaseOfSensorData<Args...>{} >
+{
+};
+
+
+template <class... Args>
+SensorDataComposition<Args...>::SensorDataComposition()
+{
+    static_assert(isBaseOfSensorData<Args...>{}, "Template parameter in SensorDataComposition must be derived from SensorData");
+}
+
+template <class... Args>
+SensorDataComposition<Args...>::SensorDataComposition(const Args&... args) : Args(args)...
+{
+    static_assert(isBaseOfSensorData<Args...>{}, "Template parameter in SensorDataComposition must be derived from SensorData");
+}
+
+
+template <class... Args>
+template <class T>
+SensorDataComposition<Args...>::SensorDataComposition(const T &other) : Args(static_cast<Args>(other))...
+{
+    static_assert(isBaseOfSensorData<Args...>{}, "Template parameter in SensorDataComposition must be derived from SensorData");
+    static_assert(isBaseOfSensorData<T>{}, "Template parameter to be assigned to SensorDataComposition must be derived from SensorData");
+}
+
+
+// typedefs for convenience
+typedef SensorDataComposition<SensorDataOrientation, SensorDataPosition> SensorDataOrientationPosition;
+
+typedef SensorDataComposition<SensorDataAcceleration, SensorDataGyroscope, SensorDataMagnetometer> SensorDataIMURaw;
 
 #endif // SENSORDATA_H

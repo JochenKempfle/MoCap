@@ -52,8 +52,6 @@ class SensorNodeRGBD : public SensorNode
 
     virtual void applyCalibration(SensorData* data);
 
-    virtual int getType() const { return RGBD; }
-
     int getId() const { return _id; }
     std::string getIPAddress() const { return _IPAddress; }
 

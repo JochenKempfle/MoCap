@@ -47,6 +47,7 @@ MotionFilterBase::~MotionFilterBase()
 
 void MotionFilterBase::setSensors(std::vector<SensorNode*> sensors)
 {
+    // TODO(JK#1#2017-10-11): rewrite set sensors in motion filter base, currently all sensors with any bone id are set
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         delete _buffers[i];
@@ -55,7 +56,10 @@ void MotionFilterBase::setSensors(std::vector<SensorNode*> sensors)
     _buffers.reserve(sensors.size());
     for (size_t i = 0; i < sensors.size(); ++i)
     {
-        _buffers.push_back(new SensorBufferType<SensorDataOrientation>(sensors[i], sensors[i]->getId()));
+        if (sensors[i]->hasBone())
+        {
+            _buffers.push_back(new SensorBufferType<SensorDataOrientation>(sensors[i], sensors[i]->getId()));
+        }
     }
 }
 

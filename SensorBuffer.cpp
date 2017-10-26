@@ -30,15 +30,83 @@ OF SUCH DAMAGE.
 #include "SensorBuffer.h"
 #include "SensorNode.h"
 
+
+SensorBufferChannel::SensorBufferChannel() : _sourceId(-1), _targetId(-1)
+{
+
+}
+
+SensorBufferChannel::SensorBufferChannel(int sourceId, int targetId) : _sourceId(sourceId), _targetId(targetId)
+{
+
+}
+
+/*
+SensorBufferChannel& SensorBufferChannel::operator+=(const SensorBufferChannel& other)
+{
+    _sourceIds.insert(other._sourceIds.begin(), other._sourceIds.end());
+    return *this;
+}
+
+SensorBufferChannel SensorBufferChannel::operator+(const SensorBufferChannel& other)
+{
+    return SensorBufferChannel(*this) += other;
+}
+*/
+
+bool SensorBufferChannel::operator==(const SensorBufferChannel& other) const
+{
+    return _targetId == other._targetId && _sourceId == other._sourceId;
+}
+
+bool SensorBufferChannel::operator<(const SensorBufferChannel &other) const
+{
+    // SensorBufferChannels are sorted by target ID, then by source ID
+    if (_targetId != other._targetId)
+    {
+        return _targetId < other._targetId;
+    }
+    // targets equal? Check source IDs!
+    return _sourceId < other._sourceId;
+}
+
+bool SensorBufferChannel::operator<=(const SensorBufferChannel &other) const
+{
+    // SensorBufferChannels are sorted by target ID, then by source ID
+    if (_targetId != other._targetId)
+    {
+        return _targetId <= other._targetId;
+    }
+    // targets equal? Check source IDs!
+    return _sourceId <= other._sourceId;
+}
+
+bool SensorBufferChannel::operator>(const SensorBufferChannel &other) const
+{
+    return other < *this;
+}
+
+bool SensorBufferChannel::operator>=(const SensorBufferChannel &other) const
+{
+    return other <= *this;
+}
+
+bool SensorBufferChannel::hasSameSource(const SensorBufferChannel &other) const
+{
+    return _sourceId == other._sourceId;
+}
+
+bool SensorBufferChannel::hasSameTarget(const SensorBufferChannel &other) const
+{
+    return _targetId == other._targetId;
+}
+
+
+
+
 SensorBuffer::SensorBuffer()
 {
     _provider = nullptr;
-}
-
-SensorBuffer::SensorBuffer(DataProvider* provider, int channel)
-{
-    _provider = nullptr;
-    subscribe(provider, channel);
 }
 
 SensorBuffer::~SensorBuffer()
@@ -56,6 +124,11 @@ void SensorBuffer::subscribe(DataProvider* provider, int channel)
     if (provider == nullptr)
     {
         return;
+    }
+    if (sizeTotal() > 0)
+    {
+        // just in case: clear the buffer to avoid having old data from previous provider
+        clear();
     }
     _provider = provider;
     // setChannel before calling addBuffer, as the channel gets read from this

@@ -29,7 +29,7 @@ OF SUCH DAMAGE.
 
 #include "ReceiverBase.h"
 
-ReceiverBase::ReceiverBase()
+ReceiverBase::ReceiverBase() : _running(false), _updated(false), _threaded(false)
 {
     //ctor
 }
@@ -38,3 +38,137 @@ ReceiverBase::~ReceiverBase()
 {
     //dtor
 }
+
+void ReceiverBase::setThreaded(bool threaded)
+{
+    if (_running)
+    {
+        return;
+    }
+    _threaded = threaded;
+}
+
+bool ReceiverBase::update()
+{
+    if (!_running)
+    {
+        return false;
+    }
+    if (!_threaded)
+    {
+        return onUpdate();
+    }
+    if (GetThread() != nullptr && GetThread()->IsRunning())
+    {
+        return _updated;
+    }
+    return false;
+}
+
+bool ReceiverBase::connect()
+{
+    if (GetThread() && GetThread()->IsRunning())
+    {
+        return false;
+    }
+    if (!GetThread())
+    {
+        if (CreateThread(wxTHREAD_DETACHED) != wxTHREAD_NO_ERROR)
+        {
+            wxMessageBox(_("Could not create the receiver thread!"), _("Error"), wxICON_ERROR);
+            return false;
+        }
+    }
+    // call onConnect
+    if (isConnected() || !onConnect())
+    {
+        return false;
+    }
+
+    if (!_running)
+    {
+        _running = true;
+        if (GetThread()->Run() != wxTHREAD_NO_ERROR)
+        {
+            wxMessageBox(_("Could not run the receiver thread!"), _("Error"), wxICON_ERROR);
+            _running = false;
+            return false;
+        }
+    }
+    return true;
+}
+
+void ReceiverBase::disconnect()
+{
+    _running = false;
+    if (!_threaded)
+    {
+        onDisconnect();
+    }
+}
+
+wxThread::ExitCode ReceiverBase::Entry()
+{
+    // here we do our long task, periodically calling TestDestroy():
+    while (_running && !GetThread()->TestDestroy())
+    {
+        _updated = onUpdate();
+        // give other tasks some time
+        wxMilliSleep(1);
+    }
+    // call onDisconnect when the thread exited its main loop
+    onDisconnect();
+
+    // to be sure: reset _running
+    _running = false;
+    _updated = false;
+
+    // TestDestroy() returned true (which means the main thread asked us
+    // to terminate as soon as possible) or we ended the long task...
+    return (wxThread::ExitCode)0;
+}
+
+
+
+
+ReceiverFactory* ReceiverFactory::_instance = nullptr;
+
+ReceiverFactory::ReceiverFactory()
+{
+
+}
+
+size_t ReceiverFactory::getNumReceivers()
+{
+    return getInstance()->_receiverList.size();
+}
+
+std::string ReceiverFactory::getReceiverName(unsigned int type)
+{
+    return getInstance()->_receiverList[type].first;
+}
+
+ReceiverBase* ReceiverFactory::createReceiver(unsigned int type)
+{
+    if (type > getInstance()->getNumReceivers())
+    {
+        return nullptr;
+    }
+    return getInstance()->_receiverList[type].second();
+}
+
+const int ReceiverFactory::registerReceiver(std::string name, CreateRecvFunc func)
+{
+    getInstance()->_receiverList.push_back(std::make_pair(name, func));
+    return getInstance()->_receiverList.size();
+}
+
+ReceiverFactory* ReceiverFactory::getInstance()
+{
+    if (_instance == nullptr)
+    {
+        _instance = new ReceiverFactory();
+    }
+    return _instance;
+}
+

@@ -35,6 +35,8 @@ OF SUCH DAMAGE.
 #include "Vector3.h"
 #include "Quaternion.h"
 #include "MotionFilterBase.h"
+#include "ReceiverBase.h"
+#include "TaskBase.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -43,21 +45,13 @@ enum ProgramState
 {
     EDITOR,
     SENSOR_INFO,
+    DATA_FLOW,
     RECORD,
     MOTION_PLAYER,
     POST_PROCESS
     // TODO(JK#5#): add something like RECORDING, IDLE, CONNECTED to program state or own enum
 };
 
-//enum RenderStyle
-//{
-//    STANDARD = 0,
-//    HIGHLIGHT_SELECTED_BONE = 1,
-//    DRAW_GRID = 2,
-//    DRAW_LOCAL_COORDINATE_SYSTEM = 4,
-//    DRAW_SPIN_ARROWS = 8,
-//    SELECTION_MODE = 16
-//};
 
 #define theMoCapManager MoCapManager::getInstance()
 
@@ -102,6 +96,16 @@ class MoCapManager
     void startSimulation();
     void stopSimulation();
 
+    size_t getNumRegisteredReceivers() const { return ReceiverFactory::getNumReceivers(); }
+    std::string getReceiverName(unsigned int type) const { return ReceiverFactory::getReceiverName(type); }
+    ReceiverBase* createReceiver(int type);
+
+    size_t getNumReceivers() const { return _receivers.size(); }
+    ReceiverBase* getReceiver(unsigned int pos) const { return _receivers[pos]; }
+    std::vector<ReceiverBase*> getReceivers() const { return _receivers; }
+    void removeReceiver(ReceiverBase* recv);
+    void removeReceiver(int pos);
+
     std::vector<MotionFilterBase*> getFilters() const { return _filters; }
     void selectFilter(int filter);
     int getSelectedFilter() const { return _currentFilter; }
@@ -118,7 +122,6 @@ class MoCapManager
   protected:
     static MoCapManager* _moCapManager;
 
-
   private:
     std::map<int, int> _boneIdFromSensorId;
     std::map<int, int> _sensorIdFromBoneId;
@@ -126,7 +129,13 @@ class MoCapManager
     int _selectedBoneId;
     bool _recording;
 
+    std::vector<ReceiverBase*> _receivers;
+
+    std::vector<TaskBase*> _tasks;
+
     std::vector<MotionFilterBase*> _filters;
+
+    // TODO(JK#1#2017-09-29): have a list of available skeletons (loaded or created + stored) along with a list of used skeletons
 
     unsigned int _currentFilter;
     unsigned char _state;

@@ -80,7 +80,6 @@ void MoCapManager::assignSensorToBone(int sensorId, int boneId)
 
     _boneIdFromSensorId[sensorId] = boneId;
     _sensorIdFromBoneId[boneId] = sensorId;
-    theSensorManager.setSensorStateHasBone(sensorId, true);
     theSensorManager.getSensor(sensorId)->setBoneId(boneId);
     // TODO(JK#5#): set sensors to filter only when recording, also only set sensors with bone id
     _filters[_currentFilter]->setSensors(theSensorManager.getSensors());
@@ -94,7 +93,6 @@ void MoCapManager::removeSensorFromBones(int sensorId)
         _sensorIdFromBoneId.erase(it->second);
         _boneIdFromSensorId.erase(sensorId);
         theSensorManager.getSensor(sensorId)->setBoneId(-1);
-        theSensorManager.setSensorStateHasBone(sensorId, false);
     }
 }
 
@@ -192,6 +190,49 @@ void MoCapManager::stopSimulation()
     _filters[_currentFilter]->stop();
 }
 
+ReceiverBase* MoCapManager::createReceiver(int type)
+{
+    if (type < 0 || type > static_cast<int>(getNumRegisteredReceivers()))
+    {
+        return nullptr;
+    }
+    // TODO(JK#2#2017-10-09): some receivers are unique (e.g. Kinect), so check if it already exists!
+    ReceiverBase* recv = ReceiverFactory::createReceiver(type);
+    _receivers.push_back(recv);
+    return recv;
+}
+
+void MoCapManager::removeReceiver(ReceiverBase* recv)
+{
+    if (recv == nullptr)
+    {
+        return;
+    }
+    for (auto it = _receivers.begin(); it != _receivers.end(); ++it)
+    {
+        if (recv == *it)
+        {
+            _receivers.erase(it);
+            delete recv;
+            return;
+        }
+    }
+}
+
+void MoCapManager::removeReceiver(int pos)
+{
+    if (pos < 0 || pos > static_cast<int>(_receivers.size()))
+    {
+        return;
+    }
+    if (_receivers[pos]->isConnected())
+    {
+        _receivers[pos]->disconnect();
+    }
+    delete _receivers[pos];
+    _receivers.erase(_receivers.begin() + pos);
+}
+
 void MoCapManager::selectFilter(int filter)
 {
     if (filter < 0 || filter >= int(_filters.size()))
@@ -232,7 +273,11 @@ MotionSequence* MoCapManager::stopRecording()
 
 void MoCapManager::update()
 {
-    // TODO(JK#9#): don't use a recording filter for update, maybe use special filter
+    // TODO(JK#1#2017-09-28): decide wether to update receivers in MoCapManager or somewhere else
+    for (size_t i = 0; i < _receivers.size(); ++i)
+    {
+        _receivers[i]->update();
+    }
     //_filters[_currentFilter]->update();
     return;
     std::vector<SensorNode*> sensors = theSensorManager.getSensors();
@@ -382,5 +427,4 @@ Skeleton MoCapManager::createDefaultSkeleton() const
     //skeleton.setCurrentAsDefault();
     return skeleton;
 }
-
 

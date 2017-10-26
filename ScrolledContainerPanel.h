@@ -52,6 +52,9 @@ class ScrolledContainerPanel: public wxPanel
 		void add(wxPanel* panel);
 		void add(std::vector<wxPanel*> panels);
 
+		void remove(wxWindow* window);
+		void layout();
+
 		//(*Declarations(ScrolledContainerPanel)
 		wxScrolledWindow* ScrolledWindow;
 		wxBoxSizer* BoxSizer2;

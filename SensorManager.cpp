@@ -164,15 +164,6 @@ void SensorManager::setSensorStateCalibrated(int id, bool calibrated)
     }
 }
 
-void SensorManager::setSensorStateHasBone(int id, bool hasBone)
-{
-    auto it = _sensors.find(id);
-    if (it != _sensors.end())
-    {
-        it->second->setHasBone(hasBone);
-    }
-}
-
 void SensorManager::setSynchronizing(bool sync)
 {
     for (auto it = _sensors.begin(); it != _sensors.end(); ++it)

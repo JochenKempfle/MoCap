@@ -74,7 +74,7 @@ class SensorDataPanel: public wxPanel
     bool _hasBone;
     bool _isCalibrated;
 
-    PopupWindow<SensorDataExtPanel>* _dataExtPopup;
+    PopupTransientWindow<SensorDataExtPanel>* _dataExtPopup;
 
     DECLARE_EVENT_TABLE()
 };

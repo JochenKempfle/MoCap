@@ -43,7 +43,7 @@ OF SUCH DAMAGE.
 
 
 template <class T>
-class PopupWindow : public wxPopupTransientWindow
+class PopupWindow : public wxPopupWindow
 {
   public:
     PopupWindow() = delete;
@@ -63,6 +63,49 @@ class PopupWindow : public wxPopupTransientWindow
             _panel->Destroy();
             _panel = nullptr;
         }
+    }
+
+    void setSize(int width, int height)
+    {
+        _panel->SetSize(width, height);
+        SetSize(width, height);
+    }
+
+    T* getPanel() { return _panel; }
+  protected:
+
+  private:
+    T* _panel;
+};
+
+
+template <class T>
+class PopupTransientWindow : public wxPopupTransientWindow
+{
+  public:
+    PopupTransientWindow() = delete;
+
+    PopupTransientWindow(wxWindow* parent, int flags = wxBORDER_NONE)
+    {
+        static_assert(std::is_base_of<wxPanel, T>::value, "Template parameter must be a wxPanel or have inherited from wxPanel");
+        Create(parent, flags);
+        _panel = new T(this);
+        SetSize(_panel->GetSize());
+    }
+
+    virtual ~PopupTransientWindow()
+    {
+        if (_panel != nullptr)
+        {
+            _panel->Destroy();
+            _panel = nullptr;
+        }
+    }
+
+    void setSize(int width, int height)
+    {
+        _panel->SetSize(width, height);
+        SetSize(width, height);
     }
 
     T* getPanel() { return _panel; }

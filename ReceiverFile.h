@@ -40,18 +40,19 @@ OF SUCH DAMAGE.
 
 class ReceiverFile : public ReceiverBase
 {
+    DECLARE_RECEIVER(ReceiverFile)
+
   public:
     ReceiverFile();
     ReceiverFile(wxString filename);
     virtual ~ReceiverFile();
 
     std::string getName() const { return "ReceiverFile"; }
+    std::string getInfo() const { return _filename.ToStdString(); }
 
-    bool update();
+    bool setup();
 
-    bool connect();
-    void disconnect();
-    bool isConnected();
+    bool isConnected() const;
 
     void setFilename(wxString filename) { _filename = filename; }
     wxString getFilename() const { return _filename; }
@@ -64,6 +65,9 @@ class ReceiverFile : public ReceiverBase
     */
 
   protected:
+    bool onUpdate();
+    bool onConnect();
+    void onDisconnect();
 
   private:
     wxString _filename;

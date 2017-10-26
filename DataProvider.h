@@ -32,10 +32,11 @@ OF SUCH DAMAGE.
 
 #include <map>
 #include <vector>
+#include "SensorData.h"
+#include "SensorBuffer.h"
 
 // forward declaration of sensor buffer
-class SensorBuffer;
-class SensorData;
+// class SensorBuffer;
 
 class DataProvider
 {
@@ -43,14 +44,12 @@ class DataProvider
     DataProvider();
     virtual ~DataProvider();
 
-    size_t getNumChannels() const { return _buffers.size(); }
-    bool hasChannel(int channel) const;
-    std::vector<int> getChannelIds() const;
-
     bool hasBuffer(SensorBuffer* buffer) const;
-    size_t numBuffers(int channel) const;
+    size_t numBuffers() const;
 
-    void updateBuffers(SensorData* data, int channel);
+    void updateBuffers(SensorData* data);
+
+    virtual SensorDataType getOutputDataType() const = 0;
 
     friend class SensorBuffer;
 
@@ -59,7 +58,9 @@ class DataProvider
     void removeBuffer(SensorBuffer* buffer);
 
   private:
-    std::map<int, std::vector<SensorBuffer*> > _buffers;
+    std::vector<SensorBuffer*> _buffers;
 };
+
+
 
 #endif // DATAPROVIDER_H

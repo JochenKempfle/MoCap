@@ -31,12 +31,18 @@ OF SUCH DAMAGE.
 #include "SensorManager.h"
 #include "SensorNodeRGBD.h"
 
+
+
+REGISTER_RECEIVER("Kinect Receiver", ReceiverKinect)
+
 ReceiverKinect::ReceiverKinect()
 {
+    _multiSourceFrameReader = nullptr;
     _bodyFrameReader = nullptr;
     _coordinateMapper = nullptr;
     _kinectSensor = nullptr;
     _startTime = -1;
+    setThreaded();
     // TODO(JK#9#2017-07-05): Kinect requires to run KinectService.exe, but the file (and Kinect) does not exist to the software (although it does exist on the system)
     // luckily the KinectService seems to get started at system startup time
     if (wxFileExists(_("C:\\Windows\\System32\\Kinect\\KinectService.exe")))
@@ -64,7 +70,7 @@ std::string ReceiverKinect::getName() const
     return "ReceiverKinect";
 }
 
-bool ReceiverKinect::update()
+bool ReceiverKinect::onUpdate()
 {
     /*
     wxString msg;
@@ -72,11 +78,17 @@ bool ReceiverKinect::update()
     wxLogDebug(msg);
     */
     // TODO(JK#1#2017-05-24): Kinect update stuff
-    if (_bodyFrameReader == nullptr)
+/*    if (_bodyFrameReader == nullptr)
     {
         wxString msg;
         msg << _("update failed!");
         wxLogDebug(msg);
+        return false;
+    }
+    */
+    if (_kinectSensor == nullptr)
+    {
+        // wxLogDebug(_("Kinect not connected"));
         return false;
     }
 
@@ -96,6 +108,7 @@ bool ReceiverKinect::update()
         return false;
     }
 
+    /*
     IMultiSourceFrame* multiSourceFrame = nullptr;
     IDepthFrame* depthFrame = nullptr;
     IColorFrame* colorFrame = nullptr;
@@ -104,6 +117,12 @@ bool ReceiverKinect::update()
 
     HRESULT hr = _multiSourceFrameReader->AcquireLatestFrame(&multiSourceFrame);
 
+    if (!SUCCEEDED(hr))
+    {
+        wxLogDebug(_("no new multi source frame could be acquired"));
+        // hr = _multiSourceFrameReader->AcquireLatestFrame(&multiSourceFrame);
+        return false;
+    }
     // acquire frames
     if (SUCCEEDED(hr))
     {
@@ -181,6 +200,8 @@ bool ReceiverKinect::update()
         UINT16 *pDepthBuffer = NULL;
 
         IFrameDescription* colorFrameDescription = NULL;
+    bool connect();
+    void disconnect();
         int nColorWidth = 0;
         int nColorHeight = 0;
         ColorImageFormat imageFormat = ColorImageFormat_None;
@@ -241,22 +262,20 @@ bool ReceiverKinect::update()
 
         if (SUCCEEDED(hr))
         {
-            /*
             if (imageFormat == ColorImageFormat_Bgra)
             {
-                hr = colorFrame->AccessRawUnderlyingBuffer(&nColorBufferSize, reinterpret_cast<BYTE**>(&pColorBuffer));
+                // hr = colorFrame->AccessRawUnderlyingBuffer(&nColorBufferSize, reinterpret_cast<BYTE**>(&pColorBuffer));
             }
             else if (m_pColorRGBX)
             {
-                pColorBuffer = m_pColorRGBX;
-                nColorBufferSize = _colorWidth * _colorHeight * sizeof(RGBQUAD);
-                hr = colorFrame->CopyConvertedFrameDataToArray(nColorBufferSize, reinterpret_cast<BYTE*>(pColorBuffer), ColorImageFormat_Bgra);
+                // pColorBuffer = m_pColorRGBX;
+                // nColorBufferSize = _colorWidth * _colorHeight * sizeof(RGBQUAD);
+                // hr = colorFrame->CopyConvertedFrameDataToArray(nColorBufferSize, reinterpret_cast<BYTE*>(pColorBuffer), ColorImageFormat_Bgra);
             }
             else
             {
                 hr = E_FAIL;
             }
-            */
         }
 
         // get body index frame data
@@ -283,22 +302,35 @@ bool ReceiverKinect::update()
 
         if (SUCCEEDED(hr))
         {
-            /*
-            ProcessFrame(nDepthTime, pDepthBuffer, nDepthWidth, nDepthHeight,
-                         pColorBuffer, nColorWidth, nColorHeight,
-                         pBodyIndexBuffer, nBodyIndexWidth, nBodyIndexHeight);
-            */
+            // process frame
         }
 
         SafeRelease(&depthFrameDescription);
         SafeRelease(&colorFrameDescription);
         SafeRelease(&bodyIndexFrameDescription);
+*/
+
+        // get time point at which the data arrived
+        wxLongLong time = wxGetUTCTimeMillis();
+        uint64_t receiveTime = (uint64_t(time.GetHi()) << 32) + time.GetLo();
+
+        if (_startTime < 0)
+        {
+            _startTime = receiveTime;
+        }
+
+        IBodyFrame* bodyFrame = NULL;
+
+        HRESULT hr = _bodyFrameReader->AcquireLatestFrame(&bodyFrame);
 
         // get body frame data
         IBody* ppBodies[BODY_COUNT] = {0};
 
+        int64_t nTime = 0;
+
         if (SUCCEEDED(hr))
         {
+            hr = bodyFrame->get_RelativeTime(&nTime);
             hr = bodyFrame->GetAndRefreshBodyData(BODY_COUNT, ppBodies);
         }
 
@@ -319,13 +351,11 @@ bool ReceiverKinect::update()
                         JointOrientation jointOrientations[JointType_Count];
 
                         // TODO(JK#9#2017-06-07): use kinect hand state for something useful
-                        /*
-                        HandState leftHandState = HandState_Unknown;
-                        HandState rightHandState = HandState_Unknown;
+                        // HandState leftHandState = HandState_Unknown;
+                        // HandState rightHandState = HandState_Unknown;
 
-                        pBody->get_HandLeftState(&leftHandState);
-                        pBody->get_HandRightState(&rightHandState);
-                        */
+                        // pBody->get_HandLeftState(&leftHandState);
+                        // pBody->get_HandRightState(&rightHandState);
 
                         hr = pBody->GetJoints(JointType_Count, joints);
                         // TODO(JK#3#2017-06-07): get more kinect streams and incorporate them in the mocap process
@@ -381,6 +411,12 @@ bool ReceiverKinect::update()
                                 data.setOrientation(orientationFromKinect);
                                 // data.setOrientation(orientationFromPosition);
 
+                                /*
+                                wxString msg;
+                                msg << name << _(":   ") << orientationFromKinect.u() << _(" ") << orientationFromKinect.x() << _(" ") << orientationFromKinect.y() << _(" ") << orientationFromKinect.z() << _(" ");
+                                wxLogDebug(msg);
+                                */
+
                                 if (!theSensorManager.updateSensor(name, &data, receiveTime))
                                 {
                                     // sensor not yet registered -> create it
@@ -402,7 +438,9 @@ bool ReceiverKinect::update()
         {
             SafeRelease(&ppBodies[i]);
         }
-    }
+
+    SafeRelease(&bodyFrame);
+/*    }
     else
     {
         wxLogDebug(_("error getting body data"));
@@ -414,12 +452,12 @@ bool ReceiverKinect::update()
     SafeRelease(&bodyIndexFrame);
     SafeRelease(&bodyFrame);
     SafeRelease(&multiSourceFrame);
-
+*/
     return true;
 }
 
 
-bool ReceiverKinect::connect()
+bool ReceiverKinect::onConnect()
 {
     HRESULT hr;
 
@@ -442,7 +480,6 @@ bool ReceiverKinect::connect()
             hr = _kinectSensor->get_CoordinateMapper(&_coordinateMapper);
         }
 
-
         if (SUCCEEDED(hr))
         {
             hr = _kinectSensor->get_BodyFrameSource(&bodyFrameSource);
@@ -459,7 +496,6 @@ bool ReceiverKinect::connect()
         }
 
         SafeRelease(&bodyFrameSource);
-
 
         if (SUCCEEDED(hr))
         {
@@ -504,7 +540,7 @@ bool ReceiverKinect::connect()
     return true;
 }
 
-void ReceiverKinect::disconnect()
+void ReceiverKinect::onDisconnect()
 {
     // done with body frame reader
     SafeRelease(&_bodyFrameReader);
@@ -519,9 +555,10 @@ void ReceiverKinect::disconnect()
     }
 
     SafeRelease(&_kinectSensor);
+    _startTime = -1;
 }
 
-bool ReceiverKinect::isConnected()
+bool ReceiverKinect::isConnected() const
 {
     if (_kinectSensor == nullptr)
     {

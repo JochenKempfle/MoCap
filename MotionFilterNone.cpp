@@ -84,7 +84,7 @@ void MotionFilterNone::update()
             SensorDataOrientation data;
             try
             {
-                data = *dynamic_cast<SensorDataOrientation*>(&buffer->front());
+                data = *dynamic_cast<const SensorDataOrientation*>(&buffer->front());
             }
             catch (const std::bad_cast &e)
             {

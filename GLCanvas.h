@@ -30,6 +30,7 @@ OF SUCH DAMAGE.
 #ifndef GLCANVAS_H
 #define GLCANVAS_H
 
+#include <map>
 #include <wx/glcanvas.h>
 #include "GLImage.h"
 #include "Skeleton.h"
@@ -72,13 +73,14 @@ class GLCanvas : public wxGLCanvas
 
     virtual ~GLCanvas();
 
-    void renderSkeleton() const;
+    void renderSkeleton();
     void drawSpinArrows(Vector3 pos, Vector3 dir, Vector3 up, Vector3 right) const;
     void renderSingleSensor() const;
     void renderSingleJoint() const;
     void InitGL();
     int getObjectIdAt(const wxPoint& pos);
     void setSkeleton(Skeleton* skeleton);
+    const Skeleton* getSkeleton();
     void setSensorOrientation(const Quaternion &orientation) { _sensorOrientation = orientation; }
     void setConstraint(JointConstraint* constraint) { _constraint = constraint; }
 
@@ -125,6 +127,10 @@ class GLCanvas : public wxGLCanvas
 
     wxColour _backgroundColor;
     float _lineWidth;
+
+    unsigned int _traceLength;
+    unsigned int _tracePos;
+    std::map<int, std::vector<Vector3> > _boneIdsWithTracePoints;
 
     Skeleton* _skeleton;
     Quaternion _sensorOrientation;

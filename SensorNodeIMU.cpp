@@ -69,7 +69,7 @@ void SensorNodeIMU::onUpdate(SensorData* data)
     // TODO(JK#1#2017-07-04): get rid of sensor rotation
     setRotation(rotation);
 
-    updateBuffers(orientationData, getId());
+    updateBuffers(orientationData);
 /*
     for (size_t i = 0; i < _buffers.size(); ++i)
     {

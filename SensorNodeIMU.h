@@ -75,6 +75,8 @@ class SensorNodeIMU : public SensorNode
     // returns the rotation in euler angles, using the 1-2-3 convention
     Vector3 toEuler() const;
 
+    SensorDataType getOutputDataType() const { return SensorDataOrientation::getType(); }
+
   protected:
     virtual void onUpdate(SensorData* data);
 

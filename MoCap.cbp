@@ -84,11 +84,21 @@
 		<Unit filename="AnimationManager.h" />
 		<Unit filename="Bone.cpp" />
 		<Unit filename="Bone.h" />
+		<Unit filename="ConnectionDetailPanel.cpp" />
+		<Unit filename="ConnectionDetailPanel.h" />
 		<Unit filename="ConnectionDialog.cpp" />
 		<Unit filename="ConnectionDialog.h" />
+		<Unit filename="ConnectionManagerDialog.cpp" />
+		<Unit filename="ConnectionManagerDialog.h" />
 		<Unit filename="ConstraintDialog.cpp" />
 		<Unit filename="ConstraintDialog.h" />
 		<Unit filename="CustomEvents.h" />
+		<Unit filename="DataChannel.cpp" />
+		<Unit filename="DataChannel.h" />
+		<Unit filename="DataFlowPanel.cpp" />
+		<Unit filename="DataFlowPanel.h" />
+		<Unit filename="DataForwarder.cpp" />
+		<Unit filename="DataForwarder.h" />
 		<Unit filename="DataProvider.cpp" />
 		<Unit filename="DataProvider.h" />
 		<Unit filename="ExportDialog.cpp" />
@@ -101,6 +111,8 @@
 		<Unit filename="GLCanvas.h" />
 		<Unit filename="GLCanvasDialog.cpp" />
 		<Unit filename="GLCanvasDialog.h" />
+		<Unit filename="GLCanvasSettings.cpp" />
+		<Unit filename="GLCanvasSettings.h" />
 		<Unit filename="GLImage.cpp" />
 		<Unit filename="GLImage.h" />
 		<Unit filename="JointConstraint.cpp" />
@@ -148,8 +160,12 @@
 		<Unit filename="SensorData.h" />
 		<Unit filename="SensorDataExtPanel.cpp" />
 		<Unit filename="SensorDataExtPanel.h" />
+		<Unit filename="SensorDataFactory.cpp" />
+		<Unit filename="SensorDataFactory.h" />
 		<Unit filename="SensorDataPanel.cpp" />
 		<Unit filename="SensorDataPanel.h" />
+		<Unit filename="SensorDataType.cpp" />
+		<Unit filename="SensorDataType.h" />
 		<Unit filename="SensorDetailPanel.cpp" />
 		<Unit filename="SensorDetailPanel.h" />
 		<Unit filename="SensorManager.cpp" />
@@ -168,6 +184,12 @@
 		<Unit filename="Skeleton.h" />
 		<Unit filename="SkeletonCreatorPanel.cpp" />
 		<Unit filename="SkeletonCreatorPanel.h" />
+		<Unit filename="TaskBase.cpp" />
+		<Unit filename="TaskBase.h" />
+		<Unit filename="TaskRecorderMotionSequence.cpp" />
+		<Unit filename="TaskRecorderMotionSequence.h" />
+		<Unit filename="TaskSensorModelApplier.cpp" />
+		<Unit filename="TaskSensorModelApplier.h" />
 		<Unit filename="Timeline.cpp" />
 		<Unit filename="Timeline.h" />
 		<Unit filename="TimelineChannel.cpp" />
@@ -222,6 +244,9 @@
 					<wxDialog wxs="wxsmith/ExportDialog.wxs" src="ExportDialog.cpp" hdr="ExportDialog.h" fwddecl="0" i18n="1" name="ExportDialog" language="CPP" />
 					<wxDialog wxs="wxsmith/ConstraintDialog.wxs" src="ConstraintDialog.cpp" hdr="ConstraintDialog.h" fwddecl="0" i18n="1" name="ConstraintDialog" language="CPP" />
 					<wxDialog wxs="wxsmith/GLCanvasDialog.wxs" src="GLCanvasDialog.cpp" hdr="GLCanvasDialog.h" fwddecl="0" i18n="1" name="GLCanvasDialog" language="CPP" />
+					<wxPanel wxs="wxsmith/ConnectionDetailPanel.wxs" src="ConnectionDetailPanel.cpp" hdr="ConnectionDetailPanel.h" fwddecl="0" i18n="1" name="ConnectionDetailPanel" language="CPP" />
+					<wxDialog wxs="wxsmith/ConnectionManagerDialog.wxs" src="ConnectionManagerDialog.cpp" hdr="ConnectionManagerDialog.h" fwddecl="0" i18n="1" name="ConnectionManagerDialog" language="CPP" />
+					<wxPanel wxs="wxsmith/DataFlowPanel.wxs" src="DataFlowPanel.cpp" hdr="DataFlowPanel.h" fwddecl="0" i18n="1" name="DataFlowPanel" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

@@ -33,6 +33,7 @@ OF SUCH DAMAGE.
 #include <wx/utils.h>
 #include <wx/time.h>
 #include "ViewPanel.h"
+#include "DataFlowPanel.h"
 #include "SensorDetailPanel.h"
 #include "SkeletonCreatorPanel.h"
 #include "MotionPlayerPanel.h"
@@ -40,6 +41,7 @@ OF SUCH DAMAGE.
 #include "SensorManager.h"
 #include "MoCapManager.h"
 #include "ConnectionDialog.h"
+#include "ConnectionManagerDialog.h"
 #include "SensorData.h"
 #include "CustomEvents.h"
 
@@ -84,6 +86,7 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 //(*IdInit(MoCapFrame)
 const long MoCapFrame::ID_BUTTONSKELETON = wxNewId();
 const long MoCapFrame::ID_BUTTONSENSORDETAIL = wxNewId();
+const long MoCapFrame::ID_BUTTONDATAFLOW = wxNewId();
 const long MoCapFrame::ID_BUTTONVISUAL = wxNewId();
 const long MoCapFrame::ID_BUTTONMOTIONPLAYER = wxNewId();
 const long MoCapFrame::ID_BUTTONPOSTPROCESS = wxNewId();
@@ -100,6 +103,7 @@ const long MoCapFrame::idMenuAbout = wxNewId();
 //*)
 
 const long MoCapFrame::ID_VIEWPANEL = wxNewId();
+const long MoCapFrame::ID_DATAFLOWPANEL = wxNewId();
 const long MoCapFrame::ID_SENSORDETAILPANEL = wxNewId();
 const long MoCapFrame::ID_SKELETONCREATORPANEL = wxNewId();
 const long MoCapFrame::ID_MOTIONPLAYERPANEL = wxNewId();
@@ -137,6 +141,8 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
     BoxSizer1->Add(ButtonSkeleton, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonSensorDetail = new wxButton(Panel1, ID_BUTTONSENSORDETAIL, _("Sensor Info"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONSENSORDETAIL"));
     BoxSizer1->Add(ButtonSensorDetail, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
+    ButtonDataFlow = new wxButton(Panel1, ID_BUTTONDATAFLOW, _("Flow Diagram"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONDATAFLOW"));
+    BoxSizer1->Add(ButtonDataFlow, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
     ButtonVisual = new wxButton(Panel1, ID_BUTTONVISUAL, _("Motion Capture"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BUTTONVISUAL"));
     ButtonVisual->SetFocus();
     BoxSizer1->Add(ButtonVisual, 0, wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL, 5);
@@ -193,6 +199,7 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
 
     Connect(ID_BUTTONSKELETON,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonSkeletonClick);
     Connect(ID_BUTTONSENSORDETAIL,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonSensorDetailClick);
+    Connect(ID_BUTTONDATAFLOW,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonDataFlowClick);
     Connect(ID_BUTTONVISUAL,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonVisualClick);
     Connect(ID_BUTTONMOTIONPLAYER,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonMotionPlayerClick);
     Connect(ID_BUTTONPOSTPROCESS,wxEVT_COMMAND_BUTTON_CLICKED,(wxObjectEventFunction)&MoCapFrame::OnButtonPostProcessClick);
@@ -213,7 +220,6 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
 
     _logger = new wxLogWindow(this, _("Log"), false);
 
-
     _addressPeer.BroadcastAddress();
     _addressPeer.Service(5040);
     _addressLocal.Hostname(_("192.168.0.101"));//wxGetFullHostName());
@@ -222,6 +228,7 @@ MoCapFrame::MoCapFrame(wxWindow* parent,wxWindowID id)
 
     // TODO(JK#3#): maybe directly start the timer, allows GUI to react to whatever even when not connected
     _timer = new wxTimer(this, ID_TIMER);
+    _timer->Start(10);
     _counter = 0;
 
     Freeze();
@@ -412,15 +419,20 @@ void MoCapFrame::OnSocketEvent(wxSocketEvent& event)
 
 void MoCapFrame::OnTimerEvent(wxTimerEvent& event)
 {
+    /* now done in MoCapManager::update
     for (size_t i = 0; i < _receivers.size(); ++i)
     {
         if (!_receivers[i]->update())
         {
-            wxLogDebug(_("fail"));
+            wxLogDebug(_("failed to update receiver ") + _receivers[i]->getName());
             // TODO(JK#2#2017-06-01): what to do if update in receivers fails?
             // _receivers[i]->disconnect();
         }
     }
+    */
+
+    theMoCapManager.update();
+
     // send a dummy over the socket every second. Somehow this is needed to ensure we get socket events.
     ++_counter;
     /*
@@ -460,6 +472,20 @@ void MoCapFrame::OnButtonSensorDetailClick(wxCommandEvent& event)
     Thaw();
     Refresh();
     theMoCapManager.setState(SENSOR_INFO);
+}
+
+void MoCapFrame::OnButtonDataFlowClick(wxCommandEvent& event)
+{
+    Freeze();
+    DataPanel->Destroy();
+    DataPanel = new DataFlowPanel(MainPanel, ID_DATAFLOWPANEL);
+    DataPanelSizer->Add(DataPanel, 1, wxEXPAND, 5);
+    DataPanelSizer->Layout();
+    MainSizer->Layout();
+    Thaw();
+    Refresh();
+    theMoCapManager.setState(DATA_FLOW);
+    //theMoCapManager.setRenderStyle(HIGHLIGHT_SELECTED_BONE);
 }
 
 void MoCapFrame::OnButtonVisualClick(wxCommandEvent& event)
@@ -535,6 +561,20 @@ void MoCapFrame::OnButtonFullScreenClick(wxCommandEvent& event)
 
 void MoCapFrame::OnButtonConnectionClick(wxCommandEvent& event)
 {
+    /*
+    if (_connectionManagerPopup == nullptr)
+    {
+        _connectionManagerPopup = new PopupWindow<ConnectionManagerPanel>(this);
+    }
+    _connectionManagerPopup->setSize(500, 400);
+    _connectionManagerPopup->Center();
+    _connectionManagerPopup->Show();
+    */
+
+    ConnectionManagerDialog connectionDialog(this);
+    connectionDialog.ShowModal();
+    return;
+
     ConnectionDialog* dialog = new ConnectionDialog(this);
     dialog->setIP(_addressLocal.IPAddress());
     dialog->setPort(_addressLocal.Service());

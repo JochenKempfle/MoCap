@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxPanel" name="DataFlowPanel">
+		<bg>#575757</bg>
+		<id_arg>0</id_arg>
+		<handler function="OnPaint" entry="EVT_PAINT" />
+		<handler function="OnLeftDown" entry="EVT_LEFT_DOWN" />
+		<handler function="OnLeftUp" entry="EVT_LEFT_UP" />
+		<handler function="OnMouseMove" entry="EVT_MOTION" />
+		<handler function="OnMouseWheel" entry="EVT_MOUSEWHEEL" />
+		<handler function="OnResize" entry="EVT_SIZE" />
+	</object>
+</wxsmith>

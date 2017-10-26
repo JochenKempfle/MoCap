@@ -38,18 +38,23 @@ OF SUCH DAMAGE.
 
 class ReceiverKinect : public ReceiverBase
 {
+    DECLARE_RECEIVER(ReceiverKinect)
+
   public:
     ReceiverKinect();
     virtual ~ReceiverKinect();
 
     virtual std::string getName() const;
+    virtual std::string getInfo() const { return "TODO: What info to show here?"; }
 
-    virtual bool update();
+    virtual bool setup() { return true; }
 
-    virtual bool connect();
-    virtual void disconnect();
-    virtual bool isConnected();
+    virtual bool isConnected() const;
+
   protected:
+    virtual bool onUpdate();
+    virtual bool onConnect();
+    virtual void onDisconnect();
 
   private:
 

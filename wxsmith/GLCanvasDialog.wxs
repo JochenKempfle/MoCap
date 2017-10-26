@@ -3,6 +3,7 @@
 	<object class="wxDialog" name="GLCanvasDialog">
 		<title>Canvas Settings</title>
 		<centered>1</centered>
+		<size>400,400</size>
 		<pos_arg>1</pos_arg>
 		<size_arg>1</size_arg>
 		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
@@ -42,6 +43,28 @@
 				</object>
 				<flag>wxALL|wxEXPAND</flag>
 				<border>5</border>
+			</object>
+			<object class="sizeritem">
+				<object class="wxStaticBoxSizer" variable="StaticBoxSizer3" member="no">
+					<label>Draw Trace / Trace Length</label>
+					<object class="sizeritem">
+						<object class="wxCheckListBox" name="ID_CHECKLISTBOXTRACEBONES" variable="CheckListBoxTraceBones" member="yes" />
+						<flag>wxALL|wxEXPAND</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+					<object class="sizeritem">
+						<object class="wxSlider" name="ID_SLIDERTRACELENGTH" variable="SliderTraceLength" member="yes">
+							<max>1000</max>
+							<style>wxSL_LABELS|wxSL_TOP</style>
+						</object>
+						<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+				</object>
+				<flag>wxALL|wxEXPAND</flag>
+				<border>5</border>
 				<option>1</option>
 			</object>
 			<object class="sizeritem">
@@ -64,7 +87,7 @@
 						<border>5</border>
 					</object>
 				</object>
-				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL</flag>
+				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxFIXED_MINSIZE</flag>
 				<border>5</border>
 			</object>
 		</object>

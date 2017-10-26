@@ -76,13 +76,7 @@ ScrolledContainerPanel::~ScrolledContainerPanel()
 void ScrolledContainerPanel::add(wxPanel* panel)
 {
     BoxSizer2->Add(panel, 0, wxALL|wxEXPAND, 5);
-	BoxSizer2->Fit(ScrolledWindow);
-	BoxSizer2->SetSizeHints(ScrolledWindow);
-
-	BoxSizer1->Fit(this);
-	BoxSizer1->SetSizeHints(this);
-	Refresh();
-	// ScrolledWindow->AdjustScrollbars();
+    layout();
 }
 
 void ScrolledContainerPanel::add(std::vector<wxPanel*> panels)
@@ -91,10 +85,21 @@ void ScrolledContainerPanel::add(std::vector<wxPanel*> panels)
     {
         BoxSizer2->Add(panels[i], 0, wxALL|wxEXPAND, 5);
     }
+    layout();
+}
+
+void ScrolledContainerPanel::remove(wxWindow* window)
+{
+    BoxSizer2->Detach(window);
+    // window->Destroy();
+    // BoxSizer2->Layout();
+}
+
+void ScrolledContainerPanel::layout()
+{
 	BoxSizer2->Fit(ScrolledWindow);
 	BoxSizer2->SetSizeHints(ScrolledWindow);
 	BoxSizer1->Fit(this);
 	BoxSizer1->SetSizeHints(this);
 	Refresh();
 }
-

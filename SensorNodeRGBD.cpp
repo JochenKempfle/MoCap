@@ -48,7 +48,15 @@ SensorNodeRGBD::~SensorNodeRGBD()
 
 void SensorNodeRGBD::onUpdate(SensorData* data)
 {
-    updateBuffers(data, getId());
+
+    SensorDataOrientation dataOrientation(data);
+    _rotation = dataOrientation.getOrientation();
+    /*
+    wxString msg;
+    msg << _("SensorNodeRGBD:   ") << dataOrientation.getOrientation().u() << _(" ") << dataOrientation.getOrientation().x() << _(" ") << dataOrientation.getOrientation().y() << _(" ") << dataOrientation.getOrientation().z() << _(" ");
+    wxLogDebug(msg);
+    */
+    updateBuffers(data);
     /*
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
@@ -82,18 +90,7 @@ void SensorNodeRGBD::applyCalibration(SensorData* data)
 
 Quaternion SensorNodeRGBD::getCalRotation() const
 {
-    // Quaternion x(1.0, 0.0, 0.0, M_PI*90.0/180.0);
-    // Quaternion offset = _rotationOffset * _mapping;
-    // return offset * _rotation * offset.inv();
-    Quaternion q = _rotationOffset * _rotation;
-    return /*_boneMapping */ q * _boneMapping;
-//    return _boneMapping * _rotationOffset.inv() * _rotation;// * _rotationOffset;
-}
-
-
-Vector3 SensorNodeRGBD::toEuler() const
-{
-    return _rotation.toEuler();
+    return _rotation;
 }
 
 

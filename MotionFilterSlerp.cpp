@@ -61,6 +61,7 @@ void MotionFilterSlerp::update()
         _prevData.clear();
         _prevData.resize(_buffers.size(), SensorDataOrientation());
     }
+
     for (size_t i = 0; i < _buffers.size(); ++i)
     {
         SensorBuffer* buffer = _buffers[i];
@@ -89,18 +90,9 @@ void MotionFilterSlerp::update()
 
         SensorDataOrientation data;
         // apply sensor model
+
         buffer->lock();
-        try
-        {
-            data = dynamic_cast<SensorDataOrientation&>(buffer->front());
-        }
-        catch (const std::bad_cast &e)
-        {
-            // Cast failed -> no orientation data present
-            wxLogDebug(e.what());
-            buffer->unlock();
-            continue;
-        }
+        data = buffer->front();
         buffer->unlock();
 
         sensor->applyCalibration(&data);
@@ -124,18 +116,9 @@ void MotionFilterSlerp::update()
             --bufferSize;
 
             buffer->lock();
-            try
-            {
-                data = dynamic_cast<SensorDataOrientation&>(buffer->front());
-            }
-            catch (const std::bad_cast &e)
-            {
-                // Cast failed -> no orientation data present
-                wxLogDebug(e.what());
-                buffer->unlock();
-                continue;
-            }
+            data = buffer->front();
             buffer->unlock();
+
             uint64_t dataTime = sensor->getStartTime() + uint64_t(data.getTimestamp());
 
             sensor->applyCalibration(&data);
@@ -157,9 +140,9 @@ void MotionFilterSlerp::update()
             {
                 _prevData[i] = data;
 
-                buffer->lock();
+                // buffer->lock();
                 buffer->pop_front();
-                buffer->unlock();
+                // buffer->unlock();
                 continue;
             }
             else

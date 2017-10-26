@@ -52,7 +52,7 @@ END_EVENT_TABLE()
 SensorDataPanel::SensorDataPanel(wxWindow* parent,wxWindowID id,const wxPoint& pos,const wxSize& size)
 {
 	//(*Initialize(SensorDataPanel)
-	Create(parent, wxID_ANY, wxDefaultPosition, wxSize(90,40), wxNO_BORDER|wxTAB_TRAVERSAL, _T("wxID_ANY"));
+	Create(parent, id, wxDefaultPosition, wxSize(90,40), wxNO_BORDER|wxTAB_TRAVERSAL, _T("id"));
 
 	Connect(wxEVT_PAINT,(wxObjectEventFunction)&SensorDataPanel::OnPaint);
 	Connect(wxEVT_LEFT_DOWN,(wxObjectEventFunction)&SensorDataPanel::OnLeftDown);
@@ -91,6 +91,14 @@ void SensorDataPanel::update(const SensorNode* sensor)
     if (_dataExtPopup != nullptr && _dataExtPopup->IsShownOnScreen())
     {
         _dataExtPopup->getPanel()->update();
+    }
+    else
+    {
+        if (_dataExtPopup != nullptr)
+        {
+            _dataExtPopup->Destroy();
+            _dataExtPopup = nullptr;
+        }
     }
 }
 
@@ -194,7 +202,7 @@ void SensorDataPanel::OnRightDown(wxMouseEvent& event)
     SetFocus();
     if (_dataExtPopup == nullptr)//) || !_dataExtPopup->IsOK())
     {
-        _dataExtPopup = new PopupWindow<SensorDataExtPanel>(this);
+        _dataExtPopup = new PopupTransientWindow<SensorDataExtPanel>(this);
         _dataExtPopup->getPanel()->setSensor(theSensorManager.getSensor(_sensorId));
     }
     _dataExtPopup->Position(ClientToScreen(event.GetPosition()), wxSize(0, 0));

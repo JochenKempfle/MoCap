@@ -33,11 +33,15 @@ OF SUCH DAMAGE.
 #include "SensorNodeIMURaw.h"
 #include "SensorNodeIMU.h"
 
+#include "wx_pch.h"
 #include <wx/wfstream.h>
 #include <wx/stdstream.h>
 #include <wx/txtstrm.h>
 #include <wx/tokenzr.h>
 #include <wx/filename.h>
+
+
+REGISTER_RECEIVER("File Receiver", ReceiverFile)
 
 ReceiverFile::ReceiverFile()
 {
@@ -45,6 +49,7 @@ ReceiverFile::ReceiverFile()
     _pos = 0;
     _startTime = -1;
     _time = 0;
+    setThreaded();
 }
 
 ReceiverFile::ReceiverFile(wxString filename) : _filename(filename)
@@ -66,14 +71,16 @@ ReceiverFile::~ReceiverFile()
 //---------------------------------------------------------------------------------------------------
 // Definitions
 
-#define sampleFreq	20.0f		// sample frequency in Hz
+#define sampleFreqDef	50.0f		// sample frequency in Hz
 #define betaDef		0.4f		// 2 * proportional gain
 
 //---------------------------------------------------------------------------------------------------
 // Variable definitions
 
+volatile float sampleFreq = sampleFreqDef;
 volatile float beta = betaDef;								// 2 * proportional gain (Kp)
 volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;	// quaternion of sensor frame relative to auxiliary frame
+volatile unsigned int numIterations = 4;
 
 // Fast inverse square-root
 // See: http://en.wikipedia.org/wiki/Fast_inverse_square_root
@@ -187,8 +194,104 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 }
 
 // -----------------------------------------------------------------------------------------------------------------------------------------
+#include <wx/numdlg.h> // temporary include, remove!
+bool ReceiverFile::setup()
+{
+    // temporary code to convert multiple IMU data files to files containing Madgwick filtered quaternions (uncomment to activate)
+    /*
+    long sampleFreqUser = wxGetNumberFromUser(_("Enter Madgwick sample frequency"), _("Frequency in Hz"), _("Number"), 200, 1, 10000);
+    if (sampleFreqUser == -1)
+    {
+        return false;
+    }
+    long numIterationsUser = wxGetNumberFromUser(_("Enter Madgwick iterations"), _("Number of iterations"), _("Number"), 4, 1, 100);
+    if (numIterationsUser == -1)
+    {
+        return false;
+    }
+    long betaUser = wxGetNumberFromUser(_("Enter Madgwick beta (in form of beta*1000)"), _("Beta in range (0, 1) * 1000"), _("Number"), 200, 1, 1000);
+    if (betaUser == -1)
+    {
+        return false;
+    }
 
-bool ReceiverFile::update()
+    sampleFreq = sampleFreqUser;
+    numIterations = numIterationsUser;
+    beta = float(betaUser) / 1000.0f;
+
+    // show a file dialog to prompt the user for the files
+    wxFileDialog* multiFileDialog = new wxFileDialog(nullptr, _("Open file"), _(""), _(""), _("csv files (*.csv)|*.csv"), wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE);
+    if (multiFileDialog->ShowModal() == wxID_CANCEL)
+    {
+        multiFileDialog->Destroy();
+        return false;
+    }
+
+    wxArrayString paths;
+    multiFileDialog->GetPaths(paths);
+
+    multiFileDialog->Destroy();
+
+    for (size_t i = 0; i < paths.size(); ++i)
+    {
+        _filename = paths[i];
+        if (connect())
+        {
+            wxFFileInputStream input(_filename);
+            wxTextInputStream textIn(input);
+
+            wxString newFilename = _filename.BeforeLast('.') + _("_Quaternion.csv");
+
+            wxFFileOutputStream output(newFilename);
+            wxTextOutputStream textOut(output);
+
+            if (!input.IsOk() || input.Eof())
+            {
+                continue;
+            }
+
+            // consume first line
+            wxString nextLine = textIn.ReadLine();
+            textOut << nextLine << _(";q0;q1;q2;q3\n");
+
+            size_t j = 0;
+            while (input.IsOk() && !input.Eof() && j < _data.size())
+            {
+                Vector3 acc = _data[j].getAcceleration();
+                Vector3 gyro = _data[j].getGyroscope();
+                Vector3 magnet = _data[j].getMagnetometer();
+                for (unsigned int k = 0; k < numIterations; ++k)
+                {
+                    MadgwickAHRSupdate(-acc.x(), -acc.y(), acc.z(), -gyro.x(), -gyro.y(), gyro.z(), -magnet.x(), -magnet.y(), -magnet.z());
+                }
+                ++j;
+
+                wxString nextLine = textIn.ReadLine();
+                nextLine << _(";") << q0 << _(";") << q1 << _(";") << q2 << _(";") << q3 << _("\n");
+                textOut << nextLine;
+            }
+        }
+    }
+    // end of temporary code, return false to avoid further data processing
+    return false;
+    */
+
+    // show a file dialog to prompt the user for a file
+    wxFileDialog* fileDialog = new wxFileDialog(nullptr, _("Open file"), _(""), _(""), _("csv files (*.csv)|*.csv"), wxFD_OPEN|wxFD_FILE_MUST_EXIST);
+    if (fileDialog->ShowModal() == wxID_CANCEL)
+    {
+        fileDialog->Destroy();
+        return false;
+    }
+
+    _filename = fileDialog->GetPath();
+
+    fileDialog->Destroy();
+
+    return true;
+}
+
+bool ReceiverFile::onUpdate()
 {
     if (_data.size() == 0)
     {
@@ -230,7 +333,7 @@ bool ReceiverFile::update()
     return true;
 }
 
-bool ReceiverFile::connect()
+bool ReceiverFile::onConnect()
 {
     if (_filename.length() == 0 || !wxFileExists(_filename))
     {
@@ -257,10 +360,20 @@ bool ReceiverFile::connect()
 
     while (input.IsOk() && !input.Eof())
     {
-        tokenizer.SetString(textIn.ReadLine(), _(" ,\r\t\n"));
+        tokenizer.SetString(textIn.ReadLine(), _(" ,;\r\t\n"), wxTOKEN_STRTOK);
         int i = 0;
         int j = 0;
         Vector3 acc, gyro, magnet;
+
+        if (tokenizer.CountTokens() == 10)
+        {
+            wxString token = tokenizer.GetNextToken();
+            double val;
+            if (token.ToDouble(&val))
+            {
+                // consume
+            }
+        }
         while (tokenizer.HasMoreTokens())
         {
             wxString token = tokenizer.GetNextToken();
@@ -298,7 +411,11 @@ bool ReceiverFile::connect()
             wxLogDebug(msg);
             */
 
-            _data.push_back(SensorDataIMURaw(acc * ratio_acc, gyro * ratio_gyro, magnet * ratio_mag));
+            acc *= ratio_acc;
+            gyro *= ratio_gyro;
+            magnet *= ratio_mag;
+
+            _data.push_back(SensorDataIMURaw(acc, gyro, magnet));
         }
     }
     _pos = 0;
@@ -306,12 +423,12 @@ bool ReceiverFile::connect()
     return true;
 }
 
-void ReceiverFile::disconnect()
+void ReceiverFile::onDisconnect()
 {
     _data.clear();
 }
 
-bool ReceiverFile::isConnected()
+bool ReceiverFile::isConnected() const
 {
     return (_data.size() > 0);
 }

@@ -40,25 +40,30 @@ OF SUCH DAMAGE.
 
 class ReceiverUDP : public ReceiverBase
 {
+    DECLARE_RECEIVER(ReceiverUDP)
+
   public:
-    ReceiverUDP() = delete;
+    ReceiverUDP();
     ReceiverUDP(wxString hostname, unsigned short service);
     virtual ~ReceiverUDP();
 
     virtual std::string getName() const;
+    virtual std::string getInfo() const;
 
-    virtual bool update();
+    virtual bool setup();
 
-    virtual bool connect();
-    virtual void disconnect();
-    virtual bool isConnected();
+    virtual bool isConnected() const;
 
     // set the address of the socket, when currently connected, this will take only effect after disconnecting and connecting again
     void setAddress(wxString hostname, unsigned short service);
-    wxString getHostname() const;
+    // wxString getHostname() const;
+    wxString getIPAddress() const;
     unsigned short getService() const;
 
   protected:
+    bool onUpdate();
+    bool onConnect();
+    void onDisconnect();
 
   private:
     Quaternion getQuaternion(unsigned char* pBuffer) const;

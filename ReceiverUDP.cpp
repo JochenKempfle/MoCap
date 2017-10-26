@@ -31,20 +31,23 @@ OF SUCH DAMAGE.
 #include "SensorData.h"
 #include "SensorManager.h"
 #include "SensorNodeIMU.h"
+#include "ConnectionDialog.h"
 
-/*
+
+REGISTER_RECEIVER("UDP Receiver", ReceiverUDP)
+
 ReceiverUDP::ReceiverUDP()
 {
-    //ctor
-
+    // initialize receiver with convenient standard values (at least convenient for the developer ;) )
     _addressPeer.BroadcastAddress();
     _addressPeer.Service(5040);
-    _addressLocal.Hostname(_("192.168.0.102"));//wxGetFullHostName());
+    _addressLocal.Hostname(_("192.168.0.101"));//wxGetFullHostName());
     _addressLocal.Service(5040);
+
+    setThreaded();
 
     _socket = nullptr;
 }
-*/
 
 ReceiverUDP::ReceiverUDP(wxString hostname, unsigned short service)
 {
@@ -58,8 +61,6 @@ ReceiverUDP::ReceiverUDP(wxString hostname, unsigned short service)
 
 ReceiverUDP::~ReceiverUDP()
 {
-    //dtor
-
     if (_socket != nullptr)
     {
         _socket->Destroy();
@@ -72,7 +73,35 @@ std::string ReceiverUDP::getName() const
     return "ReceiverUDP";
 }
 
-bool ReceiverUDP::update()
+std::string ReceiverUDP::getInfo() const
+{
+    return (_addressLocal.IPAddress() << _(" : ") << getService()).ToStdString();
+}
+
+bool ReceiverUDP::setup()
+{
+    ConnectionDialog* dialog = new ConnectionDialog(nullptr);
+    dialog->setIP(_addressLocal.IPAddress());
+    dialog->setPort(_addressLocal.Service());
+
+    if (dialog->ShowModal() == wxID_OK)
+    {
+        _addressLocal.Hostname(dialog->getIP());
+        _addressLocal.Service(dialog->getPort());
+        _addressPeer.BroadcastAddress();
+        _addressPeer.Service(dialog->getPort());
+
+        dialog->Destroy();
+    }
+    else
+    {
+        dialog->Destroy();
+        return false;
+    }
+    return true;
+}
+
+bool ReceiverUDP::onUpdate()
 {
     if (_socket == nullptr || !_socket->IsOk())
     {
@@ -188,7 +217,7 @@ bool ReceiverUDP::update()
     return true;
 }
 
-bool ReceiverUDP::connect()
+bool ReceiverUDP::onConnect()
 {
     // check if there is already a socket allocated
     if (_socket != nullptr)
@@ -207,7 +236,7 @@ bool ReceiverUDP::connect()
     return true;
 }
 
-void ReceiverUDP::disconnect()
+void ReceiverUDP::onDisconnect()
 {
     if (_socket != nullptr)
     {
@@ -216,7 +245,7 @@ void ReceiverUDP::disconnect()
     }
 }
 
-bool ReceiverUDP::isConnected()
+bool ReceiverUDP::isConnected() const
 {
     return _socket != nullptr;
 }
@@ -229,9 +258,9 @@ void ReceiverUDP::setAddress(wxString hostname, unsigned short service)
     _addressLocal.Service(service);
 }
 
-wxString ReceiverUDP::getHostname() const
+wxString ReceiverUDP::getIPAddress() const
 {
-    return _addressLocal.Hostname();
+    return _addressLocal.IPAddress();
 }
 
 unsigned short ReceiverUDP::getService() const

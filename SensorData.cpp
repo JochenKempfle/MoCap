@@ -28,6 +28,8 @@ OF SUCH DAMAGE.
 
 
 #include "SensorData.h"
+#include "SensorDataFactory.h"
+
 
 SensorData::SensorData()
 {
@@ -39,17 +41,51 @@ SensorData::SensorData(unsigned int timestamp/*, uint64_t receiveTime, int dataT
 
 }
 
+SensorData::SensorData(const SensorData &other) : _timestamp(other._timestamp)//, _receiveTime(receiveTime), _dataType(dataType)
+{
+
+}
+
 SensorData::~SensorData()
 {
     //dtor
 }
 
+
+
+// register sensors
+REGISTER_SENSOR_DATA_TYPE("Orientation", SensorDataOrientation)
+REGISTER_SENSOR_DATA_TYPE("Position", SensorDataPosition)
+REGISTER_SENSOR_DATA_TYPE("Acceleration", SensorDataAcceleration)
+REGISTER_SENSOR_DATA_TYPE("Gyroscope", SensorDataGyroscope)
+REGISTER_SENSOR_DATA_TYPE("Magnetometer", SensorDataMagnetometer)
+/*
+REGISTER_SENSOR_DATA_TYPE("Height", SensorDataHeight)
+REGISTER_SENSOR_DATA_TYPE("Distance", SensorDataDistance)
+REGISTER_SENSOR_DATA_TYPE("RGB", SensorDataImageRGB)
+REGISTER_SENSOR_DATA_TYPE("RGB-D", SensorDataImageDepth)
+REGISTER_SENSOR_DATA_TYPE("PointCloud", SensorDataPointCloud)
+*/
+
+// "pure" sensor data type implementations
 SensorDataOrientation::SensorDataOrientation()
 {
 
 }
 
-SensorDataOrientation::SensorDataOrientation(const SensorDataOrientation &other) : _orientation(other._orientation)
+SensorDataOrientation::SensorDataOrientation(const SensorData* data) : SensorData(*data),
+        _orientation(dynamic_cast<const SensorDataOrientation*>(data) == nullptr ? Quaternion() : dynamic_cast<const SensorDataOrientation*>(data)->_orientation)
+{
+
+}
+
+SensorDataOrientation::SensorDataOrientation(const SensorData& data) : SensorData(data),
+        _orientation(dynamic_cast<const SensorDataOrientation*>(&data) == nullptr ? Quaternion() : dynamic_cast<const SensorDataOrientation*>(&data)->_orientation)
+{
+
+}
+
+SensorDataOrientation::SensorDataOrientation(const SensorDataOrientation &other) : SensorData(other), _orientation(other._orientation)
 {
 
 }
@@ -64,7 +100,19 @@ SensorDataPosition::SensorDataPosition()
 
 }
 
-SensorDataPosition::SensorDataPosition(const SensorDataPosition &other) : _position(other._position)
+SensorDataPosition::SensorDataPosition(const SensorData* data) : SensorData(*data),
+        _position(dynamic_cast<const SensorDataPosition*>(data) == nullptr ? Vector3() : dynamic_cast<const SensorDataPosition*>(data)->_position)
+{
+
+}
+
+SensorDataPosition::SensorDataPosition(const SensorData& data) : SensorData(data),
+        _position(dynamic_cast<const SensorDataPosition*>(&data) == nullptr ? Vector3() : dynamic_cast<const SensorDataPosition*>(&data)->_position)
+{
+
+}
+
+SensorDataPosition::SensorDataPosition(const SensorDataPosition &other) : SensorData(other), _position(other._position)
 {
 
 }
@@ -79,7 +127,19 @@ SensorDataAcceleration::SensorDataAcceleration()
 
 }
 
-SensorDataAcceleration::SensorDataAcceleration(const SensorDataAcceleration &other) : _acceleration(other._acceleration)
+SensorDataAcceleration::SensorDataAcceleration(const SensorData* data) : SensorData(*data),
+        _acceleration(dynamic_cast<const SensorDataAcceleration*>(data) == nullptr ? Vector3() : dynamic_cast<const SensorDataAcceleration*>(data)->_acceleration)
+{
+
+}
+
+SensorDataAcceleration::SensorDataAcceleration(const SensorData &data) : SensorData(data),
+        _acceleration(dynamic_cast<const SensorDataAcceleration*>(&data) == nullptr ? Vector3() : dynamic_cast<const SensorDataAcceleration*>(&data)->_acceleration)
+{
+
+}
+
+SensorDataAcceleration::SensorDataAcceleration(const SensorDataAcceleration &other) : SensorData(other), _acceleration(other._acceleration)
 {
 
 }
@@ -94,7 +154,19 @@ SensorDataGyroscope::SensorDataGyroscope()
 
 }
 
-SensorDataGyroscope::SensorDataGyroscope(const SensorDataGyroscope &other) : _gyroscope(other._gyroscope)
+SensorDataGyroscope::SensorDataGyroscope(const SensorData* data) : SensorData(*data),
+        _gyroscope(dynamic_cast<const SensorDataGyroscope*>(data) == nullptr ? Vector3() : dynamic_cast<const SensorDataGyroscope*>(data)->_gyroscope)
+{
+
+}
+
+SensorDataGyroscope::SensorDataGyroscope(const SensorData &data) : SensorData(data),
+        _gyroscope(dynamic_cast<const SensorDataGyroscope*>(&data) == nullptr ? Vector3() : dynamic_cast<const SensorDataGyroscope*>(&data)->_gyroscope)
+{
+
+}
+
+SensorDataGyroscope::SensorDataGyroscope(const SensorDataGyroscope &other) : SensorData(other), _gyroscope(other._gyroscope)
 {
 
 }
@@ -109,7 +181,19 @@ SensorDataMagnetometer::SensorDataMagnetometer()
 
 }
 
-SensorDataMagnetometer::SensorDataMagnetometer(const SensorDataMagnetometer &other) : _magnetometer(other._magnetometer)
+SensorDataMagnetometer::SensorDataMagnetometer(const SensorData* data) : SensorData(*data),
+        _magnetometer(dynamic_cast<const SensorDataMagnetometer*>(data) == nullptr ? Vector3() : dynamic_cast<const SensorDataMagnetometer*>(data)->_magnetometer)
+{
+
+}
+
+SensorDataMagnetometer::SensorDataMagnetometer(const SensorData &data) : SensorData(data),
+        _magnetometer(dynamic_cast<const SensorDataMagnetometer*>(&data) == nullptr ? Vector3() : dynamic_cast<const SensorDataMagnetometer*>(&data)->_magnetometer)
+{
+
+}
+
+SensorDataMagnetometer::SensorDataMagnetometer(const SensorDataMagnetometer &other) : SensorData(other), _magnetometer(other._magnetometer)
 {
 
 }
@@ -118,3 +202,4 @@ SensorDataMagnetometer::SensorDataMagnetometer(const Vector3 &magnet) : _magneto
 {
 
 }
+

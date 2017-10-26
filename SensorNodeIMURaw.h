@@ -43,6 +43,7 @@ OF SUCH DAMAGE.
 
 class SensorNodeIMURaw : public SensorNode
 {
+    // TODO(JK#1#2017-09-18): implement SensorNodeIMURaw
   public:
     SensorNodeIMURaw();
     SensorNodeIMURaw(int id, std::string name);
@@ -54,6 +55,7 @@ class SensorNodeIMURaw : public SensorNode
 
     virtual Quaternion getCalRotation() const { return Quaternion(); }
 
+    SensorDataType getOutputDataType() const { return SensorDataOrientation::getType(); }
   protected:
     virtual void onUpdate(SensorData* data);
 

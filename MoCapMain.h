@@ -82,6 +82,7 @@ class MoCapFrame: public wxFrame
         void OnMainPanelKeyDown(wxKeyEvent& event);
         void OnButtonMotionPlayerClick(wxCommandEvent& event);
         void OnButtonLogClick(wxCommandEvent& event);
+        void OnButtonDataFlowClick(wxCommandEvent& event);
         //*)
 
         // socket event handler
@@ -92,6 +93,7 @@ class MoCapFrame: public wxFrame
         //(*Identifiers(MoCapFrame)
         static const long ID_BUTTONSKELETON;
         static const long ID_BUTTONSENSORDETAIL;
+        static const long ID_BUTTONDATAFLOW;
         static const long ID_BUTTONVISUAL;
         static const long ID_BUTTONMOTIONPLAYER;
         static const long ID_BUTTONPOSTPROCESS;
@@ -108,6 +110,7 @@ class MoCapFrame: public wxFrame
         //*)
 
         static const long ID_VIEWPANEL;
+        static const long ID_DATAFLOWPANEL;
         static const long ID_SENSORDETAILPANEL;
         static const long ID_SKELETONCREATORPANEL;
         static const long ID_MOTIONPLAYERPANEL;
@@ -127,6 +130,7 @@ class MoCapFrame: public wxFrame
         wxBoxSizer* DataPanelSizer;
         wxButton* ButtonDisconnect;
         wxPanel* MainPanel;
+        wxButton* ButtonDataFlow;
         wxButton* ButtonSensorDetail;
         wxPanel* Panel2;
         wxButton* ButtonFullScreen;
@@ -138,6 +142,7 @@ class MoCapFrame: public wxFrame
         wxTimer* _timer;
         int _counter;
 
+        // TODO(JK#2#2017-09-28): remove socket and IP addresses from MoCapMain (is solved in UDP receiver)
         wxIPV4address _addressPeer;
         wxIPV4address _addressLocal;
         wxDatagramSocket* _socket;

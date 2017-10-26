@@ -62,7 +62,6 @@ class SensorManager
 
     void resetAllSensorStatesUpdated();
     void setSensorStateCalibrated(int id, bool calibrated = true);
-    void setSensorStateHasBone(int id, bool hasBone = true);
 
     void setSynchronizing(bool sync = true);
 

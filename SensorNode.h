@@ -45,7 +45,8 @@ enum SensorState
     NONE = 0,
     UPDATED = 1,
     HAS_BONE = 2,
-    CALIBRATED = 4
+    CALIBRATED = 4,
+    INTERMEDIATE = 8
     // TODO(JK#5#): add appropriate states (done?)
 };
 
@@ -72,12 +73,13 @@ class SensorNode : public DataProvider
     unsigned char getState() const { return _state; }
 
     void setUpdated(bool value = true) { _state = (value ? _state | SensorState::UPDATED : _state & ~SensorState::UPDATED); }
-    void setHasBone(bool value = true) { _state = (value ? _state | SensorState::HAS_BONE : _state & ~SensorState::HAS_BONE); }
+    // void setHasBone(bool value = true) { _state = (value ? _state | SensorState::HAS_BONE : _state & ~SensorState::HAS_BONE); }
     void setCalibrated(bool value = true) { _state = (value ? _state | SensorState::CALIBRATED : _state & ~SensorState::CALIBRATED); }
+    void setIntermediate(bool value = true) { _state = (value ? _state | SensorState::INTERMEDIATE : _state & ~SensorState::INTERMEDIATE); }
 
     // TODO(JK#4#): handle SensorState somehow else, depending on member variables (i.e. buffer size, _boneId > 0 etc.)
     //bool isUpdated() const { return _state & SensorState::UPDATED ? true : false; }
-    bool hasBone() const { return _state & SensorState::HAS_BONE ? true : false; }
+    bool hasBone() const { return _boneId >= 0; }
     bool isCalibrated() const { return _state & SensorState::CALIBRATED ? true : false; }
 
     void setRotation(const Quaternion &rotation) { _rotation = rotation; }
@@ -114,12 +116,15 @@ class SensorNode : public DataProvider
     int _boneId;
     // std::vector<SensorBuffer*> _buffers;
 
+    // TODO(JK#1#2017-10-20): intermediate sensor nodes require source info (source sensor IDs)
+
+    // TODO(JK#1#2017-07-04): get rid of sensor rotation!
+    Quaternion _rotation;
+
   private:
     int _id;
     unsigned char _state;
     std::string _name;
-    // TODO(JK#1#2017-07-04): get rid of sensor rotation!
-    Quaternion _rotation;
 
     // the global start time in ms
     uint64_t _startTime;

@@ -31,24 +31,73 @@ OF SUCH DAMAGE.
 #define RECEIVERBASE_H
 
 #include <string>
+#include <vector>
+#include <utility>
+#include <wx/thread.h>
 
-class ReceiverBase
+
+class ReceiverBase : public wxThreadHelper
 {
   public:
     ReceiverBase();
     virtual ~ReceiverBase();
 
     virtual std::string getName() const = 0;
+    virtual std::string getInfo() const = 0;
 
-    virtual bool update() = 0;
+    void setThreaded(bool threaded = true);
+    bool isThreaded() const { return _threaded; }
 
-    virtual bool connect() = 0;
-    virtual void disconnect() = 0;
-    virtual bool isConnected() = 0;
+    virtual bool setup() = 0;
+    bool update();
+
+    virtual bool connect();
+    virtual void disconnect();
+    virtual bool isConnected() const = 0;
 
   protected:
+    virtual wxThread::ExitCode Entry();
+
+    virtual bool onUpdate() = 0;
+    virtual bool onConnect() = 0;
+    virtual void onDisconnect() = 0;
 
   private:
+    volatile bool _running;
+    volatile bool _updated;
+    bool _threaded;
 };
+
+
+typedef ReceiverBase* (*CreateRecvFunc)();
+
+class ReceiverFactory
+{
+  public:
+    static size_t getNumReceivers();
+    static std::string getReceiverName(unsigned int type);
+
+    static ReceiverBase* createReceiver(unsigned int type);
+
+    static const int registerReceiver(std::string name, CreateRecvFunc func);
+
+  protected:
+    ReceiverFactory();
+
+    static ReceiverFactory* getInstance();
+    static ReceiverFactory* _instance;
+
+    std::vector<std::pair<std::string, CreateRecvFunc> > _receiverList;
+};
+
+// maybe use instead of the #define mixin the curiously recurring template pattern (with abstract base class)
+#define DECLARE_RECEIVER(RECEIVER_CLASS) \
+  public: \
+    static ReceiverBase* createSelf() { return new RECEIVER_CLASS(); } \
+    static const int getTypeId() { return _receiverTypeId; } \
+    static const int _receiverTypeId;
+
+#define REGISTER_RECEIVER(RECEIVER_NAME, RECEIVER_CLASS) \
+    const int RECEIVER_CLASS::_receiverTypeId = ReceiverFactory::registerReceiver(RECEIVER_NAME, RECEIVER_CLASS::createSelf);
 
 #endif // RECEIVERBASE_H

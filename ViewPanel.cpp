@@ -189,8 +189,8 @@ void ViewPanel::OnUpdateEvent(wxEvent& event)
     // tell the mocap manager to update itself
     if (_simulationStarted)
     {
-        // TODO(JK#5#2017-05-24): theMocapManager.update() does nothing, so remove it?
-        theMoCapManager.update();
+        // TODO(JK#1#2017-05-24): theMocapManager.update() may be called in ViewPanel (currently in MoCapMain)
+        // theMoCapManager.update();
         glCanvas->Refresh();
     }
     ++_counter;

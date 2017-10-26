@@ -45,6 +45,7 @@ class MotionFilterBase : public wxThreadHelper
 
     virtual std::string getName() const = 0;
     virtual void update() = 0;
+
     void setSensors(std::vector<SensorNode*> sensors);
     void setSkeleton(Skeleton* skeleton);
     void setFrameTime(float frameTime);

@@ -78,6 +78,8 @@ GLCanvas::GLCanvas(wxWindow* parent, wxWindowID id, const wxPoint &pos, const wx
     _showUI = false;
     _backgroundColor = wxColour(0, 0, 0);
     _lineWidth = 1.0f;
+    _traceLength = 0;
+    _tracePos = 0;
     _lClicked = false;
     _rClicked = false;
     _skeleton = nullptr;
@@ -235,11 +237,33 @@ void GLCanvas::OnLeftDown(wxMouseEvent &event)
             GLCanvasDialog dialog(this);
             dialog.setBackgroundColor(_backgroundColor);
             dialog.setLineWidth(_lineWidth);
+
+            dialog.setSkeleton(_skeleton);
+            dialog.setTraceLength(_traceLength);
+
+            std::vector<int> boneIds;
+            for (auto it = _boneIdsWithTracePoints.begin(); it != _boneIdsWithTracePoints.end(); ++it)
+            {
+                boneIds.push_back(it->first);
+            }
+            dialog.setBonesWithTrace(boneIds);
+
             if (dialog.ShowModal() == wxID_OK)
             {
                 _backgroundColor = dialog.getBackgroundColor();
                 glClearColor(float(_backgroundColor.Red())/255.0f, float(_backgroundColor.Green())/255.0f, float(_backgroundColor.Blue())/255.0f, 0.0);
                 _lineWidth = dialog.getLineWidth();
+
+                _traceLength = dialog.getTraceLength();
+                _tracePos = 0;
+
+                _boneIdsWithTracePoints.clear();
+                boneIds = dialog.getBonesWithTrace();
+                for (size_t i = 0; i < boneIds.size(); ++i)
+                {
+                    _boneIdsWithTracePoints[boneIds[i]] = std::vector<Vector3>();
+                }
+
                 Refresh();
             }
         }
@@ -426,7 +450,7 @@ void GLCanvas::OnMouseCaptureLost(wxMouseCaptureLostEvent& event)
     Refresh();
 }
 
-void GLCanvas::renderSkeleton() const
+void GLCanvas::renderSkeleton()
 {
     Vector3 lookAt = _cameraPosition + _cameraFront;
     gluLookAt(_cameraPosition.x(), _cameraPosition.y(), _cameraPosition.z(),
@@ -537,7 +561,7 @@ void GLCanvas::renderSkeleton() const
             glBegin(GL_LINES);
                 glColor4ubv(yellow);
 
-                glVertex3f(- rotAxis.x()*0.2f, - rotAxis.y()*0.2f, - rotAxis.z()*0.2f);
+                glVertex3f(-rotAxis.x()*0.2f, -rotAxis.y()*0.2f, -rotAxis.z()*0.2f);
                 glVertex3f(rotAxis.x()*0.2f, rotAxis.y()*0.2f, rotAxis.z()*0.2f);
             glEnd();
         }
@@ -611,6 +635,44 @@ void GLCanvas::renderSkeleton() const
             drawSpinArrows(endPos - 0.2 * bone.getLength() * dir, dir, up, right);
         }
         glPopMatrix();
+
+        // append trace point and draw trace
+        if (_traceLength > 0)
+        {
+            Vector3 globalEndPos = bone.getEndPos();
+            std::map<int, std::vector<Vector3> >::iterator traceIt = _boneIdsWithTracePoints.find(boneId);
+            if (traceIt != _boneIdsWithTracePoints.end())
+            {
+                if (traceIt->second.size() < _traceLength)
+                {
+                    traceIt->second.push_back(globalEndPos);
+                }
+                else
+                {
+                    traceIt->second[_tracePos] = globalEndPos;
+                }
+
+                glBegin(GL_LINES);
+                    glColor4ubv(yellow);
+
+                    for (size_t i = 0; i < traceIt->second.size() - 1; ++i)
+                    {
+                        if (i != _tracePos)
+                        {
+                            glVertex3f(traceIt->second[i].x(), traceIt->second[i].y(), traceIt->second[i].z());
+                            glVertex3f(traceIt->second[i+1].x(), traceIt->second[i+1].y(), traceIt->second[i+1].z());
+                        }
+                    }
+                    // draw gab between end and beginning of the vector data
+                    if (traceIt->second.size() > 1 && _tracePos != traceIt->second.size() - 1)
+                    {
+                        glVertex3f(traceIt->second.back().x(), traceIt->second.back().y(), traceIt->second.back().z());
+                        glVertex3f(traceIt->second[0].x(), traceIt->second[0].y(), traceIt->second[0].z());
+                    }
+
+                glEnd();
+            }
+        }
     }
 
     // draw joints (after everything else, as they are transparent and need everything else be rendered)
@@ -630,6 +692,12 @@ void GLCanvas::renderSkeleton() const
 
             glPopMatrix();
         }
+    }
+
+    // update trace position
+    if (++_tracePos >= _traceLength)
+    {
+        _tracePos = 0;
     }
 
     if (!(_style & SELECTION_MODE) && _style & DRAW_AABB)
@@ -1084,6 +1152,11 @@ void GLCanvas::setSkeleton(Skeleton* skeleton)
 
         _labels[it->first] = image;
     }
+}
+
+const Skeleton* GLCanvas::getSkeleton()
+{
+    return _skeleton;
 }
 
 void GLCanvas::drawUserInterface(wxDC &dc) const

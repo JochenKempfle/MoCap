@@ -660,16 +660,19 @@ void SkeletonCreatorPanel::OnButtonAddBoneClick(wxCommandEvent& event)
     Bone newBone;
     newBone.setName("new bone");
     newBone.setLength(0.5f);
+    newBone.setDefaultOrientation(bone->getDefaultOrientation());
+    Skeleton* skeleton = theMoCapManager.getSkeleton();
     if (bone != nullptr)
     {
-        id = theMoCapManager.getSkeleton()->createBone(newBone, bone->getId());
+        id = skeleton->createBone(newBone, bone->getId());
     }
     else
     {
-        id = theMoCapManager.getSkeleton()->createBone(newBone, theMoCapManager.getSkeleton()->getRootId());
+        id = skeleton->createBone(newBone, theMoCapManager.getSkeleton()->getRootId());
     }
-    theMoCapManager.getSkeleton()->update();
+    skeleton->update();
     selectBone(id);
+
     updateTreeCtrlSkeleton();
     updateBoneInfo();
     Refresh();

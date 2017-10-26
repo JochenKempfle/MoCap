@@ -71,7 +71,6 @@ SensorNode::~SensorNode()
 void SensorNode::setBoneId(int boneId)
 {
     _boneId = boneId;
-    setHasBone(boneId >= 0);
 }
 
 void SensorNode::update(SensorData* data, uint64_t receiveTime)
@@ -89,6 +88,7 @@ void SensorNode::update(SensorData* data, uint64_t receiveTime)
     }
     _buffer.insert(it, data);
     */
+    // TODO(JK#1#2017-10-26): sensor restart does not get detected for UDP!
 
     // adjust the start time
     if (_synchronizing)
@@ -115,7 +115,7 @@ void SensorNode::update(SensorData* data, uint64_t receiveTime)
     // TODO(JK#1#2017-07-12): In SensorNode: guess frame time and delay without having a buffer
 
     // check if the sensor was offline in the meantime and restarted from the beginning
-    if (data->getTimestamp() < 0.5f * _currentTimeStamp)
+    if (data->getTimestamp() < 0.75f * _currentTimeStamp)
     {
         _startTime = receiveTime - data->getTimestamp();
         _numReceivedPackets = 0;
